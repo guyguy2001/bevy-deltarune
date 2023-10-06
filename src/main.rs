@@ -5,8 +5,10 @@ use bevy_inspector_egui::InspectorOptions;
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use pig::PigPlugin;
+use ui::GameUI;
 
 mod pig;
+mod ui;
 
 
 #[derive(Component, InspectorOptions, Default, Reflect)]
@@ -31,6 +33,7 @@ fn main() {
                     ..default()
                 }),
         )
+        .add_plugins(GameUI)
         .add_plugins(PigPlugin)
         .add_plugins(
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
@@ -75,7 +78,7 @@ fn character_movement(
     time: Res<Time>,
 ) {
     for (mut transform, player) in &mut characters {
-        let movement_amount = player.speed * time.delta_seconds();
+        let movement_amount = player.speed * time.delta_seconds(); 
 
         if input.pressed(KeyCode::W) {
             transform.translation.y += movement_amount;
