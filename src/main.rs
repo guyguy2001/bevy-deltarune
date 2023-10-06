@@ -32,9 +32,9 @@ fn main() {
                 }),
         )
         .add_plugins(PigPlugin)
-        // .add_plugins(
-        //     WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
-        // )
+        .add_plugins(
+            WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
+        )
         .insert_resource(Money(100.0))
         .add_systems(Startup, (setup_camera, setup_player))
         .add_systems(Update, character_movement)

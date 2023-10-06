@@ -1,0 +1,11 @@
+
+[build]
+# linker = "x86_64-w64-mingw32-gcc"
+# ar = "x86_64-w64-mingw32-gcc-ar"
+rustflags = [
+    # "-LE:\\Programs\\mingw64\\lib"
+    # "-LE:\\Programs\\mingw64\\x86_64-w64-mingw32\\include"
+    # "-LE:\\Programs\\mingw64"
+    "-LE:\\Programs\\mingw64\\x86_64-w64-mingw32\\lib"
+    # "-LC:\\Users\\User\\scoop\\apps\\zig\\0.10.1\\lib\\libc\\mingw\\lib32"
+]
