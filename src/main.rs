@@ -4,12 +4,22 @@ use bevy::{
 use bevy_inspector_egui::InspectorOptions;
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use menu::MenuUI;
 use pig::PigPlugin;
 use ui::GameUI;
 
 mod pig;
 mod ui;
+mod menu;
 
+
+#[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
+pub enum AppState {
+    #[default]
+    ActionMenu,
+    Attacking,
+    Defending,
+}
 
 #[derive(Component, InspectorOptions, Default, Reflect)]
 #[reflect(Component, InspectorOptions)]
@@ -33,11 +43,13 @@ fn main() {
                     ..default()
                 }),
         )
+        .add_state::<AppState>()
         .add_plugins(GameUI)
         .add_plugins(PigPlugin)
         .add_plugins(
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         )
+        .add_plugins(MenuUI)
         .insert_resource(Money(100.0))
         .add_systems(Startup, (setup_camera, setup_player))
         .add_systems(Update, character_movement)
