@@ -11,7 +11,7 @@ use ui::GameUI;
 mod pig;
 mod ui;
 mod menu;
-
+mod utils;
 
 #[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
 pub enum AppState {
@@ -68,6 +68,13 @@ fn setup_camera(mut commands: Commands) {
 }
 
 fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let mut i = utils::data_structures::Index::new(4, 0);
+    println!("before: {}", i.index);
+    i.add(-3);
+    println!("-3: {}", i.index);
+    i.add(2);
+    println!("+2: {}", i.index);
+
     let texture = asset_server.load("character.png");
 
     commands.spawn((
