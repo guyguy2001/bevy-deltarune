@@ -1,16 +1,16 @@
 use bevy::{
     input::common_conditions::input_toggle_active, prelude::*, render::camera::ScalingMode,
 };
-use bevy_inspector_egui::InspectorOptions;
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_inspector_egui::InspectorOptions;
 use menu::MenuUI;
 use pig::PigPlugin;
 use ui::GameUI;
 
+mod menu;
 mod pig;
 mod ui;
-mod menu;
 mod utils;
 
 #[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
@@ -68,13 +68,6 @@ fn setup_camera(mut commands: Commands) {
 }
 
 fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let mut i = utils::data_structures::Index::new(4, 0);
-    println!("before: {}", i.index);
-    i.add(-3);
-    println!("-3: {}", i.index);
-    i.add(2);
-    println!("+2: {}", i.index);
-
     let texture = asset_server.load("character.png");
 
     commands.spawn((
@@ -97,7 +90,7 @@ fn character_movement(
     time: Res<Time>,
 ) {
     for (mut transform, player) in &mut characters {
-        let movement_amount = player.speed * time.delta_seconds(); 
+        let movement_amount = player.speed * time.delta_seconds();
 
         if input.pressed(KeyCode::W) {
             transform.translation.y += movement_amount;
