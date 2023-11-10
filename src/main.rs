@@ -47,7 +47,7 @@ fn main() {
         .add_plugins(GameUI)
         .add_plugins(PigPlugin)
         .add_plugins(
-            WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
+            WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
         )
         .add_plugins(MenuUI)
         .insert_resource(Money(100.0))
