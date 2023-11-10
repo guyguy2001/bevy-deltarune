@@ -8,9 +8,11 @@ pub struct MenuUI;
 impl Plugin for MenuUI {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_menu_ui)
-            .add_systems(Update, select_action);
+            .add_systems(Update, (select_action, activate_action));
     }
 }
+
+type MenuCallback = fn(String);
 
 #[derive(Component)]
 pub struct MultiChoiceParent {
@@ -18,7 +20,10 @@ pub struct MultiChoiceParent {
 }
 
 #[derive(Component)]
-pub struct MultiChoiceButton;
+pub struct MultiChoiceButton {
+    text: String,
+    callback: MenuCallback,
+}
 
 #[derive(Component, PartialEq, Eq, strum_macros::EnumIter, strum_macros::Display)]
 enum Buttons {
@@ -27,6 +32,13 @@ enum Buttons {
     ITEMS,
     RUN,
 }
+
+const MENU_ITEMS: [(Buttons, MenuCallback); 4] = [
+    (Buttons::ATTACK, not_supported),
+    (Buttons::ACT, not_supported),
+    (Buttons::ITEMS, not_supported),
+    (Buttons::RUN, not_supported),
+];
 
 fn spawn_menu_ui(mut commands: Commands) {
     commands
@@ -52,7 +64,7 @@ fn spawn_menu_ui(mut commands: Commands) {
             Name::new("UI Root"),
         ))
         .with_children(|commands| {
-            for button in Buttons::iter() {
+            for (name, callback) in MENU_ITEMS.iter() {
                 commands
                     .spawn((
                         NodeBundle {
@@ -64,19 +76,22 @@ fn spawn_menu_ui(mut commands: Commands) {
                                 justify_content: JustifyContent::Center,
                                 ..default()
                             },
-                            border_color: if button == Buttons::ATTACK {
+                            border_color: if *name == Buttons::ATTACK {
                                 Color::GREEN.into()
                             } else {
                                 Color::BLACK.into()
                             },
                             ..default()
                         },
-                        MultiChoiceButton,
+                        MultiChoiceButton {
+                            text: name.to_string(),
+                            callback: *callback,
+                        },
                     ))
                     .with_children(|commands| {
                         commands.spawn((TextBundle {
                             text: Text::from_section(
-                                button.to_string(),
+                                name.to_string(),
                                 TextStyle {
                                     font_size: 32.0,
                                     ..default()
@@ -130,4 +145,24 @@ fn select_action(
     } else if input.just_pressed(KeyCode::Left) {
         change_selection(&mut multi_choice_parent, &mut buttons_query, &children, -1);
     }
+}
+
+fn activate_action(
+    mut parent: Query<(&Children, &mut MultiChoiceParent)>,
+    buttons_query: Query<&MultiChoiceButton>,
+    input: Res<Input<KeyCode>>,
+) {
+    if input.just_pressed(KeyCode::Space) || input.just_pressed(KeyCode::Return) {
+        let (children, multi_choice) = parent.single_mut();
+        // TODO: This would have been simpler if I could just say multi_choice_parent.get_selected_child()
+        // Maybe a helper function would do that? maybe a custom query?
+        let selected = buttons_query
+            .get(*children.get(multi_choice.selected.index).unwrap())
+            .unwrap();
+        (selected.callback)(selected.text.clone());
+    }
+}
+
+fn not_supported(button_text: String) {
+    warn!("{} is not supported yet!", button_text);
 }

@@ -1,3 +1,4 @@
+#![allow(unused)]
 use bevy::prelude::*;
 
 use crate::{Money, Player};
@@ -6,9 +7,9 @@ pub struct PigPlugin;
 
 impl Plugin for PigPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_pig_parent)
-            .add_systems(Update, (spawn_pig, pig_lifetime))
-            .register_type::<Pig>();
+        // app.add_systems(Startup, spawn_pig_parent)
+        //     .add_systems(Update, (spawn_pig, pig_lifetime))
+        //     .register_type::<Pig>();
     }
 }
 
