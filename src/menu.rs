@@ -112,6 +112,14 @@ fn activate(button: &mut BorderColor) {
     (*button).0 = Color::GREEN;
 }
 
+fn get_selected_child(multi_choice_parent: &Mut<MultiChoiceParent>, children: &Children) -> Entity {
+    // The unwrap is safe if and only if multi_choice_parent was defined to handle the given children.
+    return children
+        .get(multi_choice_parent.selected.index)
+        .unwrap()
+        .clone(); // TODO: Make sure cloning is safe; I'm pretty sure it is, as it also derives Copy
+}
+
 fn change_selection(
     multi_choice_parent: &mut Mut<MultiChoiceParent>,
     buttons: &mut Query<&mut BorderColor, With<MultiChoiceButton>>,
@@ -120,16 +128,15 @@ fn change_selection(
 ) {
     deactivate(
         &mut buttons
-            .get_mut(*children.get(multi_choice_parent.selected.index).unwrap())
+            .get_mut(get_selected_child(multi_choice_parent, children))
             .unwrap(),
     );
 
     multi_choice_parent.selected.add(change_amount);
-    println!("selected: {:?}", multi_choice_parent.selected);
 
     activate(
         &mut buttons
-            .get_mut(*children.get(multi_choice_parent.selected.index).unwrap())
+            .get_mut(get_selected_child(multi_choice_parent, children))
             .unwrap(),
     );
 }
@@ -157,7 +164,7 @@ fn activate_action(
         // TODO: This would have been simpler if I could just say multi_choice_parent.get_selected_child()
         // Maybe a helper function would do that? maybe a custom query?
         let selected = buttons_query
-            .get(*children.get(multi_choice.selected.index).unwrap())
+            .get(get_selected_child(&multi_choice, children))
             .unwrap();
         (selected.callback)(selected.text.clone());
     }
