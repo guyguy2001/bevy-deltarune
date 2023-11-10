@@ -34,7 +34,7 @@ enum Buttons {
 }
 
 const MENU_ITEMS: [(Buttons, MenuCallback); 4] = [
-    (Buttons::ATTACK, not_supported),
+    (Buttons::ATTACK, spawn_attack_menu),
     (Buttons::ACT, not_supported),
     (Buttons::ITEMS, not_supported),
     (Buttons::RUN, not_supported),
@@ -172,4 +172,11 @@ fn activate_action(
 
 fn not_supported(button_text: String) {
     warn!("{} is not supported yet!", button_text);
+}
+
+fn spawn_attack_menu(text: String) {
+    // How do I change the game state from here? Do I need a reference to the world?
+    // Check in the tutorial how he changes the states (probably from a query)
+    // Does it make sense that the system knows what the callbacks might influence?
+    info!("todo - spawn {} menu", text);
 }
