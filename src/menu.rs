@@ -59,7 +59,7 @@ fn spawn_menu_ui(mut commands: Commands) {
                 ..default()
             },
             MultiChoiceParent {
-                selected: Index::new(4, 0),
+                selected: Index::new(MENU_ITEMS.len(), 0),
             },
             Name::new("UI Root"),
         ))
