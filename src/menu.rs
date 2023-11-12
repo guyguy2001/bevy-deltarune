@@ -1,14 +1,21 @@
 use bevy::prelude::*;
 use strum::IntoEnumIterator;
 
-use crate::utils::data_structures::Index;
+use crate::{utils::data_structures::Index, AppState};
 
 pub struct MenuUI;
 
 impl Plugin for MenuUI {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_menu_ui)
-            .add_systems(Update, (select_action, activate_action));
+        app.add_event::<MenuItemSelected>()
+            .add_systems(Startup, spawn_menu_ui)
+            .add_systems(
+                Update,
+                (select_action, activate_action, spawn_attack_menu)
+                    .run_if(in_state(AppState::ActionMenu)),
+            )
+            .add_systems(OnEnter(AppState::ActionMenu), show_menu)
+            .add_systems(OnExit(AppState::ActionMenu), hide_menu);
     }
 }
 
@@ -21,11 +28,12 @@ pub struct MultiChoiceParent {
 
 #[derive(Component)]
 pub struct MultiChoiceButton {
-    text: String,
-    callback: MenuCallback,
+    button: Buttons,
 }
 
-#[derive(Component, PartialEq, Eq, strum_macros::EnumIter, strum_macros::Display)]
+#[derive(
+    Component, Clone, Copy, Event, PartialEq, Eq, strum_macros::EnumIter, strum_macros::Display,
+)]
 enum Buttons {
     ATTACK,
     ACT,
@@ -33,11 +41,16 @@ enum Buttons {
     RUN,
 }
 
-const MENU_ITEMS: [(Buttons, MenuCallback); 4] = [
-    (Buttons::ATTACK, spawn_attack_menu),
-    (Buttons::ACT, not_supported),
-    (Buttons::ITEMS, not_supported),
-    (Buttons::RUN, not_supported),
+#[derive(Event)]
+pub struct MenuItemSelected {
+    button: Buttons,
+}
+
+const MENU_ITEMS: [Buttons; 4] = [
+    (Buttons::ATTACK),
+    (Buttons::ACT),
+    (Buttons::ITEMS),
+    (Buttons::RUN),
 ];
 
 fn spawn_menu_ui(mut commands: Commands) {
@@ -64,7 +77,7 @@ fn spawn_menu_ui(mut commands: Commands) {
             Name::new("UI Root"),
         ))
         .with_children(|commands| {
-            for (name, callback) in MENU_ITEMS.iter() {
+            for button in MENU_ITEMS.iter() {
                 commands
                     .spawn((
                         NodeBundle {
@@ -76,22 +89,19 @@ fn spawn_menu_ui(mut commands: Commands) {
                                 justify_content: JustifyContent::Center,
                                 ..default()
                             },
-                            border_color: if *name == Buttons::ATTACK {
+                            border_color: if *button == Buttons::ATTACK {
                                 Color::GREEN.into()
                             } else {
                                 Color::BLACK.into()
                             },
                             ..default()
                         },
-                        MultiChoiceButton {
-                            text: name.to_string(),
-                            callback: *callback,
-                        },
+                        MultiChoiceButton { button: *button },
                     ))
                     .with_children(|commands| {
                         commands.spawn((TextBundle {
                             text: Text::from_section(
-                                name.to_string(),
+                                button.to_string(),
                                 TextStyle {
                                     font_size: 32.0,
                                     ..default()
@@ -158,6 +168,7 @@ fn activate_action(
     mut parent: Query<(&Children, &mut MultiChoiceParent)>,
     buttons_query: Query<&MultiChoiceButton>,
     input: Res<Input<KeyCode>>,
+    mut action_occurred_writer: EventWriter<MenuItemSelected>,
 ) {
     if input.just_pressed(KeyCode::Space) || input.just_pressed(KeyCode::Return) {
         let (children, multi_choice) = parent.single_mut();
@@ -166,17 +177,29 @@ fn activate_action(
         let selected = buttons_query
             .get(get_selected_child(&multi_choice, children))
             .unwrap();
-        (selected.callback)(selected.text.clone());
+        action_occurred_writer.send(MenuItemSelected {
+            button: selected.button,
+        });
     }
 }
 
-fn not_supported(button_text: String) {
-    warn!("{} is not supported yet!", button_text);
+fn spawn_attack_menu(
+    mut action_occurred_reader: EventReader<MenuItemSelected>,
+    mut app_state: ResMut<NextState<AppState>>,
+) {
+    for event in action_occurred_reader.iter() {
+        if event.button == Buttons::ATTACK {
+            app_state.set(AppState::Defending);
+        }
+    }
 }
 
-fn spawn_attack_menu(text: String) {
-    // How do I change the game state from here? Do I need a reference to the world?
-    // Check in the tutorial how he changes the states (probably from a query)
-    // Does it make sense that the system knows what the callbacks might influence?
-    info!("todo - spawn {} menu", text);
+fn hide_menu(mut menu_query: Query<&mut Visibility, With<MultiChoiceParent>>) {
+    let mut menu_visibility = menu_query.single_mut();
+    *menu_visibility = Visibility::Hidden;
+}
+
+fn show_menu(mut menu_query: Query<&mut Visibility, With<MultiChoiceParent>>) {
+    let mut menu_visibility = menu_query.single_mut();
+    *menu_visibility = Visibility::Visible;
 }
