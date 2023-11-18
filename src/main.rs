@@ -1,15 +1,13 @@
 use bevy::{
     input::common_conditions::input_toggle_active, prelude::*, render::camera::ScalingMode,
 };
-use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_inspector_egui::InspectorOptions;
+use bullet_hell::{bullet::BulletsPlugin, player::PlayerPlugin};
 use menu::MenuUI;
-use pig::PigPlugin;
 use ui::GameUI;
 
+mod bullet_hell;
 mod menu;
-mod pig;
 mod ui;
 mod utils;
 
@@ -21,14 +19,15 @@ pub enum AppState {
     Defending,
 }
 
-#[derive(Component, InspectorOptions, Default, Reflect)]
-#[reflect(Component, InspectorOptions)]
-pub struct Player {
-    #[inspector(min = 0.0)]
-    pub speed: f32,
-}
-
 fn main() {
+    let mut x = 3;
+    let mut y = 5;
+    let mut z = &mut x;
+    *z = 1;
+    z = &mut y;
+    *z = 2;
+    println!("{}, {}", x, y);
+
     App::new()
         .add_plugins(
             DefaultPlugins
@@ -44,15 +43,13 @@ fn main() {
                 }),
         )
         .add_state::<AppState>()
-        .add_plugins(GameUI)
-        .add_plugins(PigPlugin)
+        .add_plugins((GameUI, BulletsPlugin, PlayerPlugin))
         .add_plugins(
             WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
         )
         .add_plugins(MenuUI)
         .insert_resource(Money(100.0))
-        .add_systems(Startup, (setup_camera, setup_player))
-        .add_systems(Update, character_movement)
+        .add_systems(Startup, setup_camera)
         .run();
 }
 
@@ -65,46 +62,6 @@ fn setup_camera(mut commands: Commands) {
     };
 
     commands.spawn((camera, Name::new("Camera")));
-}
-
-fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let texture = asset_server.load("character.png");
-
-    commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(40.0, 40.0)),
-                ..default()
-            },
-            texture,
-            ..default()
-        },
-        Player { speed: 100.0 },
-        Name::new("Player"),
-    ));
-}
-
-fn character_movement(
-    mut characters: Query<(&mut Transform, &Player)>,
-    input: Res<Input<KeyCode>>,
-    time: Res<Time>,
-) {
-    for (mut transform, player) in &mut characters {
-        let movement_amount = player.speed * time.delta_seconds();
-
-        if input.pressed(KeyCode::W) {
-            transform.translation.y += movement_amount;
-        }
-        if input.pressed(KeyCode::S) {
-            transform.translation.y -= movement_amount;
-        }
-        if input.pressed(KeyCode::D) {
-            transform.translation.x += movement_amount;
-        }
-        if input.pressed(KeyCode::A) {
-            transform.translation.x -= movement_amount;
-        }
-    }
 }
 
 #[derive(Resource)]
