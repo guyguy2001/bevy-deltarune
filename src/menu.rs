@@ -1,5 +1,4 @@
-use bevy::prelude::*;
-use strum::IntoEnumIterator;
+use bevy::{ecs::system::SystemParam, prelude::*};
 
 use crate::{utils::data_structures::Index, AppState};
 
@@ -18,8 +17,6 @@ impl Plugin for MenuUI {
             .add_systems(OnExit(AppState::ActionMenu), hide_menu);
     }
 }
-
-type MenuCallback = fn(String);
 
 #[derive(Component)]
 pub struct MultiChoiceParent {
@@ -114,71 +111,82 @@ fn spawn_menu_ui(mut commands: Commands) {
         });
 }
 
-fn deactivate(button: &mut BorderColor) {
-    (*button).0 = Color::BLACK;
+fn deactivate(mut button: Mut<BorderColor>) {
+    button.0 = Color::BLACK;
 }
 
-fn activate(button: &mut BorderColor) {
-    (*button).0 = Color::GREEN;
+fn activate(mut button: Mut<BorderColor>) {
+    button.0 = Color::GREEN;
 }
 
-fn get_selected_child(multi_choice_parent: &Mut<MultiChoiceParent>, children: &Children) -> Entity {
-    // The unwrap is safe if and only if multi_choice_parent was defined to handle the given children.
-    return children
-        .get(multi_choice_parent.selected.index)
-        .unwrap()
-        .clone(); // TODO: Make sure cloning is safe; I'm pretty sure it is, as it also derives Copy
+#[derive(SystemParam)]
+struct MultiChoiceItem<'w, 's, T: Component> {
+    parent: Query<'w, 's, (&'static Children, &'static mut MultiChoiceParent)>,
+    children: Query<'w, 's, &'static mut T, With<MultiChoiceButton>>,
 }
 
-fn change_selection(
-    multi_choice_parent: &mut Mut<MultiChoiceParent>,
-    buttons: &mut Query<&mut BorderColor, With<MultiChoiceButton>>,
-    children: &Children,
-    change_amount: i8,
-) {
-    deactivate(
-        &mut buttons
-            .get_mut(get_selected_child(multi_choice_parent, children))
-            .unwrap(),
-    );
+impl<'w, 's, T: Component> MultiChoiceItem<'w, 's, T> {
+    fn get_selected_child(&self) -> &T {
+        let (children_component, multi_choice_parent) = self.parent.get_single().unwrap();
 
-    multi_choice_parent.selected.add(change_amount);
+        // The unwrap is safe if and only if multi_choice_parent was defined to handle the given children.
+        return self
+            .children
+            .get(
+                *(children_component
+                    .get(multi_choice_parent.selected.index)
+                    .unwrap()),
+            )
+            .unwrap();
+    }
 
-    activate(
-        &mut buttons
-            .get_mut(get_selected_child(multi_choice_parent, children))
-            .unwrap(),
-    );
+    fn get_selected_child_mut(&mut self) -> Mut<T> {
+        let (children_component, multi_choice_parent) = self.parent.get_single().unwrap();
+
+        // The unwrap is safe if and only if multi_choice_parent was defined to handle the given children.
+        return self
+            .children
+            .get_mut(
+                *(children_component
+                    .get(multi_choice_parent.selected.index)
+                    .unwrap()),
+            )
+            .unwrap();
+    }
+
+    fn get_multi_choice_parent_mut(&mut self) -> Mut<MultiChoiceParent> {
+        let (_, multi_choice_parent) = self.parent.get_single_mut().unwrap();
+        multi_choice_parent
+    }
 }
 
-fn select_action(
-    mut parent: Query<(Entity, &Children, &mut MultiChoiceParent)>,
-    mut buttons_query: Query<&mut BorderColor, With<MultiChoiceButton>>,
-    input: Res<Input<KeyCode>>,
-) {
-    let (_, children, mut multi_choice_parent) = parent.get_single_mut().unwrap();
+fn change_selection(mut multi_choice_item: MultiChoiceItem<BorderColor>, change_amount: i8) {
+    deactivate(multi_choice_item.get_selected_child_mut());
+
+    multi_choice_item
+        .get_multi_choice_parent_mut()
+        .selected
+        .add(change_amount);
+
+    activate(multi_choice_item.get_selected_child_mut());
+}
+
+fn select_action(component_query: MultiChoiceItem<BorderColor>, input: Res<Input<KeyCode>>) {
     if input.just_pressed(KeyCode::Right) {
-        change_selection(&mut multi_choice_parent, &mut buttons_query, &children, 1);
+        change_selection(component_query, 1);
     } else if input.just_pressed(KeyCode::Left) {
-        change_selection(&mut multi_choice_parent, &mut buttons_query, &children, -1);
+        change_selection(component_query, -1);
     }
 }
 
 fn activate_action(
-    mut parent: Query<(&Children, &mut MultiChoiceParent)>,
-    buttons_query: Query<&MultiChoiceButton>,
+    multi_choice_item: MultiChoiceItem<MultiChoiceButton>,
     input: Res<Input<KeyCode>>,
     mut action_occurred_writer: EventWriter<MenuItemSelected>,
 ) {
     if input.just_pressed(KeyCode::Space) || input.just_pressed(KeyCode::Return) {
-        let (children, multi_choice) = parent.single_mut();
-        // TODO: This would have been simpler if I could just say multi_choice_parent.get_selected_child()
-        // Maybe a helper function would do that? maybe a custom query?
-        let selected = buttons_query
-            .get(get_selected_child(&multi_choice, children))
-            .unwrap();
         action_occurred_writer.send(MenuItemSelected {
-            button: selected.button,
+            button: multi_choice_item.get_selected_child().button, // TODO: I want the MultiChoiceButton :(
         });
     }
 }
