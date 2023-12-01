@@ -20,14 +20,6 @@ pub enum AppState {
 }
 
 fn main() {
-    let mut x = 3;
-    let mut y = 5;
-    let mut z = &mut x;
-    *z = 1;
-    z = &mut y;
-    *z = 2;
-    println!("{}, {}", x, y);
-
     App::new()
         .add_plugins(
             DefaultPlugins
