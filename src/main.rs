@@ -2,13 +2,14 @@ use bevy::{
     input::common_conditions::input_toggle_active, prelude::*, render::camera::ScalingMode,
 };
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bullet_hell::{bullet::BulletsPlugin, player::PlayerPlugin};
+// use bevy_inspector_egui_rapier::InspectableRapierPlugin;
+use bevy_rapier2d::prelude::*;
+
+use bullet_hell::BulletHellPlugin;
 use menu::MenuUI;
-use ui::GameUI;
 
 mod bullet_hell;
 mod menu;
-mod ui;
 mod utils;
 
 #[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
@@ -34,8 +35,14 @@ fn main() {
                     ..default()
                 }),
         )
+        .add_plugins(RapierDebugRenderPlugin {
+            mode: DebugRenderMode::all(),
+            ..Default::default()
+        })
+        // .add_plugins(InspectableRapierPlugin)
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_state::<AppState>()
-        .add_plugins((GameUI, BulletsPlugin, PlayerPlugin))
+        .add_plugins(BulletHellPlugin)
         .add_plugins(
             WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
         )

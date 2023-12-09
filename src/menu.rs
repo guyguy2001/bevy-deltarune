@@ -195,7 +195,7 @@ fn spawn_attack_menu(
     mut action_occurred_reader: EventReader<MenuItemSelected>,
     mut app_state: ResMut<NextState<AppState>>,
 ) {
-    for event in action_occurred_reader.iter() {
+    for event in action_occurred_reader.read() {
         if event.button == Buttons::ATTACK {
             app_state.set(AppState::Defending);
         }

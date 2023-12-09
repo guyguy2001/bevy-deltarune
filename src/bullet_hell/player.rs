@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
+use bevy_rapier2d::prelude::*;
 
 use crate::AppState;
 
@@ -22,11 +23,11 @@ pub struct Player {
 }
 fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     let texture = asset_server.load("character.png");
-
+    let sprite_size = 7.5;
     commands.spawn((
         SpriteBundle {
             sprite: Sprite {
-                custom_size: Some(Vec2::new(40.0, 40.0)),
+                custom_size: Some(Vec2::new(sprite_size, sprite_size)),
                 ..default()
             },
             texture,
@@ -34,28 +35,39 @@ fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         Player { speed: 100.0 },
         Name::new("Player"),
+        (
+            ActiveEvents::COLLISION_EVENTS,
+            ActiveCollisionTypes::all(),
+            Collider::cuboid(sprite_size / 2.0, sprite_size / 2.0),
+            KinematicCharacterController {
+                filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
+                ..Default::default()
+            },
+            RigidBody::KinematicPositionBased,
+        ),
     ));
 }
 
 fn character_movement(
-    mut characters: Query<(&mut Transform, &Player)>,
+    mut characters: Query<(&mut KinematicCharacterController, &Player)>,
     input: Res<Input<KeyCode>>,
     time: Res<Time>,
 ) {
-    for (mut transform, player) in &mut characters {
+    for (mut controller, player) in &mut characters {
         let movement_amount = player.speed * time.delta_seconds();
-
+        let mut desired_direction = Vec2::ZERO;
         if input.pressed(KeyCode::W) || input.pressed(KeyCode::Up) {
-            transform.translation.y += movement_amount;
+            desired_direction += Vec2::Y * movement_amount;
         }
         if input.pressed(KeyCode::S) || input.pressed(KeyCode::Down) {
-            transform.translation.y -= movement_amount;
+            desired_direction += -Vec2::Y * movement_amount;
         }
         if input.pressed(KeyCode::D) || input.pressed(KeyCode::Right) {
-            transform.translation.x += movement_amount;
+            desired_direction += Vec2::X * movement_amount;
         }
         if input.pressed(KeyCode::A) || input.pressed(KeyCode::Left) {
-            transform.translation.x -= movement_amount;
+            desired_direction += -Vec2::X * movement_amount;
         }
+        controller.translation = Some(desired_direction.normalize() * movement_amount);
     }
 }

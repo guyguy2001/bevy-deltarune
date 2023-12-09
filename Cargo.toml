@@ -10,8 +10,13 @@ opt-level = 1
 [profile.dev.package."*"]
 opt-level = 3
 
+[profile.release]
+codegen-units = 1
+
 [dependencies]
 bevy = { version = "0.12", features = ["dynamic_linking"] }
 bevy-inspector-egui = "0.21"
+# bevy-inspector-egui-rapier = {version = "0.9", features = ["rapier2d"]}
+bevy_rapier2d = { version = "0.23.0", features = [ "simd-stable", "debug-render-2d"] }
 strum = "0.25"
 strum_macros = "0.25"
