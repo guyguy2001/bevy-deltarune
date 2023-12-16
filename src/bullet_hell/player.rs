@@ -68,6 +68,6 @@ fn character_movement(
         if input.pressed(KeyCode::A) || input.pressed(KeyCode::Left) {
             desired_direction += -Vec2::X * movement_amount;
         }
-        controller.translation = Some(desired_direction.normalize() * movement_amount);
+        controller.translation = Some(desired_direction.normalize_or_zero() * movement_amount);
     }
 }

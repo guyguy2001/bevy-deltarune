@@ -36,7 +36,7 @@ fn main() {
                 }),
         )
         .add_plugins(RapierDebugRenderPlugin {
-            mode: DebugRenderMode::all(),
+            mode: DebugRenderMode::empty(),
             ..Default::default()
         })
         // .add_plugins(InspectableRapierPlugin)

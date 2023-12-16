@@ -24,47 +24,53 @@ struct Bullet {
     pub direction: Vec3,
 }
 
-fn spawn_bullets_from_input(
-    commands: Commands,
-    asset_server: Res<AssetServer>,
-    input: Res<Input<KeyCode>>,
-) {
+fn spawn_bullets_from_input(mut commands: Commands, input: Res<Input<KeyCode>>) {
     if input.just_pressed(KeyCode::Space) {
-        spawn_bullets(commands, asset_server);
+        spawn_bullets(&mut commands);
     }
 }
 
-fn spawn_bullets(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn spawn_bullet_in_pos(position: Vec3, commands: &mut Commands) {
+    // TODO: Question - when do I receive asset_server as a parameter, and when do I get it from the world?
+    // TODO: ask for the asset_server inside of the commands queue, instead of directly here?
     let sprite_size = 16.0;
     let direction = Vec3::new(200.0, 0.0, 0.0);
-    commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(sprite_size, sprite_size)),
-                ..default()
-            },
-            texture: asset_server.load("pig.png"),
-            transform: Transform {
-                translation: Vec3::new(-50.0, 0.0, 0.0),
+    commands.add(move |world: &mut World| {
+        let asset_server = world.get_resource::<AssetServer>().unwrap(); // TODO: How do I not unwrap?
+        world.spawn((
+            SpriteBundle {
+                sprite: Sprite {
+                    custom_size: Some(Vec2::new(sprite_size, sprite_size)),
+                    ..default()
+                },
+                texture: asset_server.load("pig.png"),
+                transform: Transform {
+                    translation: position,
+                    ..Default::default()
+                },
                 ..Default::default()
             },
-            ..Default::default()
-        },
-        Bullet {
-            direction: direction,
-        },
-        (
-            ActiveEvents::COLLISION_EVENTS,
-            ActiveCollisionTypes::all(),
-            RigidBody::KinematicVelocityBased,
-            Velocity {
-                linvel: direction.xy(),
-                ..Default::default()
+            Bullet {
+                direction: direction,
             },
-            Collider::cuboid(sprite_size / 2.0, sprite_size / 2.0),
-            Sensor,
-        ),
-    ));
+            (
+                ActiveEvents::COLLISION_EVENTS,
+                ActiveCollisionTypes::all(),
+                RigidBody::KinematicVelocityBased,
+                Velocity {
+                    linvel: direction.xy(),
+                    ..Default::default()
+                },
+                Collider::cuboid(sprite_size / 2.0, sprite_size / 2.0),
+                Sensor,
+            ),
+        ));
+    });
+}
+
+fn spawn_bullets(commands: &mut Commands) {
+    //TODO: This isn't a system anymore, because of the &mut commands...
+    spawn_bullet_in_pos(Vec3::new(-50.0, 0.0, 0.0), commands);
 }
 
 fn player_collision(
