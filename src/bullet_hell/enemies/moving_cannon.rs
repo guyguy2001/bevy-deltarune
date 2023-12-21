@@ -3,7 +3,6 @@ use std::time::Duration;
 use bevy::prelude::*;
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
-use bevy_rapier2d::prelude::*;
 
 use crate::bullet_hell::bullet::spawn_bullet_in_pos;
 use crate::AppState;
