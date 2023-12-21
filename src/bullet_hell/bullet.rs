@@ -13,7 +13,7 @@ impl Plugin for BulletsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (spawn_bullets_from_input, player_collision).run_if(in_state(AppState::Defending)),
+            player_collision.run_if(in_state(AppState::Defending)),
         );
     }
 }
@@ -22,12 +22,6 @@ impl Plugin for BulletsPlugin {
 #[reflect(Component, InspectorOptions)]
 struct Bullet {
     pub direction: Vec3,
-}
-
-fn spawn_bullets_from_input(mut commands: Commands, input: Res<Input<KeyCode>>) {
-    if input.just_pressed(KeyCode::Space) {
-        spawn_bullets(&mut commands);
-    }
 }
 
 pub fn spawn_bullet_in_pos(position: Vec3, commands: &mut Commands) {
@@ -66,11 +60,6 @@ pub fn spawn_bullet_in_pos(position: Vec3, commands: &mut Commands) {
             ),
         ));
     });
-}
-
-fn spawn_bullets(commands: &mut Commands) {
-    //TODO: This isn't a system anymore, because of the &mut commands...
-    spawn_bullet_in_pos(Vec3::new(-50.0, 0.0, 0.0), commands);
 }
 
 fn player_collision(
