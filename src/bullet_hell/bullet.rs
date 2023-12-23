@@ -24,11 +24,11 @@ struct Bullet {
     pub direction: Vec3,
 }
 
-pub fn spawn_bullet_in_pos(position: Vec3, commands: &mut Commands) {
+pub fn spawn_bullet_in_pos(position: Vec3, direction: Vec3, commands: &mut Commands) {
     // TODO: Question - when do I receive asset_server as a parameter, and when do I get it from the world?
     // TODO: ask for the asset_server inside of the commands queue, instead of directly here?
     let sprite_size = 16.0;
-    let direction = Vec3::new(200.0, 0.0, 0.0);
+    let speed = 200.; // TODO: Parameterize
     commands.add(move |world: &mut World| {
         let asset_server = world.get_resource::<AssetServer>().unwrap(); // TODO: How do I not unwrap?
         world.spawn((
@@ -52,7 +52,7 @@ pub fn spawn_bullet_in_pos(position: Vec3, commands: &mut Commands) {
                 ActiveCollisionTypes::all(),
                 RigidBody::KinematicVelocityBased,
                 Velocity {
-                    linvel: direction.xy(),
+                    linvel: direction.xy().normalize() * speed,
                     ..Default::default()
                 },
                 Collider::cuboid(sprite_size / 2.0, sprite_size / 2.0),
