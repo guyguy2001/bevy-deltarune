@@ -5,6 +5,8 @@ use bevy_rapier2d::prelude::*;
 
 use crate::AppState;
 
+use super::healthbar::spawn_healthbar;
+
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
@@ -24,7 +26,7 @@ pub struct Player {
 fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     let texture = asset_server.load("character.png");
     let sprite_size = 7.5;
-    commands.spawn((
+    let player_commands = commands.spawn((
         SpriteBundle {
             sprite: Sprite {
                 custom_size: Some(Vec2::new(sprite_size, sprite_size)),
@@ -46,6 +48,8 @@ fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             RigidBody::KinematicPositionBased,
         ),
     ));
+    let player_entity = player_commands.id();
+    spawn_healthbar(&mut commands, player_entity);
 }
 
 fn character_movement(

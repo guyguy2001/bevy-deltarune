@@ -7,6 +7,7 @@ use bevy_rapier2d::prelude::*;
 
 use bullet_hell::BulletHellPlugin;
 use menu::MenuUI;
+use utils::world_ui::WorldUIPlugin;
 
 mod bullet_hell;
 mod menu;
@@ -42,6 +43,7 @@ fn main() {
         // .add_plugins(InspectableRapierPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_state::<AppState>()
+        .add_plugins(WorldUIPlugin)
         .add_plugins(BulletHellPlugin)
         .add_plugins(
             WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),

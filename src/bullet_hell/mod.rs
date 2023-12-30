@@ -9,6 +9,7 @@ mod enemies;
 
 mod arena;
 mod bullet;
+mod healthbar;
 mod player;
 
 pub struct BulletHellPlugin;
