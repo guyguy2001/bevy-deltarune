@@ -23,7 +23,9 @@ struct Health {
 }
 
 #[derive(Component)]
-struct Healthbar;
+struct Healthbar {
+    tracked_entity: Entity,
+}
 
 #[derive(Component)]
 struct GreenPart;
@@ -60,7 +62,9 @@ pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
                         border_color: Color::BLACK.into(),
                         ..default()
                     },
-                    Healthbar,
+                    Healthbar {
+                        tracked_entity: character_entity,
+                    },
                     Name::new("Healthbar"),
                 ))
                 .with_children(|commands| {
@@ -82,10 +86,10 @@ pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
 
 fn healthbar_behaviour(
     parent_query: Query<&Health>,
-    mut healthbar_query: Query<(&mut Style, &Parent), With<GreenPart>>,
+    mut healthbar_query: Query<(&mut Style, &Healthbar), With<GreenPart>>,
 ) {
-    for (mut style, parent) in healthbar_query.iter_mut() {
-        let parent_health = parent_query.get(parent.get()).unwrap();
+    for (mut style, healthbar) in healthbar_query.iter_mut() {
+        let parent_health = parent_query.get(healthbar.tracked_entity).unwrap();
         style.width = Val::Percent(100. * parent_health.health / parent_health.max_health);
     }
 }

@@ -66,7 +66,7 @@ fn player_collision(
     mut commands: Commands,
     mut contact_events: EventReader<CollisionEvent>,
     bullets: Query<(Entity, With<Bullet>)>,
-    players: Query<(Entity, With<Player>)>,
+    players: Query<((Entity, &mut Health), With<Player>)>,
 ) {
     for event in contact_events.read() {
         println!("{:?}", event);
