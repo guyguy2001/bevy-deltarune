@@ -5,14 +5,20 @@ use bevy_rapier2d::prelude::*;
 
 use crate::AppState;
 
-use super::healthbar::spawn_healthbar;
+use super::healthbar::{spawn_healthbar, Health};
+
+// TODO: Rename to GameWorldMovement?
+#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
+pub struct PlayerMovementSet;
 
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup_player).add_systems(
             Update,
-            character_movement.run_if(in_state(AppState::Defending)),
+            character_movement
+                .in_set(PlayerMovementSet)
+                .run_if(in_state(AppState::Defending)),
         );
     }
 }
@@ -23,6 +29,7 @@ pub struct Player {
     #[inspector(min = 0.0)]
     pub speed: f32,
 }
+
 fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     let texture = asset_server.load("character.png");
     let sprite_size = 7.5;
@@ -35,7 +42,7 @@ fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             texture,
             ..default()
         },
-        Player { speed: 100.0 },
+        Player { speed: 2000.0 },
         Name::new("Player"),
         (
             ActiveEvents::COLLISION_EVENTS,
@@ -46,6 +53,7 @@ fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..Default::default()
             },
             RigidBody::KinematicPositionBased,
+            Health::new(5.),
         ),
     ));
     let player_entity = player_commands.id();

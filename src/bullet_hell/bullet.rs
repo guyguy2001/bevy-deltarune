@@ -5,6 +5,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::AppState;
 
+use super::healthbar::Health;
 use super::player::Player;
 
 pub struct BulletsPlugin;

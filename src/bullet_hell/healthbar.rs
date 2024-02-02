@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
 
+use super::player::PlayerMovementSet;
 use crate::utils::world_ui::WorldUI;
 use crate::AppState;
 
@@ -10,16 +11,27 @@ impl Plugin for HealthbarPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            healthbar_behaviour.run_if(in_state(AppState::Defending)),
+            healthbar_behaviour
+                .run_if(in_state(AppState::Defending))
+                .after(PlayerMovementSet),
         );
     }
 }
 
 #[derive(Component, InspectorOptions, Default, Reflect)]
 #[reflect(Component, InspectorOptions)]
-struct Health {
+pub struct Health {
     health: f32,
     max_health: f32,
+}
+
+impl Health {
+    pub fn new(max_health: f32) -> Self {
+        Health {
+            health: max_health,
+            max_health: max_health,
+        }
+    }
 }
 
 #[derive(Component)]
