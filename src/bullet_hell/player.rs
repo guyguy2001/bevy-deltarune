@@ -3,7 +3,7 @@ use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
 use bevy_rapier2d::prelude::*;
 
-use crate::AppState;
+use crate::{lose_screen::LoseEvent, AppState};
 
 use super::healthbar::{spawn_healthbar, Health};
 
@@ -16,7 +16,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(Startup, setup_player)
             .add_systems(
                 Update,
-                character_movement.run_if(in_state(AppState::Defending)),
+                (character_movement, player_death).run_if(in_state(AppState::Defending)),
             );
     }
 }
@@ -51,7 +51,7 @@ fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..Default::default()
             },
             RigidBody::KinematicPositionBased,
-            Health::new(50.),
+            Health::new(5.),
         ),
     ));
     let player_entity = player_commands.id();
@@ -79,5 +79,18 @@ fn character_movement(
             desired_direction += -Vec2::X * movement_amount;
         }
         controller.translation = Some(desired_direction.normalize_or_zero() * movement_amount);
+    }
+}
+
+fn player_death(
+    health_query: Query<&Health, With<Player>>,
+    mut lose_event: EventWriter<LoseEvent>,
+) {
+    for health in health_query.iter() {
+        println!("Player death");
+        if health.health <= 0. {
+            println!("sending");
+            lose_event.send(LoseEvent);
+        }
     }
 }

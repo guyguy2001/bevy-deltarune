@@ -6,10 +6,12 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 
 use bullet_hell::BulletHellPlugin;
+use lose_screen::LoseScreenPlugin;
 use menu::MenuUI;
 use utils::world_ui::WorldUIPlugin;
 
 mod bullet_hell;
+mod lose_screen;
 mod menu;
 mod utils;
 
@@ -19,6 +21,7 @@ pub enum AppState {
     ActionMenu,
     Attacking,
     Defending,
+    Defeat,
 }
 
 fn main() {
@@ -49,6 +52,7 @@ fn main() {
             WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
         )
         .add_plugins(MenuUI)
+        .add_plugins(LoseScreenPlugin)
         .insert_resource(Money(100.0))
         .add_systems(Startup, setup_camera)
         .run();

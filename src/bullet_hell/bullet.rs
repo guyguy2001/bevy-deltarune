@@ -78,6 +78,8 @@ fn player_collision(
             if let Ok(mut player_health) = players.get_mut(*entity1) {
                 if let Ok((bullet_entity, bullet_component)) = bullets.get(*entity2) {
                     commands.entity(bullet_entity).despawn_recursive();
+
+                    // TODO: make this an event? Who is responsible for handling it? what would it achieve?
                     player_health.health -= bullet_component.damage;
                 }
             }
