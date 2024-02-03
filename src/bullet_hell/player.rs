@@ -8,18 +8,16 @@ use crate::AppState;
 use super::healthbar::{spawn_healthbar, Health};
 
 // TODO: Rename to GameWorldMovement?
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-pub struct PlayerMovementSet;
 
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_player).add_systems(
-            Update,
-            character_movement
-                .in_set(PlayerMovementSet)
-                .run_if(in_state(AppState::Defending)),
-        );
+        app.register_type::<Player>()
+            .add_systems(Startup, setup_player)
+            .add_systems(
+                Update,
+                character_movement.run_if(in_state(AppState::Defending)),
+            );
     }
 }
 
@@ -42,7 +40,7 @@ fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             texture,
             ..default()
         },
-        Player { speed: 2000.0 },
+        Player { speed: 100.0 },
         Name::new("Player"),
         (
             ActiveEvents::COLLISION_EVENTS,
@@ -53,7 +51,7 @@ fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..Default::default()
             },
             RigidBody::KinematicPositionBased,
-            Health::new(5.),
+            Health::new(50.),
         ),
     ));
     let player_entity = player_commands.id();

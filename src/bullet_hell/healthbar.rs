@@ -2,18 +2,15 @@ use bevy::prelude::*;
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
 
-use super::player::PlayerMovementSet;
 use crate::utils::world_ui::WorldUI;
 use crate::AppState;
 
 pub struct HealthbarPlugin;
 impl Plugin for HealthbarPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app.register_type::<Health>().add_systems(
             Update,
-            healthbar_behaviour
-                .run_if(in_state(AppState::Defending))
-                .after(PlayerMovementSet),
+            healthbar_behaviour.run_if(in_state(AppState::Defending)),
         );
     }
 }

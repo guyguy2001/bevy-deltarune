@@ -1,12 +1,10 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, ui::UiSystem};
 
 pub struct WorldUIPlugin;
 impl Plugin for WorldUIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            PostUpdate,
-            (sync_world_ui_to_parent, error_if_world_ui_without_style),
-        );
+        app.add_systems(PostUpdate, sync_world_ui_to_parent.before(UiSystem::Layout))
+            .add_systems(PostStartup, error_if_world_ui_without_style);
     }
 }
 
