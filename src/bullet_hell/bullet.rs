@@ -23,6 +23,7 @@ impl Plugin for BulletsPlugin {
 #[reflect(Component, InspectorOptions)]
 struct Bullet {
     pub direction: Vec3,
+    pub damage: f32,
 }
 
 pub fn spawn_bullet_in_pos(position: Vec3, direction: Vec3, commands: &mut Commands) {
@@ -47,6 +48,7 @@ pub fn spawn_bullet_in_pos(position: Vec3, direction: Vec3, commands: &mut Comma
             },
             Bullet {
                 direction: direction,
+                damage: 5.,
             },
             (
                 ActiveEvents::COLLISION_EVENTS,
@@ -66,16 +68,17 @@ pub fn spawn_bullet_in_pos(position: Vec3, direction: Vec3, commands: &mut Comma
 fn player_collision(
     mut commands: Commands,
     mut contact_events: EventReader<CollisionEvent>,
-    bullets: Query<(Entity, With<Bullet>)>,
-    players: Query<((Entity, &mut Health), With<Player>)>,
+    bullets: Query<(Entity, &Bullet)>,
+    mut players: Query<&mut Health, With<Player>>,
 ) {
     for event in contact_events.read() {
-        println!("{:?}", event);
+        // println!("{:?}", event);
         if let CollisionEvent::Started(entity1, entity2, _) = event {
             // TODO: get this working with swapped entity orders???
-            if players.contains(*entity1) {
-                if let Ok((bullet, _)) = bullets.get(*entity2) {
-                    commands.entity(bullet).despawn_recursive();
+            if let Ok(mut player_health) = players.get_mut(*entity1) {
+                if let Ok((bullet_entity, bullet_component)) = bullets.get(*entity2) {
+                    commands.entity(bullet_entity).despawn_recursive();
+                    player_health.health -= bullet_component.damage;
                 }
             }
         }

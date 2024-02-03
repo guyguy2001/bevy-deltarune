@@ -18,7 +18,7 @@ impl Plugin for HealthbarPlugin {
 #[derive(Component, InspectorOptions, Default, Reflect)]
 #[reflect(Component, InspectorOptions)]
 pub struct Health {
-    health: f32,
+    pub health: f32,
     max_health: f32,
 }
 
@@ -71,9 +71,6 @@ pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
                         border_color: Color::BLACK.into(),
                         ..default()
                     },
-                    Healthbar {
-                        tracked_entity: character_entity,
-                    },
                     Name::new("Healthbar"),
                 ))
                 .with_children(|commands| {
@@ -88,17 +85,20 @@ pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
                             ..default()
                         },
                         GreenPart,
+                        Healthbar {
+                            tracked_entity: character_entity,
+                        },
                     ));
                 });
         });
 }
 
 fn healthbar_behaviour(
-    parent_query: Query<&Health>,
+    health_query: Query<&Health>,
     mut healthbar_query: Query<(&mut Style, &Healthbar), With<GreenPart>>,
 ) {
     for (mut style, healthbar) in healthbar_query.iter_mut() {
-        let parent_health = parent_query.get(healthbar.tracked_entity).unwrap();
-        style.width = Val::Percent(100. * parent_health.health / parent_health.max_health);
+        let health_component = health_query.get(healthbar.tracked_entity).unwrap();
+        style.width = Val::Percent(100. * health_component.health / health_component.max_health);
     }
 }
