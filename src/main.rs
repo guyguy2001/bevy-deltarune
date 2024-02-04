@@ -6,11 +6,13 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 
 use bullet_hell::BulletHellPlugin;
+use level_transition::LevelTransitionPlugin;
 use lose_screen::LoseScreenPlugin;
 use menu::MenuUI;
 use utils::world_ui::WorldUIPlugin;
 
 mod bullet_hell;
+mod level_transition;
 mod lose_screen;
 mod menu;
 mod utils;
@@ -22,6 +24,7 @@ pub enum AppState {
     Attacking,
     Defending,
     Defeat,
+    LevelTransition,
 }
 
 fn main() {
@@ -48,6 +51,7 @@ fn main() {
         .add_state::<AppState>()
         .add_plugins(WorldUIPlugin)
         .add_plugins(BulletHellPlugin)
+        .add_plugins(LevelTransitionPlugin)
         .add_plugins(
             WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
         )

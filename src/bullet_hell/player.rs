@@ -87,9 +87,7 @@ fn player_death(
     mut lose_event: EventWriter<LoseEvent>,
 ) {
     for health in health_query.iter() {
-        println!("Player death");
         if health.health <= 0. {
-            println!("sending");
             lose_event.send(LoseEvent);
         }
     }
