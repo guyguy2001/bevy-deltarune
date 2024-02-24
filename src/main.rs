@@ -48,7 +48,7 @@ fn main() {
         })
         // .add_plugins(InspectableRapierPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        .add_state::<AppState>()
+        .init_state::<AppState>()
         .add_plugins(WorldUIPlugin)
         .add_plugins(BulletHellPlugin)
         .add_plugins(LevelTransitionPlugin)

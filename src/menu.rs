@@ -171,20 +171,20 @@ fn change_selection(mut multi_choice_item: MultiChoiceItem<BorderColor>, change_
     activate(multi_choice_item.get_selected_child_mut());
 }
 
-fn select_action(component_query: MultiChoiceItem<BorderColor>, input: Res<Input<KeyCode>>) {
-    if input.just_pressed(KeyCode::Right) {
+fn select_action(component_query: MultiChoiceItem<BorderColor>, input: Res<ButtonInput<KeyCode>>) {
+    if input.just_pressed(KeyCode::ArrowRight) {
         change_selection(component_query, 1);
-    } else if input.just_pressed(KeyCode::Left) {
+    } else if input.just_pressed(KeyCode::ArrowLeft) {
         change_selection(component_query, -1);
     }
 }
 
 fn activate_action(
     multi_choice_item: MultiChoiceItem<MultiChoiceButton>,
-    input: Res<Input<KeyCode>>,
+    input: Res<ButtonInput<KeyCode>>,
     mut action_occurred_writer: EventWriter<MenuItemSelected>,
 ) {
-    if input.just_pressed(KeyCode::Space) || input.just_pressed(KeyCode::Return) {
+    if input.just_pressed(KeyCode::Space) || input.just_pressed(KeyCode::Enter) {
         action_occurred_writer.send(MenuItemSelected {
             button: multi_choice_item.get_selected_child().button, // TODO: I want the MultiChoiceButton :(
         });

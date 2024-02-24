@@ -23,7 +23,7 @@ fn spawn_arena(
         Name::new("Arena.Floor"),
         MaterialMesh2dBundle {
             mesh: meshes
-                .add(shape::Quad::new(Vec2::new(size, border_width)).into())
+                .add(bevy::math::primitives::Rectangle::new(size, border_width).mesh())
                 .into(),
             material: materials.add(ColorMaterial::from(Color::WHITE)),
             transform: Transform::from_xyz(0., -position_offset, 0.),
@@ -35,7 +35,7 @@ fn spawn_arena(
         Name::new("Arena.Left"),
         MaterialMesh2dBundle {
             mesh: meshes
-                .add(shape::Box::new(border_width, size, 0.).into())
+                .add(bevy::math::primitives::Rectangle::new(border_width, size).mesh())
                 .into(),
             material: materials.add(ColorMaterial::from(Color::WHITE)),
             transform: Transform::from_xyz(-position_offset, 0., 0.),
@@ -47,7 +47,7 @@ fn spawn_arena(
         Name::new("Arena.Right"),
         MaterialMesh2dBundle {
             mesh: meshes
-                .add(shape::Box::new(border_width, size, 0.).into())
+                .add(bevy::math::primitives::Rectangle::new(border_width, size).mesh())
                 .into(),
             material: materials.add(ColorMaterial::from(Color::WHITE)),
             transform: Transform::from_xyz(position_offset, 0., 0.),
@@ -59,7 +59,7 @@ fn spawn_arena(
         Name::new("Arena.Roof"),
         MaterialMesh2dBundle {
             mesh: meshes
-                .add(shape::Box::new(size, border_width, 0.).into())
+                .add(bevy::math::primitives::Rectangle::new(size, border_width).mesh())
                 .into(),
             material: materials.add(ColorMaterial::from(Color::WHITE)),
             transform: Transform::from_xyz(0., position_offset, 0.),

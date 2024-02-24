@@ -60,22 +60,22 @@ fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 fn character_movement(
     mut characters: Query<(&mut KinematicCharacterController, &Player)>,
-    input: Res<Input<KeyCode>>,
+    input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     for (mut controller, player) in &mut characters {
         let movement_amount = player.speed * time.delta_seconds();
         let mut desired_direction = Vec2::ZERO;
-        if input.pressed(KeyCode::W) || input.pressed(KeyCode::Up) {
+        if input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp) {
             desired_direction += Vec2::Y * movement_amount;
         }
-        if input.pressed(KeyCode::S) || input.pressed(KeyCode::Down) {
+        if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
             desired_direction += -Vec2::Y * movement_amount;
         }
-        if input.pressed(KeyCode::D) || input.pressed(KeyCode::Right) {
+        if input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight) {
             desired_direction += Vec2::X * movement_amount;
         }
-        if input.pressed(KeyCode::A) || input.pressed(KeyCode::Left) {
+        if input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft) {
             desired_direction += -Vec2::X * movement_amount;
         }
         controller.translation = Some(desired_direction.normalize_or_zero() * movement_amount);

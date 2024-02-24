@@ -87,7 +87,7 @@ fn timer_behaviour(
         text.sections[0].value = format!("{remaining_time:.2}");
 
         if timer.remaining_time.just_finished() {
-            win_event.send(LevelFinishedEvent)
+            win_event.send(LevelFinishedEvent);
         }
     }
 }
