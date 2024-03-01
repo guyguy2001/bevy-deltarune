@@ -1,6 +1,12 @@
-use bevy::{ecs::system::SystemParam, prelude::*};
+use bevy::{ecs::query::QueryData, prelude::*};
 
-use crate::{utils::data_structures::Index, AppState};
+use crate::{
+    utils::{
+        data_structures::Index,
+        menu_system::{MultiChoiceButton, MultiChoiceItem, MultiChoiceParent},
+    },
+    AppState,
+};
 
 pub struct MenuUI;
 
@@ -13,19 +19,13 @@ impl Plugin for MenuUI {
                 (select_action, activate_action, spawn_attack_menu)
                     .run_if(in_state(AppState::ActionMenu)),
             )
+            .add_systems(
+                Update,
+                select_action,
+            )
             .add_systems(OnEnter(AppState::ActionMenu), show_menu)
             .add_systems(OnExit(AppState::ActionMenu), hide_menu);
     }
-}
-
-#[derive(Component)]
-pub struct MultiChoiceParent {
-    pub selected: Index,
-}
-
-#[derive(Component)]
-pub struct MultiChoiceButton {
-    button: Buttons,
 }
 
 #[derive(
@@ -50,8 +50,10 @@ const MENU_ITEMS: [Buttons; 4] = [
     (Buttons::RUN),
 ];
 
-fn spawn_menu_ui(mut commands: Commands) {
-    commands
+fn spawn_menu_ui(mut world: &mut World) {
+    let activate_id = world.register_system(activate);
+    let deactivate_id = world.register_system(deactivate);
+    world
         .spawn((
             NodeBundle {
                 style: Style {
@@ -93,7 +95,11 @@ fn spawn_menu_ui(mut commands: Commands) {
                             },
                             ..default()
                         },
-                        MultiChoiceButton { button: *button },
+                        MultiChoiceButton::<Buttons> {
+                            button: *button,
+                            activate: activate_id,
+                            deactivate: deactivate_id,
+                        },
                     ))
                     .with_children(|commands| {
                         commands.spawn((TextBundle {
@@ -110,77 +116,70 @@ fn spawn_menu_ui(mut commands: Commands) {
             }
         });
 }
+#[derive(Resource, Default)]
+struct Counter(u8);
 
-fn deactivate(mut button: Mut<BorderColor>) {
-    button.0 = Color::BLACK;
+fn deactivate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>){
+    border_query.get_mut(entity).unwrap().0 = Color::BLACK;
 }
 
-fn activate(mut button: Mut<BorderColor>) {
-    button.0 = Color::GREEN;
+
+fn activate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>){
+    border_query.get_mut(entity).unwrap().0 = Color::GREEN;
 }
 
-#[derive(SystemParam)]
-struct MultiChoiceItem<'w, 's, T: Component> {
-    parent: Query<'w, 's, (&'static Children, &'static mut MultiChoiceParent)>,
-    children: Query<'w, 's, &'static mut T, With<MultiChoiceButton>>,
-}
-
-impl<'w, 's, T: Component> MultiChoiceItem<'w, 's, T> {
-    fn get_selected_child(&self) -> &T {
-        let (children_component, multi_choice_parent) = self.parent.get_single().unwrap();
-
-        // The unwrap is safe if and only if multi_choice_parent was defined to handle the given children.
-        return self
-            .children
-            .get(
-                *(children_component
-                    .get(multi_choice_parent.selected.index)
-                    .unwrap()),
-            )
-            .unwrap();
-    }
-
-    fn get_selected_child_mut(&mut self) -> Mut<T> {
-        let (children_component, multi_choice_parent) = self.parent.get_single().unwrap();
-
-        // The unwrap is safe if and only if multi_choice_parent was defined to handle the given children.
-        return self
-            .children
-            .get_mut(
-                *(children_component
-                    .get(multi_choice_parent.selected.index)
-                    .unwrap()),
-            )
-            .unwrap();
-    }
-
-    fn get_multi_choice_parent_mut(&mut self) -> Mut<MultiChoiceParent> {
-        let (_, multi_choice_parent) = self.parent.get_single_mut().unwrap();
-        multi_choice_parent
-    }
-}
-
-fn change_selection(mut multi_choice_item: MultiChoiceItem<BorderColor>, change_amount: i8) {
-    deactivate(multi_choice_item.get_selected_child_mut());
+fn change_selection(
+    // fn change_selection<Q: QueryData>(
+    // mut world: &mut World,
+    mut commands: Commands,
+    mut multi_choice_item: MultiChoiceItem<(Entity, &MultiChoiceButton<Buttons>)>,
+    change_amount: i8,
+) {
+    // deactivate(multi_choice_item.get_selected_child_mut());
+    let (entity, button) = multi_choice_item.get_selected_child_mut();
+    commands.run_system_with_input(button.deactivate, entity);
+    // world.register_system(increment);
+    // world.register_system(IntoSystem::into_system(increment));
+    // let original_deactivate = (&button.deactivate, entity.clone());
+    // let system_id = world.register_boxed_system(button.deactivate);
+    // println!("deactivate: {:?}", system_id);
+    // world.run_system_with_input(system_id, entity);
+    // .run_system(button.deactivate.);
+    // (button.deactivate)(query_result);
 
     multi_choice_item
         .get_multi_choice_parent_mut()
         .selected
         .add(change_amount);
 
-    activate(multi_choice_item.get_selected_child_mut());
+    let (entity, button) = multi_choice_item.get_selected_child_mut();
+    // let new_activate = (&button.activate, entity.clone());
+    // let system_id = world.register_boxed_system(button.activate);
+    // println!("activate: {:?}", system_id);
+    // world.run_system_with_input(system_id, entity);
+    // (button.activate)(query_result);
+    // activate(multi_choice_item.get_selected_child_mut());
+    commands.run_system_with_input(button.activate, entity);
 }
 
-fn select_action(component_query: MultiChoiceItem<BorderColor>, input: Res<ButtonInput<KeyCode>>) {
+fn select_action(
+    mut commands: Commands,
+    component_query: MultiChoiceItem<(
+        // &mut BorderColor,
+        Entity,
+        &MultiChoiceButton<Buttons>,
+    )>,
+    input: Res<ButtonInput<KeyCode>>,
+) {
     if input.just_pressed(KeyCode::ArrowRight) {
-        change_selection(component_query, 1);
+        change_selection(commands, component_query, 1);
     } else if input.just_pressed(KeyCode::ArrowLeft) {
-        change_selection(component_query, -1);
+        change_selection(commands, component_query, -1);
     }
 }
 
 fn activate_action(
-    multi_choice_item: MultiChoiceItem<MultiChoiceButton>,
+    multi_choice_item: MultiChoiceItem<&MultiChoiceButton<Buttons>>,
     input: Res<ButtonInput<KeyCode>>,
     mut action_occurred_writer: EventWriter<MenuItemSelected>,
 ) {
