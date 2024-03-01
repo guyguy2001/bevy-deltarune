@@ -129,23 +129,12 @@ fn activate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>){
 }
 
 fn change_selection(
-    // fn change_selection<Q: QueryData>(
-    // mut world: &mut World,
     mut commands: Commands,
     mut multi_choice_item: MultiChoiceItem<(Entity, &MultiChoiceButton<Buttons>)>,
     change_amount: i8,
 ) {
-    // deactivate(multi_choice_item.get_selected_child_mut());
     let (entity, button) = multi_choice_item.get_selected_child_mut();
     commands.run_system_with_input(button.deactivate, entity);
-    // world.register_system(increment);
-    // world.register_system(IntoSystem::into_system(increment));
-    // let original_deactivate = (&button.deactivate, entity.clone());
-    // let system_id = world.register_boxed_system(button.deactivate);
-    // println!("deactivate: {:?}", system_id);
-    // world.run_system_with_input(system_id, entity);
-    // .run_system(button.deactivate.);
-    // (button.deactivate)(query_result);
 
     multi_choice_item
         .get_multi_choice_parent_mut()
@@ -153,12 +142,6 @@ fn change_selection(
         .add(change_amount);
 
     let (entity, button) = multi_choice_item.get_selected_child_mut();
-    // let new_activate = (&button.activate, entity.clone());
-    // let system_id = world.register_boxed_system(button.activate);
-    // println!("activate: {:?}", system_id);
-    // world.run_system_with_input(system_id, entity);
-    // (button.activate)(query_result);
-    // activate(multi_choice_item.get_selected_child_mut());
     commands.run_system_with_input(button.activate, entity);
 }
 
