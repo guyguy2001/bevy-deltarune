@@ -1,9 +1,9 @@
-use bevy::{ecs::query::QueryData, prelude::*};
+use bevy::prelude::*;
 
 use crate::{
     utils::{
         data_structures::Index,
-        menu_system::{MultiChoiceButton, MultiChoiceItem, MultiChoiceParent},
+        menu_system::{MenuQueries, MenuStack, MultiChoiceButton, MultiChoiceParent},
     },
     AppState,
 };
@@ -12,17 +12,7 @@ pub struct MenuUI;
 
 impl Plugin for MenuUI {
     fn build(&self, app: &mut App) {
-        app.add_event::<MenuItemSelected>()
-            .add_systems(Startup, spawn_menu_ui)
-            .add_systems(
-                Update,
-                (select_action, activate_action, spawn_attack_menu)
-                    .run_if(in_state(AppState::ActionMenu)),
-            )
-            .add_systems(
-                Update,
-                select_action,
-            )
+        app.add_systems(Startup, spawn_menu_ui)
             .add_systems(OnEnter(AppState::ActionMenu), show_menu)
             .add_systems(OnExit(AppState::ActionMenu), hide_menu);
     }
@@ -38,21 +28,12 @@ enum Buttons {
     RUN,
 }
 
-#[derive(Event)]
-pub struct MenuItemSelected {
-    button: Buttons,
-}
+const MENU_ITEMS: [Buttons; 4] = [Buttons::ATTACK, Buttons::ACT, Buttons::ITEMS, Buttons::RUN];
 
-const MENU_ITEMS: [Buttons; 4] = [
-    (Buttons::ATTACK),
-    (Buttons::ACT),
-    (Buttons::ITEMS),
-    (Buttons::RUN),
-];
-
-fn spawn_menu_ui(mut world: &mut World) {
+fn spawn_menu_ui(world: &mut World) {
     let activate_id = world.register_system(activate);
     let deactivate_id = world.register_system(deactivate);
+    let attack_pressed_id = world.register_system(transition_to_defense);
     world
         .spawn((
             NodeBundle {
@@ -95,8 +76,14 @@ fn spawn_menu_ui(mut world: &mut World) {
                             },
                             ..default()
                         },
-                        MultiChoiceButton::<Buttons> {
-                            button: *button,
+                        MultiChoiceButton {
+                            on_selected: {
+                                if *button == Buttons::ATTACK {
+                                    Some(attack_pressed_id)
+                                } else {
+                                    None
+                                }
+                            },
                             activate: activate_id,
                             deactivate: deactivate_id,
                         },
@@ -119,77 +106,32 @@ fn spawn_menu_ui(mut world: &mut World) {
 #[derive(Resource, Default)]
 struct Counter(u8);
 
-fn deactivate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>){
+fn deactivate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
     border_query.get_mut(entity).unwrap().0 = Color::BLACK;
 }
 
-
-fn activate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>){
+fn activate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
     border_query.get_mut(entity).unwrap().0 = Color::GREEN;
 }
 
-fn change_selection(
-    mut commands: Commands,
-    mut multi_choice_item: MultiChoiceItem<(Entity, &MultiChoiceButton<Buttons>)>,
-    change_amount: i8,
-) {
-    let (entity, button) = multi_choice_item.get_selected_child_mut();
-    commands.run_system_with_input(button.deactivate, entity);
-
-    multi_choice_item
-        .get_multi_choice_parent_mut()
-        .selected
-        .add(change_amount);
-
-    let (entity, button) = multi_choice_item.get_selected_child_mut();
-    commands.run_system_with_input(button.activate, entity);
+fn transition_to_defense(In(_entity): In<Entity>, mut app_state: ResMut<NextState<AppState>>) {
+    app_state.set(AppState::Defending);
 }
 
-fn select_action(
-    mut commands: Commands,
-    component_query: MultiChoiceItem<(
-        // &mut BorderColor,
-        Entity,
-        &MultiChoiceButton<Buttons>,
-    )>,
-    input: Res<ButtonInput<KeyCode>>,
+fn hide_menu(
+    mut menu_query: Query<(Entity, &mut Visibility), With<MultiChoiceParent>>,
+    mut menu_stack: ResMut<MenuStack>,
 ) {
-    if input.just_pressed(KeyCode::ArrowRight) {
-        change_selection(commands, component_query, 1);
-    } else if input.just_pressed(KeyCode::ArrowLeft) {
-        change_selection(commands, component_query, -1);
-    }
-}
-
-fn activate_action(
-    multi_choice_item: MultiChoiceItem<&MultiChoiceButton<Buttons>>,
-    input: Res<ButtonInput<KeyCode>>,
-    mut action_occurred_writer: EventWriter<MenuItemSelected>,
-) {
-    if input.just_pressed(KeyCode::Space) || input.just_pressed(KeyCode::Enter) {
-        action_occurred_writer.send(MenuItemSelected {
-            button: multi_choice_item.get_selected_child().button, // TODO: I want the MultiChoiceButton :(
-        });
-    }
-}
-
-fn spawn_attack_menu(
-    mut action_occurred_reader: EventReader<MenuItemSelected>,
-    mut app_state: ResMut<NextState<AppState>>,
-) {
-    for event in action_occurred_reader.read() {
-        if event.button == Buttons::ATTACK {
-            app_state.set(AppState::Defending);
-        }
-    }
-}
-
-fn hide_menu(mut menu_query: Query<&mut Visibility, With<MultiChoiceParent>>) {
-    let mut menu_visibility = menu_query.single_mut();
+    let (entity, mut menu_visibility) = menu_query.single_mut();
     *menu_visibility = Visibility::Hidden;
+    menu_stack.pop_menu(entity);
 }
 
-fn show_menu(mut menu_query: Query<&mut Visibility, With<MultiChoiceParent>>) {
-    let mut menu_visibility = menu_query.single_mut();
+fn show_menu(
+    mut menu_query: Query<(Entity, &mut Visibility), With<MultiChoiceParent>>,
+    mut menu_stack: ResMut<MenuStack>,
+) {
+    let (entity, mut menu_visibility) = menu_query.single_mut();
     *menu_visibility = Visibility::Visible;
+    menu_stack.push_menu(entity);
 }

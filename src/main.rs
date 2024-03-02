@@ -9,7 +9,7 @@ use bullet_hell::BulletHellPlugin;
 use level_transition::LevelTransitionPlugin;
 use lose_screen::LoseScreenPlugin;
 use menu::MenuUI;
-use utils::world_ui::WorldUIPlugin;
+use utils::{menu_system::MenuSystemPlugin, world_ui::WorldUIPlugin};
 
 mod bullet_hell;
 mod level_transition;
@@ -55,6 +55,7 @@ fn main() {
         .add_plugins(
             WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
         )
+        .add_plugins(MenuSystemPlugin)
         .add_plugins(MenuUI)
         .add_plugins(LoseScreenPlugin)
         .insert_resource(Money(100.0))
