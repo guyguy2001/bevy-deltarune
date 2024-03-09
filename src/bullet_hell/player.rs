@@ -51,7 +51,7 @@ fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..Default::default()
             },
             RigidBody::KinematicPositionBased,
-            Health::new(5.),
+            Health::new(10.),
         ),
     ));
     let player_entity = player_commands.id();
