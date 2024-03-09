@@ -2,12 +2,14 @@ use bevy::prelude::*;
 
 use self::arena::ArenaPlugin;
 use self::bullet::BulletsPlugin;
+use self::effects::EffectsPlugin;
 use self::enemies::moving_cannon::MovingCannonPlugin;
 use self::healthbar::HealthbarPlugin;
 use self::level::LevelPlugin;
 use self::level_timer::LevelTimerPlugin;
 use self::player::PlayerPlugin;
 
+mod effects;
 mod enemies;
 
 mod arena;
@@ -24,6 +26,7 @@ impl Plugin for BulletHellPlugin {
         app.add_plugins((
             ArenaPlugin,
             BulletsPlugin,
+            EffectsPlugin,
             HealthbarPlugin,
             LevelTimerPlugin,
             LevelPlugin,

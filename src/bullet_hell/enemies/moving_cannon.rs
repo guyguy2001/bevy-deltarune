@@ -4,14 +4,14 @@ use bevy::prelude::*;
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
 
-use crate::bullet_hell::bullet::spawn_bullet_in_pos;
+use crate::bullet_hell::bullet::{spawn_bullet_in_pos, BulletProperties};
 use crate::AppState;
 
 pub struct MovingCannonPlugin;
 
 impl Plugin for MovingCannonPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_cannons).add_systems(
+        app.add_systems(Startup, spawn_initial_cannons).add_systems(
             Update,
             (cannon_behaviour, wander_behaviour).run_if(in_state(AppState::Defending)),
         );
@@ -21,7 +21,8 @@ impl Plugin for MovingCannonPlugin {
 #[derive(Clone, Copy, Reflect, Default)]
 enum EnemyTypes {
     #[default]
-    Bullet,
+    SmallBullet,
+    BigBullet,
 }
 
 #[derive(Component, InspectorOptions, Reflect, Default)]
@@ -43,9 +44,19 @@ impl Cannon {
 }
 
 fn spawn_enemy(cannon: &Cannon, position: Vec3, enemy_type: EnemyTypes, commands: &mut Commands) {
-    match enemy_type {
-        EnemyTypes::Bullet => spawn_bullet_in_pos(position, cannon.direction, commands),
+    let bullet = match enemy_type {
+        EnemyTypes::SmallBullet => BulletProperties{
+            damage: 5.,
+            size: 4.,
+            speed: 200.,
+        },
+        EnemyTypes::BigBullet => BulletProperties{
+            damage: 10.,
+            size: 16.,
+            speed: 50.,
+        },
     };
+    spawn_bullet_in_pos(position, cannon.direction, bullet, commands);
 }
 
 fn cannon_behaviour(
@@ -83,10 +94,10 @@ impl WanderDirection {
     }
 }
 
-struct CannonSpawnProperties {
-    start: Vec3,
-    end: Vec3,
-    direction: Vec3,
+pub struct CannonSpawnProperties {
+    pub start: Vec3,
+    pub end: Vec3,
+    pub shooting_direction: Vec3,
 }
 
 #[derive(Component, InspectorOptions, Reflect, Default)]
@@ -117,39 +128,76 @@ fn wander_behaviour(time: Res<Time>, mut wander_query: Query<(&mut Wander, &mut 
     }
 }
 
-fn spawn_cannons(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let texture = asset_server.load("character.png");
-    let sprite_size = 7.5;
-    let cannons = [
+fn spawn_initial_cannons(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let cannons = vec![
         CannonSpawnProperties {
             start: Vec3::new(-100., -40., 0.),
             end: Vec3::new(-100., 40., 0.),
-            direction: Vec3::X,
+            shooting_direction: Vec3::X,
         },
         CannonSpawnProperties {
             start: Vec3::new(-40., 70., 0.),
             end: Vec3::new(40., 70., 0.),
-            direction: Vec3::NEG_Y,
+            shooting_direction: Vec3::NEG_Y,
         },
     ];
     for cannon in cannons {
-        commands.spawn((
-            SpriteBundle {
-                sprite: Sprite {
-                    custom_size: Some(Vec2::new(sprite_size, sprite_size)),
-                    ..default()
-                },
-                texture: texture.clone(),
-                transform: Transform::from_translation(cannon.start),
+        spawn_cannon(cannon, &asset_server, &mut commands);
+    }
+}
+
+pub fn spawn_cannon(
+    spawn_properties: CannonSpawnProperties,
+    asset_server: &Res<AssetServer>,
+    commands: &mut Commands,
+) {
+    let sprite_size = 7.5;
+    let texture = asset_server.load("character.png");
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(sprite_size, sprite_size)),
                 ..default()
             },
-            Cannon::new(EnemyTypes::Bullet, cannon.direction, Duration::from_secs(1)),
-            Wander {
-                start: cannon.start,
-                end: cannon.end,
-                speed: 50.,
-                ..Default::default()
+            texture: texture.clone(),
+            transform: Transform::from_translation(spawn_properties.start),
+            ..default()
+        },
+        Cannon::new(
+            EnemyTypes::SmallBullet,
+            spawn_properties.shooting_direction,
+            Duration::from_secs(1),
+        ),
+        Wander {
+            start: spawn_properties.start,
+            end: spawn_properties.end,
+            speed: 50.,
+            ..Default::default()
+        },
+    ));
+}
+
+pub fn spawn_stationary_cannon(
+    spawn_properties: CannonSpawnProperties,
+    asset_server: &Res<AssetServer>,
+    commands: &mut Commands,
+) {
+    let sprite_size = 7.5;
+    let texture = asset_server.load("character.png");
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(sprite_size, sprite_size)),
+                ..default()
             },
-        ));
-    }
+            texture: texture,
+            transform: Transform::from_translation(spawn_properties.start),
+            ..default()
+        },
+        Cannon::new(
+            EnemyTypes::BigBullet,
+            spawn_properties.shooting_direction,
+            Duration::from_secs(2),
+        ),
+    ));
 }

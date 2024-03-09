@@ -26,17 +26,21 @@ struct Bullet {
     pub damage: f32,
 }
 
-pub fn spawn_bullet_in_pos(position: Vec3, direction: Vec3, commands: &mut Commands) {
+pub struct BulletProperties {
+    pub damage: f32,
+    pub size: f32,
+    pub speed: f32,
+}
+
+pub fn spawn_bullet_in_pos(position: Vec3, direction: Vec3, properties: BulletProperties, commands: &mut Commands) {
     // TODO: Question - when do I receive asset_server as a parameter, and when do I get it from the world?
     // TODO: ask for the asset_server inside of the commands queue, instead of directly here?
-    let sprite_size = 16.0;
-    let speed = 200.; // TODO: Parameterize
     commands.add(move |world: &mut World| {
         let asset_server = world.get_resource::<AssetServer>().unwrap(); // TODO: How do I not unwrap?
         world.spawn((
             SpriteBundle {
                 sprite: Sprite {
-                    custom_size: Some(Vec2::new(sprite_size, sprite_size)),
+                    custom_size: Some(Vec2::new(properties.size, properties.size)),
                     ..default()
                 },
                 texture: asset_server.load("pig.png"),
@@ -48,17 +52,17 @@ pub fn spawn_bullet_in_pos(position: Vec3, direction: Vec3, commands: &mut Comma
             },
             Bullet {
                 direction: direction,
-                damage: 5.,
+                damage: properties.damage,
             },
             (
                 ActiveEvents::COLLISION_EVENTS,
                 ActiveCollisionTypes::all(),
                 RigidBody::KinematicVelocityBased,
                 Velocity {
-                    linvel: direction.xy().normalize() * speed,
+                    linvel: direction.xy().normalize() * properties.speed,
                     ..Default::default()
                 },
-                Collider::cuboid(sprite_size / 2.0, sprite_size / 2.0),
+                Collider::cuboid(properties.size / 2.0, properties.size / 2.0),
                 Sensor,
             ),
         ));

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::AppState;
+use crate::{utils::z_index, AppState};
 
 #[derive(Event)]
 pub struct LoseEvent;
@@ -28,6 +28,7 @@ fn spawn_menu_ui(mut commands: Commands) {
     commands
         .spawn((
             NodeBundle {
+                z_index: z_index::POPUP_MENU,
                 style: Style {
                     width: Val::Percent(40.0),
                     height: Val::Percent(40.0),

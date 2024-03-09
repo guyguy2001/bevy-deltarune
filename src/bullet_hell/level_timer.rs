@@ -4,7 +4,7 @@ use bevy::{math::vec3, prelude::*};
 
 use crate::{utils::{world_ui::WorldUI, z_index}, AppState};
 
-use super::level::LevelFinishedEvent;
+use super::{effects::effect::LevelTransitionEffectsPool, level::LevelFinishedEvent};
 
 pub struct LevelTimerPlugin;
 
@@ -71,7 +71,7 @@ fn spawn_timer(mut commands: Commands) {
                     ),
                     ..Default::default()
                 },
-                LevelTimer::new(Duration::from_secs(1)),
+                LevelTimer::new(Duration::from_secs(5)),
                 Name::new("LevelTimer"),
             ));
         });
@@ -81,6 +81,8 @@ fn timer_behaviour(
     mut timer_query: Query<(&mut LevelTimer, &mut Text)>,
     mut win_event: EventWriter<LevelFinishedEvent>,
     time: Res<Time>,
+    effects: Res<LevelTransitionEffectsPool>,
+    mut commands: Commands,
 ) {
     for (mut timer, mut text) in timer_query.iter_mut() {
         timer.remaining_time.tick(time.delta());
@@ -88,7 +90,9 @@ fn timer_behaviour(
         text.sections[0].value = format!("{remaining_time:.2}");
 
         if timer.remaining_time.just_finished() {
-            win_event.send(LevelFinishedEvent);
+            // win_event.send(LevelFinishedEvent);
+            timer.remaining_time.reset();
+            commands.run_system(effects.get_random().0);
         }
     }
 }

@@ -19,5 +19,6 @@ bevy = { version = "0.13.0", features = ["dynamic_linking"] }
 bevy-inspector-egui = "0.23.2"
 # bevy-inspector-egui-rapier = {version = "0.9", features = ["rapier2d"]}
 bevy_rapier2d = { version = "0.25.0", features = [ "simd-stable", "debug-render-2d"] }
+rand = "0.8.5"
 strum = "0.26.1"
 strum_macros = "0.26.1"
