@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     utils::{
         data_structures::Index,
-        menu_system::{MenuStack, MultiChoiceButton, MultiChoiceParent},
+        menu_system::{MenuStack, MultiChoiceButton, MultiChoiceParent, SpawnedMenu}, z_index,
     },
     AppState,
 };
@@ -30,6 +30,7 @@ fn spawn_level_transition_menu(world: &mut World) {
     world
         .spawn((
             NodeBundle {
+                z_index: z_index::POPUP_MENU,
                 style: Style {
                     // fill the entire window
                     height: Val::Percent(100.),
@@ -93,8 +94,11 @@ fn spawn_level_transition_menu(world: &mut World) {
 fn register_menu(
     menu_query: Query<Entity, (With<MultiChoiceParent>, With<UpgradeSelectMenu>)>,
     mut menu_stack: ResMut<MenuStack>,
+    mut writer: EventWriter<SpawnedMenu>
 ) {
-    menu_stack.push_menu(menu_query.get_single().unwrap());
+    let new_menu = menu_query.get_single().unwrap();
+    menu_stack.push_menu(new_menu);
+    writer.send(SpawnedMenu(new_menu));
 }
 
 pub fn deactivate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {

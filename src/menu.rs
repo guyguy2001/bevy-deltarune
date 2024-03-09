@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     utils::{
         data_structures::Index,
-        menu_system::{MenuQueries, MenuStack, MultiChoiceButton, MultiChoiceParent},
+        menu_system::{MenuStack, MultiChoiceButton, MultiChoiceParent},
     },
     AppState,
 };

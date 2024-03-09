@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::{math::vec3, prelude::*};
 
-use crate::{utils::world_ui::WorldUI, AppState};
+use crate::{utils::{world_ui::WorldUI, z_index}, AppState};
 
 use super::level::LevelFinishedEvent;
 
@@ -46,6 +46,7 @@ fn spawn_timer(mut commands: Commands) {
     commands
         .spawn((
             NodeBundle {
+                z_index: z_index::WORLD_UI,
                 style: Style {
                     display: Display::Flex,
                     justify_content: JustifyContent::Center,

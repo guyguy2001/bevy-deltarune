@@ -3,6 +3,7 @@ use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
 
 use crate::utils::world_ui::WorldUI;
+use crate::utils::z_index;
 use crate::AppState;
 
 pub struct HealthbarPlugin;
@@ -43,6 +44,7 @@ pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
     commands
         .spawn((
             NodeBundle {
+                z_index: z_index::WORLD_UI,
                 style: Style {
                     display: Display::Flex,
                     justify_content: JustifyContent::Center,
