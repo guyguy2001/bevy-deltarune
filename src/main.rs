@@ -1,3 +1,5 @@
+use std::fs;
+
 use bevy::{
     input::common_conditions::input_toggle_active, prelude::*, render::camera::ScalingMode,
 };
@@ -6,6 +8,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 
 use bullet_hell::BulletHellPlugin;
+use game_config::GameConfig;
 use level_transition::LevelTransitionPlugin;
 use lose_screen::LoseScreenPlugin;
 use menu::MenuUI;
@@ -16,6 +19,7 @@ mod level_transition;
 mod lose_screen;
 mod menu;
 mod utils;
+mod game_config;
 
 #[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
 pub enum AppState {
@@ -28,6 +32,7 @@ pub enum AppState {
 }
 
 fn main() {
+    let game_config = get_config();
     App::new()
         .add_plugins(
             DefaultPlugins
@@ -35,8 +40,8 @@ fn main() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         title: "Gems game".into(),
-                        resolution: (640.0, 480.0).into(),
-                        resizable: false,
+                        resolution: game_config.window_size.into(),
+                        resizable: true,
                         ..default()
                     }),
                     ..default()
@@ -61,6 +66,15 @@ fn main() {
         .insert_resource(Money(100.0))
         .add_systems(Startup, setup_camera)
         .run();
+}
+
+fn get_config() -> GameConfig {
+    let config_string: String = fs::read_to_string("assets/config.ron").unwrap();
+    let game_config: GameConfig = ron::de::from_str(&config_string).unwrap_or_else(|e| {
+        println!("Failed to load config: {}", e);
+        std::process::exit(1);
+    });
+    game_config
 }
 
 fn setup_camera(mut commands: Commands) {

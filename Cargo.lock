@@ -326,6 +326,8 @@ dependencies = [
  "bevy-inspector-egui",
  "bevy_rapier2d",
  "rand",
+ "ron",
+ "serde",
  "strum",
  "strum_macros",
 ]

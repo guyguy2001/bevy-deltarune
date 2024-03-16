@@ -39,7 +39,7 @@ fn spawn_menu_ui(world: &mut World) {
             NodeBundle {
                 style: Style {
                     width: Val::Percent(100.0),
-                    height: Val::Percent(30.0),
+                    height: Val::Percent(10.0),
                     left: Val::Px(0.),
                     bottom: Val::Px(0.),
                     border: UiRect::all(Val::Px(20.)),

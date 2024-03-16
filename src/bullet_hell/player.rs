@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::{MaterialMesh2dBundle, Mesh2dHandle}};
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
 use bevy_rapier2d::prelude::*;
@@ -28,16 +28,16 @@ pub struct Player {
     pub speed: f32,
 }
 
-fn setup_player(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let texture = asset_server.load("character.png");
+fn setup_player(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
     let sprite_size = 7.5;
     let player_commands = commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(sprite_size, sprite_size)),
-                ..default()
-            },
-            texture,
+        MaterialMesh2dBundle  {
+            mesh: Mesh2dHandle(meshes.add(Rectangle::new(sprite_size, sprite_size))),
+            material: materials.add(Color::rgb_u8(165, 75, 251)),
             ..default()
         },
         Player { speed: 100.0 },
