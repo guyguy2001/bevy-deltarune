@@ -2,6 +2,7 @@ use std::fs;
 
 use bevy::{
     input::common_conditions::input_toggle_active, prelude::*, render::camera::ScalingMode,
+    window::WindowMode,
 };
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 // use bevy_inspector_egui_rapier::InspectableRapierPlugin;
@@ -15,11 +16,11 @@ use menu::MenuUI;
 use utils::{menu_system::MenuSystemPlugin, world_ui::WorldUIPlugin};
 
 mod bullet_hell;
+mod game_config;
 mod level_transition;
 mod lose_screen;
 mod menu;
 mod utils;
-mod game_config;
 
 #[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
 pub enum AppState {
@@ -41,6 +42,11 @@ fn main() {
                     primary_window: Some(Window {
                         title: "Gems game".into(),
                         resolution: game_config.window_size.into(),
+                        mode: if game_config.fullscreen {
+                            WindowMode::BorderlessFullscreen
+                        } else {
+                            WindowMode::Windowed
+                        },
                         resizable: true,
                         ..default()
                     }),
@@ -80,10 +86,7 @@ fn get_config() -> GameConfig {
 fn setup_camera(mut commands: Commands) {
     let mut camera = Camera2dBundle::default();
 
-    camera.projection.scaling_mode = ScalingMode::AutoMin {
-        min_width: 256.0,
-        min_height: 144.0,
-    };
+    camera.projection.scaling_mode = ScalingMode::FixedVertical(200.);
 
     commands.spawn((camera, Name::new("Camera")));
 }

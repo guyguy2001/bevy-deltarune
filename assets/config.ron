@@ -1,6 +1,8 @@
 (
+    // Unused in fullscreen
     window_size: (
         1800.,
         1000.,
-    )
+    ),
+    fullscreen: true,
 )
