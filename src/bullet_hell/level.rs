@@ -18,6 +18,6 @@ fn on_finished_level(
     mut next_state: ResMut<NextState<AppState>>,
 ) {
     for _ in level_finished.read() {
-        next_state.set(AppState::LevelTransition)
+        next_state.set(AppState::LevelEndAnimation);
     }
 }

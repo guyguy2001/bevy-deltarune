@@ -142,12 +142,13 @@ fn spawn_initial_cannons(mut commands: Commands, asset_server: Res<AssetServer>)
         },
     ];
     for cannon in cannons {
-        spawn_cannon(cannon, &asset_server, &mut commands);
+        spawn_cannon(cannon, (), &asset_server, &mut commands);
     }
 }
 
-pub fn spawn_cannon(
+pub fn spawn_cannon<T: Bundle>(
     spawn_properties: CannonSpawnProperties,
+    additional_bundle: T,
     asset_server: &Res<AssetServer>,
     commands: &mut Commands,
 ) {
@@ -174,11 +175,14 @@ pub fn spawn_cannon(
             speed: 50.,
             ..Default::default()
         },
+        Name::new("Moving` cannon"),
+        additional_bundle,
     ));
 }
 
-pub fn spawn_stationary_cannon(
+pub fn spawn_stationary_cannon<T: Bundle>(
     spawn_properties: CannonSpawnProperties,
+    additional_bundle: T,
     asset_server: &Res<AssetServer>,
     commands: &mut Commands,
 ) {
@@ -199,5 +203,7 @@ pub fn spawn_stationary_cannon(
             spawn_properties.shooting_direction,
             Duration::from_secs(2),
         ),
+        Name::new("Stationary cannon"),
+        additional_bundle,
     ));
 }

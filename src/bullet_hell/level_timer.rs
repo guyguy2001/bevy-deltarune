@@ -10,7 +10,7 @@ pub struct LevelTimerPlugin;
 
 impl Plugin for LevelTimerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_timer).add_systems(
+        app.add_systems(Startup, spawn_timer).add_systems(OnEnter(AppState::Defending), reset_timer).add_systems(
             Update,
             timer_behaviour.run_if(in_state(AppState::Defending)),
         );
@@ -78,21 +78,25 @@ fn spawn_timer(mut commands: Commands) {
 }
 
 fn timer_behaviour(
-    mut timer_query: Query<(&mut LevelTimer, &mut Text)>,
+    mut q_timer: Query<(&mut LevelTimer, &mut Text)>,
     mut win_event: EventWriter<LevelFinishedEvent>,
     time: Res<Time>,
-    effects: Res<LevelTransitionEffectsPool>,
-    mut commands: Commands,
 ) {
-    for (mut timer, mut text) in timer_query.iter_mut() {
+    for (mut timer, mut text) in q_timer.iter_mut() {
         timer.remaining_time.tick(time.delta());
         let remaining_time = timer.remaining_time.remaining_secs();
         text.sections[0].value = format!("{remaining_time:.2}");
 
         if timer.remaining_time.just_finished() {
-            // win_event.send(LevelFinishedEvent);
-            timer.remaining_time.reset();
-            commands.run_system(effects.get_random().0);
+            win_event.send(LevelFinishedEvent);
         }
+    }
+}
+
+fn reset_timer(
+    mut q_timer: Query<&mut LevelTimer>,
+) {
+    for mut timer in q_timer.iter_mut() {
+        timer.remaining_time.reset();
     }
 }

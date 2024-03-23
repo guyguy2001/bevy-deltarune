@@ -26,10 +26,10 @@ mod utils;
 pub enum AppState {
     #[default]
     ActionMenu,
-    Attacking,
     Defending,
-    Defeat,
+    LevelEndAnimation,
     LevelTransition,
+    Defeat,
 }
 
 fn main() {

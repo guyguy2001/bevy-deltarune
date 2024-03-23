@@ -76,7 +76,6 @@ fn player_collision(
     mut players: Query<&mut Health, With<Player>>,
 ) {
     for event in contact_events.read() {
-        // println!("{:?}", event);
         if let CollisionEvent::Started(entity1, entity2, _) = event {
             // TODO: get this working with swapped entity orders???
             if let Ok(mut player_health) = players.get_mut(*entity1) {
