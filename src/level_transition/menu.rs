@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 
 use crate::{
+    upgrades::Upgrade,
     utils::{
         data_structures::Index,
         menu_system::{MenuStack, MultiChoiceButton, MultiChoiceParent, SpawnedMenu},
+        resources::pool::SelectionsPool,
         z_index,
     },
     AppState,
@@ -16,7 +18,8 @@ impl Plugin for LevelTransitionMenuPlugin {
         app.add_systems(
             OnEnter(AppState::LevelTransition),
             (spawn_level_transition_menu, register_menu).chain(),
-        ).add_systems(
+        )
+        .add_systems(
             OnExit(AppState::LevelTransition),
             (unregister_menu, despawn_level_transition_menu).chain(),
         );
@@ -37,7 +40,19 @@ fn spawn_level_transition_menu(world: &mut World) {
     let activate_id = world.register_system(activate);
     let deactivate_id = world.register_system(deactivate);
     let pressed_system_id = world.register_system(go_to_next_level);
-    world
+
+    let upgrades = world
+        .resource::<SelectionsPool<Upgrade>>()
+        .get_multiple_random(3);
+    let asset_server = world.resource::<AssetServer>();
+    let upgrades: Vec<Option<(Upgrade, Handle<Image>)>> = upgrades
+        .iter()
+        .map(|upgrade| {
+            upgrade.map(|upgrade| (upgrade, asset_server.load(upgrade.icon_texture).clone()))
+        })
+        .collect();
+
+    let outer_menu = world
         .spawn((
             NodeBundle {
                 z_index: z_index::POPUP_MENU,
@@ -52,57 +67,146 @@ fn spawn_level_transition_menu(world: &mut World) {
             UpgradeSelectMenuRoot,
             Name::new("UpgradeSelectMenu"),
         ))
-        .with_children(|builder| {
-            // spawn the key
-            builder
-                .spawn((
-                    NodeBundle {
-                        style: Style {
-                            margin: UiRect::all(Val::Percent(5.)),
-                            width: Val::Percent(100.),
-                            height: Val::Auto,
-                            flex_direction: FlexDirection::Row,
-                            display: Display::Flex,
-                            align_content: AlignContent::SpaceEvenly,
+        .id();
+    // spawn the key
+    let menu_body = world
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    margin: UiRect::all(Val::Percent(5.)),
+                    width: Val::Percent(100.),
+                    height: Val::Auto,
+                    flex_direction: FlexDirection::Row,
+                    display: Display::Flex,
+                    align_content: AlignContent::SpaceEvenly,
 
-                            ..Default::default()
-                        },
-                        background_color: BackgroundColor(Color::BLACK),
+                    ..Default::default()
+                },
+                background_color: BackgroundColor(Color::BLACK),
+                ..Default::default()
+            },
+            MultiChoiceParent {
+                selected: Index::new(MENU_ITEMS.len(), 0),
+            },
+            UpgradeSelectMenu,
+            Name::new("UpgradeSelectMenu"),
+        ))
+        .id();
+
+    for (i, upgrade) in upgrades.iter().enumerate() {
+        let option = world
+            .spawn((
+                NodeBundle {
+                    style: Style {
+                        width: Val::Percent(100.),
+                        margin: UiRect::all(Val::Percent(3.)),
+                        border: UiRect::all(Val::Percent(1.)),
+                        flex_direction: FlexDirection::Column,
                         ..Default::default()
                     },
-                    MultiChoiceParent {
-                        selected: Index::new(MENU_ITEMS.len(), 0),
+                    background_color: Color::GRAY.into(),
+                    border_color: Color::WHITE.into(),
+                    ..Default::default()
+                },
+                MultiChoiceButton {
+                    on_selected: Some(pressed_system_id),
+                    activate: activate_id,
+                    deactivate: deactivate_id,
+                },
+                Name::new(format!("Upgrade {i}")),
+            ))
+            .id();
+
+        let header = world
+            .spawn((
+                NodeBundle {
+                    style: Style {
+                        width: Val::Percent(100.),
+                        height: Val::Percent(20.),
+                        display: Display::Flex,
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
+                        ..default()
                     },
-                    UpgradeSelectMenu,
-                    Name::new("UpgradeSelectMenu"),
-                ))
-                .with_children(|builder| {
-                    for i in [1, 2, 3] {
-                        builder.spawn((
-                            NodeBundle {
-                                style: Style {
-                                    width: Val::Percent(100.),
-                                    margin: UiRect::all(Val::Percent(3.)),
-                                    border: UiRect::all(Val::Percent(1.)),
-                                    ..Default::default()
-                                },
-                                background_color: Color::GRAY.into(),
-                                border_color: Color::WHITE.into(),
-                                ..Default::default()
-                            },
-                            MultiChoiceButton {
-                                on_selected: Some(pressed_system_id),
-                                activate: activate_id,
-                                deactivate: deactivate_id,
-                            },
-                            Name::new(format!("Upgrade {i}")),
-                        ));
-                    }
-                });
-        });
+                    ..default()
+                },
+                Name::new("Header"),
+            ))
+            .id();
+
+        let body = world
+            .spawn((
+                NodeBundle {
+                    style: Style {
+                        width: Val::Percent(100.),
+                        height: Val::Percent(80.),
+                        display: Display::Flex,
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
+                        ..default()
+                    },
+                    ..default()
+                },
+                Name::new("Body"),
+            ))
+            .id();
+
+        let title = world
+            .spawn((
+                TextBundle {
+                    text: Text::from_section(
+                        match upgrade {
+                            None => "Placeholder",
+                            Some((upgrade, _)) => upgrade.name,
+                        },
+                        TextStyle {
+                            font_size: 64.,
+                            ..default()
+                        },
+                    )
+                    .with_justify(JustifyText::Center),
+                    style: Style { ..default() },
+                    ..default()
+                },
+                Name::new("Header"),
+            ))
+            .id();
+
+        let mut icon = world.spawn((
+            NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    bottom: Val::Percent(5.),
+                    width: Val::Percent(50.),
+                    height: Val::Px(200.),
+                    border: UiRect::all(Val::Px(5.)),
+                    ..default()
+                },
+                ..default()
+            },
+            Name::new("Image"),
+        ));
+
+        if let Some((_, icon_path)) = upgrade {
+            icon.insert(UiImage::new((*icon_path).clone()));
+            icon.get_mut::<BackgroundColor>().unwrap().0 = Color::WHITE.into();
+        }
+        let icon = icon.id();
+
+        world.entity_mut(option).add_child(header);
+        world.entity_mut(header).add_child(title);
+        world.entity_mut(option).add_child(body);
+        world.entity_mut(body).add_child(icon);
+
+        world.entity_mut(menu_body).add_child(option);
+    }
+    world.entity_mut(outer_menu).add_child(menu_body);
 }
 
-fn despawn_level_transition_menu(mut commands: Commands, q_menu: Query<Entity, With<UpgradeSelectMenuRoot>>) {
+fn despawn_level_transition_menu(
+    mut commands: Commands,
+    q_menu: Query<Entity, With<UpgradeSelectMenuRoot>>,
+) {
     let menu = q_menu.get_single().unwrap();
     commands.entity(menu).despawn_recursive();
 }

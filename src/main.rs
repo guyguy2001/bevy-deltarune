@@ -13,6 +13,7 @@ use game_config::GameConfig;
 use level_transition::LevelTransitionPlugin;
 use lose_screen::LoseScreenPlugin;
 use menu::MenuUI;
+use upgrades::UpgradesPlugin;
 use utils::{menu_system::MenuSystemPlugin, world_ui::WorldUIPlugin};
 
 mod bullet_hell;
@@ -21,6 +22,7 @@ mod level_transition;
 mod lose_screen;
 mod menu;
 mod utils;
+mod upgrades;
 
 #[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
 pub enum AppState {
@@ -69,6 +71,7 @@ fn main() {
         .add_plugins(MenuSystemPlugin)
         .add_plugins(MenuUI)
         .add_plugins(LoseScreenPlugin)
+        .add_plugins(UpgradesPlugin) // TODO: Should this be here?
         .insert_resource(Money(100.0))
         .add_systems(Startup, setup_camera)
         .run();
