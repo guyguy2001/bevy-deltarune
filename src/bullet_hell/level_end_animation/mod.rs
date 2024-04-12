@@ -28,7 +28,10 @@ impl Plugin for LevelEndAnimationPlugin {
     fn build(&self, app: &mut App) {
         app.insert_state(LevelEndAnimationState::Animations)
             .insert_resource(PostAnimationsDelayTimer::new())
-            .add_systems(OnEnter(AppState::LevelEndAnimation), (reset_animation_state, apply_random_effect))
+            .add_systems(
+                OnEnter(AppState::LevelEndAnimation),
+                (reset_animation_state, apply_random_effect),
+            )
             .add_systems(
                 Update,
                 (
@@ -43,9 +46,7 @@ impl Plugin for LevelEndAnimationPlugin {
     }
 }
 
-fn reset_animation_state(
-    mut animation_state: ResMut<NextState<LevelEndAnimationState>>,
-) {
+fn reset_animation_state(mut animation_state: ResMut<NextState<LevelEndAnimationState>>) {
     animation_state.0 = Some(LevelEndAnimationState::Animations);
 }
 

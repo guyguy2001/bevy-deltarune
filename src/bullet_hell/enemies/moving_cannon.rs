@@ -45,12 +45,12 @@ impl Cannon {
 
 fn spawn_enemy(cannon: &Cannon, position: Vec3, enemy_type: EnemyTypes, commands: &mut Commands) {
     let bullet = match enemy_type {
-        EnemyTypes::SmallBullet => BulletProperties{
+        EnemyTypes::SmallBullet => BulletProperties {
             damage: 5.,
             size: 4.,
             speed: 200.,
         },
-        EnemyTypes::BigBullet => BulletProperties{
+        EnemyTypes::BigBullet => BulletProperties {
             damage: 10.,
             size: 16.,
             speed: 50.,

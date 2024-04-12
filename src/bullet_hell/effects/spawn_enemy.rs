@@ -1,14 +1,17 @@
-use std::{f32::consts::{PI, TAU}, time::Duration};
+use std::time::Duration;
 
 use bevy::prelude::*;
-use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
+
 use rand::Rng;
 
 use crate::bullet_hell::enemies::moving_cannon::{
     spawn_cannon, spawn_stationary_cannon, CannonSpawnProperties,
 };
 
-use super::{effect::{Effect, LevelTransitionEffectsPool}, spawning_animation::SpawningAnimation};
+use super::{
+    effect::{Effect, LevelTransitionEffectsPool},
+    spawning_animation::SpawningAnimation,
+};
 
 pub struct SpawnEnemyPlugin;
 

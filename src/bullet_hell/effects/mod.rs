@@ -3,8 +3,8 @@ use bevy::prelude::*;
 use self::effect::LevelTransitionEffectsPool;
 
 pub mod effect;
-pub mod spawning_animation;
 mod spawn_enemy;
+pub mod spawning_animation;
 
 pub struct EffectsPlugin;
 

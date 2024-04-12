@@ -4,9 +4,7 @@ use bevy::prelude::*;
 pub struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
-    fn build(&self, app: &mut App) {
-        
-    }
+    fn build(&self, _app: &mut App) {}
 }
 
 // fn disable_physics(mut physics_context: ResMut<RapierContext>) {

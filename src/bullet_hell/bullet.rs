@@ -32,7 +32,12 @@ pub struct BulletProperties {
     pub speed: f32,
 }
 
-pub fn spawn_bullet_in_pos(position: Vec3, direction: Vec3, properties: BulletProperties, commands: &mut Commands) {
+pub fn spawn_bullet_in_pos(
+    position: Vec3,
+    direction: Vec3,
+    properties: BulletProperties,
+    commands: &mut Commands,
+) {
     // TODO: Question - when do I receive asset_server as a parameter, and when do I get it from the world?
     // TODO: ask for the asset_server inside of the commands queue, instead of directly here?
     commands.add(move |world: &mut World| {

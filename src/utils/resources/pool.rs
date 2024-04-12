@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use rand::{seq::IteratorRandom, seq::SliceRandom, Rng};
+use rand::{seq::IteratorRandom, seq::SliceRandom};
 
 /// A resource for managing a pool of selections we can pick from - for example the available upgrades, or the end-of-level effects.
 #[derive(Resource)]

@@ -1,4 +1,7 @@
-use bevy::{prelude::*, sprite::{MaterialMesh2dBundle, Mesh2dHandle}};
+use bevy::{
+    prelude::*,
+    sprite::{MaterialMesh2dBundle, Mesh2dHandle},
+};
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
 use bevy_rapier2d::prelude::*;
@@ -35,7 +38,7 @@ fn setup_player(
 ) {
     let sprite_size = 7.5;
     let player_commands = commands.spawn((
-        MaterialMesh2dBundle  {
+        MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Rectangle::new(sprite_size, sprite_size))),
             material: materials.add(Color::rgb_u8(165, 75, 251)),
             ..default()

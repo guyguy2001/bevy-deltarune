@@ -21,8 +21,8 @@ mod game_config;
 mod level_transition;
 mod lose_screen;
 mod menu;
-mod utils;
 mod upgrades;
+mod utils;
 
 #[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
 pub enum AppState {

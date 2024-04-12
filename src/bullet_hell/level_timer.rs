@@ -2,18 +2,23 @@ use std::time::Duration;
 
 use bevy::{math::vec3, prelude::*};
 
-use crate::{utils::{world_ui::WorldUI, z_index}, AppState};
+use crate::{
+    utils::{world_ui::WorldUI, z_index},
+    AppState,
+};
 
-use super::{effects::effect::LevelTransitionEffectsPool, level::LevelFinishedEvent};
+use super::level::LevelFinishedEvent;
 
 pub struct LevelTimerPlugin;
 
 impl Plugin for LevelTimerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_timer).add_systems(OnEnter(AppState::Defending), reset_timer).add_systems(
-            Update,
-            timer_behaviour.run_if(in_state(AppState::Defending)),
-        );
+        app.add_systems(Startup, spawn_timer)
+            .add_systems(OnEnter(AppState::Defending), reset_timer)
+            .add_systems(
+                Update,
+                timer_behaviour.run_if(in_state(AppState::Defending)),
+            );
     }
 }
 
@@ -93,9 +98,7 @@ fn timer_behaviour(
     }
 }
 
-fn reset_timer(
-    mut q_timer: Query<&mut LevelTimer>,
-) {
+fn reset_timer(mut q_timer: Query<&mut LevelTimer>) {
     for mut timer in q_timer.iter_mut() {
         timer.remaining_time.reset();
     }
