@@ -39,6 +39,7 @@ impl Plugin for BulletHellPlugin {
             MovingCannonPlugin,
             // PhysicsPlugin,
             PlayerPlugin,
-        )).add_systems(Startup, populate_upgrades_pool);
+        ))
+        .add_systems(Startup, populate_upgrades_pool);
     }
 }
