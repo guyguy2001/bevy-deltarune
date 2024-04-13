@@ -104,8 +104,6 @@ fn spawn_menu_ui(world: &mut World) {
             }
         });
 }
-#[derive(Resource, Default)]
-struct Counter(u8);
 
 fn deactivate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
     border_query.get_mut(entity).unwrap().0 = Color::BLACK;

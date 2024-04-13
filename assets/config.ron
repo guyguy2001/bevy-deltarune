@@ -5,7 +5,8 @@
         1000.,
     ),
     fullscreen: true,
-    debug: Some((
-        starting_state: LevelTransition,
-    )),
+    // debug: Some((
+    //     starting_state: LevelTransition,
+    // )),
+    deubg: None,
 )
