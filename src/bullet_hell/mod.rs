@@ -9,6 +9,7 @@ use self::level::LevelPlugin;
 use self::level_end_animation::LevelEndAnimationPlugin;
 use self::level_timer::LevelTimerPlugin;
 use self::player::PlayerPlugin;
+use self::upgrades::populate_upgrades_pool;
 
 mod effects;
 mod enemies;
@@ -21,6 +22,7 @@ mod level_end_animation;
 mod level_timer;
 mod physics;
 mod player;
+mod upgrades;
 
 pub struct BulletHellPlugin;
 
@@ -37,6 +39,6 @@ impl Plugin for BulletHellPlugin {
             MovingCannonPlugin,
             // PhysicsPlugin,
             PlayerPlugin,
-        ));
+        )).add_systems(Startup, populate_upgrades_pool);
     }
 }

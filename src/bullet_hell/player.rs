@@ -6,7 +6,11 @@ use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
 use bevy_rapier2d::prelude::*;
 
-use crate::{lose_screen::LoseEvent, AppState};
+use crate::{
+    lose_screen::LoseEvent,
+    upgrades::{UpgradesReceiver, UpgradesReceiverFaction},
+    AppState,
+};
 
 use super::healthbar::{spawn_healthbar, Health};
 
@@ -44,6 +48,10 @@ fn setup_player(
             ..default()
         },
         Player { speed: 100.0 },
+        Health::new(10.),
+        UpgradesReceiver {
+            factions: UpgradesReceiverFaction::Player,
+        },
         Name::new("Player"),
         (
             ActiveEvents::COLLISION_EVENTS,
@@ -54,7 +62,6 @@ fn setup_player(
                 ..Default::default()
             },
             RigidBody::KinematicPositionBased,
-            Health::new(10.),
         ),
     ));
     let player_entity = player_commands.id();

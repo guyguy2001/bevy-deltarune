@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    upgrades::Upgrade,
+    upgrades::{GlobalUpgrade, UpgradeApplier},
     utils::{
         data_structures::Index,
         menu_system::{MenuStack, MultiChoiceButton, MultiChoiceParent, SpawnedMenu},
@@ -34,21 +34,27 @@ struct UpgradeSelectMenuRoot;
 #[derive(Component)]
 struct UpgradeSelectMenu;
 
+#[derive(Component)]
+struct UpgradeOption(Option<GlobalUpgrade>);
+
 const MENU_ITEMS: [i32; 3] = [1, 2, 3];
 
 fn spawn_level_transition_menu(world: &mut World) {
     let activate_id = world.register_system(activate);
     let deactivate_id = world.register_system(deactivate);
-    let pressed_system_id = world.register_system(go_to_next_level);
+    let pressed_system_id = world.register_system(process_upgrade_and_go_to_next_level);
 
     let upgrades = world
-        .resource::<SelectionsPool<Upgrade>>()
+        .resource::<SelectionsPool<GlobalUpgrade>>()
         .get_multiple_random(3);
     let asset_server = world.resource::<AssetServer>();
-    let upgrades: Vec<Option<(Upgrade, Handle<Image>)>> = upgrades
+    let upgrades: Vec<Option<(GlobalUpgrade, Handle<Image>)>> = upgrades
         .iter()
         .map(|upgrade| {
-            upgrade.map(|upgrade| (upgrade, asset_server.load(upgrade.icon_texture).clone()))
+            upgrade.clone().map(|upgrade| {
+                let texture = upgrade.upgrade.icon_texture;
+                (upgrade, asset_server.load(texture).clone())
+            })
         })
         .collect();
 
@@ -113,6 +119,7 @@ fn spawn_level_transition_menu(world: &mut World) {
                     activate: activate_id,
                     deactivate: deactivate_id,
                 },
+                UpgradeOption(upgrade.as_ref().map(|(upgrade, _)| (*upgrade).clone())),
                 Name::new(format!("Upgrade {i}")),
             ))
             .id();
@@ -157,7 +164,7 @@ fn spawn_level_transition_menu(world: &mut World) {
                     text: Text::from_section(
                         match upgrade {
                             None => "Placeholder",
-                            Some((upgrade, _)) => upgrade.name,
+                            Some((upgrade, _)) => upgrade.upgrade.name,
                         },
                         TextStyle {
                             font_size: 64.,
@@ -171,6 +178,50 @@ fn spawn_level_transition_menu(world: &mut World) {
                 Name::new("Header"),
             ))
             .id();
+        let description_div = world
+            .spawn(NodeBundle {
+                style: Style {
+                    flex_direction: FlexDirection::Column,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::End,
+                    height: Val::Percent(40.),
+                    padding: UiRect::new(
+                        // Val::Percent(10.),
+                        // Val::Percent(10.),
+                        Val::Percent(0.),
+                        Val::Percent(0.),
+                        Val::Percent(0.),
+                        Val::Percent(10.),
+                    ),
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .id();
+
+        // BUG: I think that if I have a div (flexbox, idk if related), inside of which there is a text node, and the text-node is multiline, it will ignore right-padding
+        // Wrapping the text in description_div fixed it (TODO: open an issue)
+        let mut description = world.spawn((
+            TextBundle {
+                style: Style {
+                    ..Default::default()
+                },
+                ..default()
+            },
+            Name::new("Description"),
+        ));
+        if let Some((upgrade, _)) = upgrade {
+            let mut text = description.get_mut::<Text>().unwrap();
+            *text = Text::from_section(
+                upgrade.upgrade.description,
+                TextStyle {
+                    font_size: 32.,
+                    ..Default::default()
+                },
+            )
+            .with_justify(JustifyText::Center);
+        };
+        let description = description.id();
 
         let mut icon = world.spawn((
             NodeBundle {
@@ -196,6 +247,8 @@ fn spawn_level_transition_menu(world: &mut World) {
         world.entity_mut(option).add_child(header);
         world.entity_mut(header).add_child(title);
         world.entity_mut(option).add_child(body);
+        world.entity_mut(body).add_child(description_div);
+        world.entity_mut(description_div).add_child(description);
         world.entity_mut(body).add_child(icon);
 
         world.entity_mut(menu_body).add_child(option);
@@ -237,6 +290,15 @@ pub fn activate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor
     border_query.get_mut(entity).unwrap().0 = Color::WHITE;
 }
 
-pub fn go_to_next_level(In(_entity): In<Entity>, mut app_state: ResMut<NextState<AppState>>) {
+fn process_upgrade_and_go_to_next_level(
+    In(menu_item_entity): In<Entity>,
+    mut commands: Commands,
+    mut app_state: ResMut<NextState<AppState>>,
+    upgrade_applier: Res<UpgradeApplier>,
+    q_upgrade: Query<&UpgradeOption>,
+) {
+    if let Some(upgrade) = q_upgrade.get(menu_item_entity).unwrap().0.clone() {
+        commands.run_system_with_input(upgrade_applier.apply_upgrade_to_all, upgrade);
+    }
     app_state.0 = Some(AppState::Defending);
 }

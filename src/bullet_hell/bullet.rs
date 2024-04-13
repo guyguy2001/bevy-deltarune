@@ -3,6 +3,7 @@ use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
 use bevy_rapier2d::prelude::*;
 
+use crate::upgrades::{UpgradesReceiver, UpgradesReceiverFaction};
 use crate::AppState;
 
 use super::healthbar::Health;
@@ -58,6 +59,9 @@ pub fn spawn_bullet_in_pos(
             Bullet {
                 direction: direction,
                 damage: properties.damage,
+            },
+            UpgradesReceiver {
+                factions: UpgradesReceiverFaction::EnemyBullets,
             },
             (
                 ActiveEvents::COLLISION_EVENTS,

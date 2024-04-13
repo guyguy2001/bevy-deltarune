@@ -20,7 +20,8 @@ impl Plugin for HealthbarPlugin {
 #[reflect(Component, InspectorOptions)]
 pub struct Health {
     pub health: f32,
-    max_health: f32,
+    // TODO: How I make it public only to stuff like the upgrade system?
+    pub max_health: f32,
 }
 
 impl Health {
