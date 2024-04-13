@@ -49,6 +49,7 @@ fn spawn_menu_ui(world: &mut World) {
                     ..default()
                 },
                 background_color: Color::DARK_GRAY.into(),
+                visibility: Visibility::Hidden,
                 ..default()
             },
             MultiChoiceParent {

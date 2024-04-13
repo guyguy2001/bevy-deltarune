@@ -13,6 +13,7 @@ use game_config::GameConfig;
 use level_transition::LevelTransitionPlugin;
 use lose_screen::LoseScreenPlugin;
 use menu::MenuUI;
+use serde::Deserialize;
 use upgrades::UpgradesPlugin;
 use utils::{menu_system::MenuSystemPlugin, world_ui::WorldUIPlugin};
 
@@ -24,7 +25,7 @@ mod menu;
 mod upgrades;
 mod utils;
 
-#[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default)]
+#[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default, Deserialize)]
 pub enum AppState {
     #[default]
     ActionMenu,
@@ -61,7 +62,11 @@ fn main() {
         })
         // .add_plugins(InspectableRapierPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        .init_state::<AppState>()
+        .insert_state::<AppState>(
+            game_config
+                .debug
+                .map_or(AppState::default(), |conf| conf.starting_state),
+        )
         .add_plugins(WorldUIPlugin)
         .add_plugins(BulletHellPlugin)
         .add_plugins(LevelTransitionPlugin)

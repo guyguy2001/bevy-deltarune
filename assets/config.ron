@@ -5,4 +5,7 @@
         1000.,
     ),
     fullscreen: true,
+    debug: Some((
+        starting_state: LevelTransition,
+    )),
 )

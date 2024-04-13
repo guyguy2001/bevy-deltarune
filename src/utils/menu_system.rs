@@ -75,7 +75,7 @@ impl<'w, 's, Q: ReadOnlyQueryData + 'static> MenuQueries<'w, 's, Q> {
 
 impl<'w, 's, Q: QueryData + 'static> MenuQueries<'w, 's, Q> {
     pub fn get_selected_child_mut(&mut self, menu_parent_entity: Entity) -> Q::Item<'_> {
-        let (name, children_component, multi_choice_parent) =
+        let (_, children_component, multi_choice_parent) =
             self.q_menu_parent.get(menu_parent_entity).unwrap();
 
         // The unwrap is safe if and only if multi_choice_parent was defined to handle the given children.

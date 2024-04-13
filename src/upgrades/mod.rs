@@ -1,5 +1,5 @@
-mod lib;
 mod plugin;
-mod upgrades;
+#[cfg(test)]
+mod tests;
 
 pub use plugin::*;

@@ -37,7 +37,7 @@ pub fn populate_upgrades_pool(world: &mut World) {
                 apply_upgrade: world.register_system(make_bullets_yellow),
                 name: "Yellow Boxes",
                 description: "Test upgrade - make all enemy bullets yellow",
-                icon_texture: Path::new("sprites/upgrade/yellow.png"),
+                icon_texture: Path::new("sprites/upgrades/yellow.png"),
             },
             receiver_factions: UpgradesReceiverFaction::EnemyBullets,
         },

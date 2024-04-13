@@ -37,14 +37,14 @@ pub enum UpgradesReceiverFaction {
 }
 
 /// A marker for an entity that can receive upgrades.
-#[derive(Component, InspectorOptions, Default, Reflect)]
+#[derive(Component, InspectorOptions, Default, Reflect, Clone)]
 #[reflect(Component, InspectorOptions)]
 pub struct UpgradesReceiver {
     pub factions: UpgradesReceiverFaction,
 }
 
 fn should_apply_upgrade(receiver: &UpgradesReceiver, upgrade: &GlobalUpgrade) -> bool {
-    !upgrade.receiver_factions.or(receiver.factions).is_none()
+    !upgrade.receiver_factions.and(receiver.factions).is_none()
 }
 
 fn apply_upgrade_on_spawn(
@@ -95,4 +95,54 @@ fn apply_upgrade_to_all(
 #[derive(Resource, Default)]
 pub struct AppliedGlobalUpgrades {
     pub applied_upgrades: Vec<GlobalUpgrade>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_should_apply() {
+        let mut world = World::new();
+        let empty_system_id = world.register_system(|In(_entity): In<Entity>| {});
+        let get_upgrade = |factions| GlobalUpgrade {
+            receiver_factions: factions,
+            upgrade: Upgrade {
+                apply_upgrade: empty_system_id,
+                description: "",
+                name: "",
+                icon_texture: Path::new(""),
+            },
+        };
+        let get_receiver = |factions| UpgradesReceiver { factions: factions };
+
+        assert!(should_apply_upgrade(
+            &get_receiver(UpgradesReceiverFaction::Enemy),
+            &get_upgrade(UpgradesReceiverFaction::Enemy),
+        ));
+        assert!(!should_apply_upgrade(
+            &get_receiver(UpgradesReceiverFaction::Enemy),
+            &get_upgrade(UpgradesReceiverFaction::Player),
+        ));
+        assert!(!should_apply_upgrade(
+            &get_receiver(UpgradesReceiverFaction::Enemy),
+            &get_upgrade(UpgradesReceiverFaction::EnemyBullets),
+        ));
+        assert!(should_apply_upgrade(
+            &get_receiver(UpgradesReceiverFaction::Enemy),
+            &get_upgrade(UpgradesReceiverFaction::Enemy | UpgradesReceiverFaction::Player),
+        ));
+        assert!(should_apply_upgrade(
+            &get_receiver(UpgradesReceiverFaction::Enemy | UpgradesReceiverFaction::Player),
+            &get_upgrade(UpgradesReceiverFaction::Enemy | UpgradesReceiverFaction::Player),
+        ));
+        assert!(should_apply_upgrade(
+            &get_receiver(UpgradesReceiverFaction::Enemy | UpgradesReceiverFaction::Player),
+            &get_upgrade(UpgradesReceiverFaction::Enemy),
+        ));
+        assert!(!should_apply_upgrade(
+            &get_receiver(UpgradesReceiverFaction::Player),
+            &get_upgrade(UpgradesReceiverFaction::Enemy | UpgradesReceiverFaction::EnemyBullets),
+        ));
+    }
 }
