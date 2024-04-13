@@ -6,14 +6,14 @@ pub struct Index {
 
 impl Index {
     pub fn new(limit: usize, current: usize) -> Index {
-        return Index {
+        Index {
             limit,
             index: Index::normalize(limit, current),
-        };
+        }
     }
 
     fn normalize(limit: usize, current: usize) -> usize {
-        return current % limit;
+        current % limit
     }
 
     pub fn add(&mut self, change: i8) {

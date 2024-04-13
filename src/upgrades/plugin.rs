@@ -85,7 +85,7 @@ fn apply_upgrade_to_all(
     mut applied_global_upgrades: ResMut<AppliedGlobalUpgrades>,
 ) {
     for (entity, receiver) in q_relevant_entities.iter() {
-        if should_apply_upgrade(&receiver, &upgrade) {
+        if should_apply_upgrade(receiver, &upgrade) {
             commands.run_system_with_input(upgrade.upgrade.apply_upgrade, entity)
         }
     }
@@ -114,7 +114,7 @@ mod tests {
                 icon_texture: Path::new(""),
             },
         };
-        let get_receiver = |factions| UpgradesReceiver { factions: factions };
+        let get_receiver = |factions| UpgradesReceiver { factions };
 
         assert!(should_apply_upgrade(
             &get_receiver(UpgradesReceiverFaction::Enemy),

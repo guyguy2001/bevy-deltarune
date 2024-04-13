@@ -88,8 +88,8 @@ enum WanderDirection {
 impl WanderDirection {
     pub fn other(&self) -> Self {
         match self {
-            &Self::ToEnd => Self::ToStart,
-            &Self::ToStart => Self::ToEnd,
+            Self::ToEnd => Self::ToStart,
+            Self::ToStart => Self::ToEnd,
         }
     }
 }
@@ -194,7 +194,7 @@ pub fn spawn_stationary_cannon<T: Bundle>(
                 custom_size: Some(Vec2::new(sprite_size, sprite_size)),
                 ..default()
             },
-            texture: texture,
+            texture,
             transform: Transform::from_translation(spawn_properties.start),
             ..default()
         },

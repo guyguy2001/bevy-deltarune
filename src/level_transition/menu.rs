@@ -240,7 +240,7 @@ fn spawn_level_transition_menu(world: &mut World) {
 
         if let Some((_, icon_path)) = upgrade {
             icon.insert(UiImage::new((*icon_path).clone()));
-            icon.get_mut::<BackgroundColor>().unwrap().0 = Color::WHITE.into();
+            icon.get_mut::<BackgroundColor>().unwrap().0 = Color::WHITE;
         }
         let icon = icon.id();
 

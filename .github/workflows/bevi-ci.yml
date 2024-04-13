@@ -1,5 +1,6 @@
 name: CI
 
+# TODO: It seems like it doesn't share compilations between "Test Suite" and "Clippy"
 on:
   push:
     branches: [master]

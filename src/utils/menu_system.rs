@@ -115,11 +115,7 @@ pub struct MenuStack {
 
 impl MenuStack {
     pub fn get_current_menu(&self) -> Option<Entity> {
-        if self.menus.len() > 0 {
-            Some(self.menus.get(self.menus.len() - 1).unwrap().clone())
-        } else {
-            None
-        }
+        self.menus.last().copied()
     }
 
     pub fn push_menu(&mut self, new_menu: Entity) {

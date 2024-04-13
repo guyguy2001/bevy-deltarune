@@ -28,7 +28,7 @@ impl Health {
     pub fn new(max_health: f32) -> Self {
         Health {
             health: max_health,
-            max_health: max_health,
+            max_health,
         }
     }
 }

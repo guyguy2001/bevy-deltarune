@@ -57,7 +57,7 @@ pub fn spawn_bullet_in_pos(
                 ..Default::default()
             },
             Bullet {
-                direction: direction,
+                direction,
                 damage: properties.damage,
             },
             UpgradesReceiver {
