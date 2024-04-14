@@ -3,7 +3,7 @@ use bevy_inspector_egui::prelude::*;
 use bitmask_enum::bitmask;
 use std::path::Path;
 
-use crate::utils::resources::pool::SelectionsPool;
+use crate::utils::resources::SelectionsPool;
 
 pub struct UpgradesPlugin;
 

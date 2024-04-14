@@ -5,7 +5,7 @@ use crate::{
     utils::{
         data_structures::Index,
         menu_system::{MenuStack, MultiChoiceButton, MultiChoiceParent, SpawnedMenu},
-        resources::pool::SelectionsPool,
+        resources::SelectionsPool,
         z_index,
     },
     AppState,

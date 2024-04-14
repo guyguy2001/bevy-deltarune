@@ -7,13 +7,13 @@ use bevy::{
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 // use bevy_inspector_egui_rapier::InspectableRapierPlugin;
 use bevy_rapier2d::prelude::*;
+use serde::Deserialize;
 
 use bullet_hell::BulletHellPlugin;
 use game_config::GameConfig;
 use level_transition::LevelTransitionPlugin;
 use lose_screen::LoseScreenPlugin;
 use menu::MenuUI;
-use serde::Deserialize;
 use upgrades::UpgradesPlugin;
 use utils::{menu_system::MenuSystemPlugin, world_ui::WorldUIPlugin};
 

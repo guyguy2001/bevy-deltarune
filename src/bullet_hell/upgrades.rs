@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use crate::{
     upgrades::{GlobalUpgrade, Upgrade, UpgradesReceiverFaction},
-    utils::resources::pool::SelectionsPool,
+    utils::resources::SelectionsPool,
 };
 
 use super::healthbar::Health;
