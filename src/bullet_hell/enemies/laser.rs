@@ -2,8 +2,12 @@ use std::time::Duration;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_inspector_egui::prelude::*;
+use bevy_rapier2d::prelude::*;
 
-use crate::{bullet_hell::game_z_index, AppState};
+use crate::{
+    bullet_hell::{game_z_index, healthbar::Health, player::Player},
+    AppState,
+};
 
 pub struct LaserPlugin;
 
@@ -12,7 +16,12 @@ impl Plugin for LaserPlugin {
         app.add_systems(Startup, spawn_initial_laser_cannons)
             .add_systems(
                 Update,
-                (laser_cannon_behavior, laser_behavior).run_if(in_state(AppState::Defending)),
+                (
+                    laser_cannon_behavior,
+                    laser_lifecycle,
+                    laser_player_collision,
+                )
+                    .run_if(in_state(AppState::Defending)),
             );
     }
 }
@@ -53,6 +62,7 @@ struct Laser {
     winding_up_duration: Duration,
     active_duration: Duration,
     winding_down_duration: Duration,
+    damage: f32,
 }
 
 impl Default for Laser {
@@ -61,6 +71,7 @@ impl Default for Laser {
             winding_up_duration: Duration::from_secs(1),
             active_duration: Duration::from_secs(2),
             winding_down_duration: Duration::from_secs_f32(0.25),
+            damage: 5.,
         }
     }
 }
@@ -104,12 +115,13 @@ fn spawn_laser(
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<ColorMaterial>>,
 ) {
+    const WIDTH: f32 = 10.;
     const HEIGHT: f32 = 1000.;
     let laser = Laser::default();
     let child = commands
         .spawn((
             MaterialMesh2dBundle {
-                mesh: meshes.add(Rectangle::new(10., HEIGHT)).into(), // TODO: custom width, full height (TODO: rotations),
+                mesh: meshes.add(Rectangle::new(WIDTH, HEIGHT)).into(), // TODO: custom width, full height (TODO: rotations),
                 material: materials.add(Color::WHITE.with_a(0.)),
                 transform: Transform::from_xyz(0., -HEIGHT / 2., game_z_index::LASERS),
                 ..Default::default()
@@ -117,12 +129,20 @@ fn spawn_laser(
             LaserState::new(&laser),
             laser,
             Name::new("Laser"),
+            (
+                ActiveEvents::COLLISION_EVENTS,
+                ActiveCollisionTypes::all(),
+                ColliderDisabled,
+                Collider::cuboid(WIDTH / 2., HEIGHT / 2.),
+                RigidBody::Fixed,
+                Sensor,
+            ),
         ))
         .id();
     commands.entity(parent).add_child(child);
 }
 
-fn laser_behavior(
+fn laser_lifecycle(
     mut query: Query<(Entity, &Laser, &mut LaserState, &mut Handle<ColorMaterial>)>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     time: Res<Time>,
@@ -143,12 +163,14 @@ fn laser_behavior(
                 lerp_color(0., 1., timer.fraction());
 
                 if timer.just_finished() {
+                    commands.entity(entity).remove::<ColliderDisabled>();
                     *state = LaserState::make_active(laser);
                 }
             }
             LaserState::Active(ref mut timer) => {
                 timer.tick(time.delta());
                 if timer.just_finished() {
+                    commands.entity(entity).insert(ColliderDisabled);
                     *state = LaserState::make_winding_down(laser);
                 }
             }
@@ -158,6 +180,24 @@ fn laser_behavior(
 
                 if timer.just_finished() {
                     commands.entity(entity).despawn_recursive();
+                }
+            }
+        }
+    }
+}
+
+fn laser_player_collision(
+    mut contact_events: EventReader<CollisionEvent>,
+    q_lasers: Query<&Laser>,
+    mut q_players: Query<&mut Health, With<Player>>,
+) {
+    for event in contact_events.read() {
+        if let CollisionEvent::Started(entity1, entity2, _) = event {
+            // TODO: get this working with swapped entity orders???
+            if let Ok(mut player_health) = q_players.get_mut(*entity1) {
+                if let Ok(laser_component) = q_lasers.get(*entity2) {
+                    player_health.health -= laser_component.damage;
+                    println!("{}", player_health.health);
                 }
             }
         }
