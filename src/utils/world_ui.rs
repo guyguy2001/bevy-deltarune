@@ -16,7 +16,7 @@ pub struct WorldUI {
 fn sync_world_ui_to_parent(
     mut world_ui_query: Query<(&mut Style, &WorldUI)>,
     transform_query: Query<&GlobalTransform>,
-    camera_query: Query<(&Camera, &GlobalTransform)>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<IsDefaultUiCamera>>,
 ) {
     let (camera, camera_transform) = camera_query.single();
     for (mut style, world_ui) in world_ui_query.iter_mut() {

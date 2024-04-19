@@ -1,10 +1,8 @@
 use std::fs;
 
-use bevy::{
-    input::common_conditions::input_toggle_active, prelude::*, render::camera::ScalingMode,
-    window::WindowMode,
-};
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy::{prelude::*, render::camera::ScalingMode, window::WindowMode};
+use bevy_editor_pls::prelude::*;
+
 // use bevy_inspector_egui_rapier::InspectableRapierPlugin;
 use bevy_rapier2d::prelude::*;
 use serde::Deserialize;
@@ -60,6 +58,7 @@ fn main() {
             mode: DebugRenderMode::empty(),
             ..Default::default()
         })
+        .add_plugins(EditorPlugin::default())
         // .add_plugins(InspectableRapierPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .insert_state::<AppState>(
@@ -72,9 +71,9 @@ fn main() {
         .add_plugins(WorldUIPlugin)
         .add_plugins(BulletHellPlugin)
         .add_plugins(LevelTransitionPlugin)
-        .add_plugins(
-            WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
-        )
+        // .add_plugins(
+        //     WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
+        // )
         .add_plugins(MenuSystemPlugin)
         .add_plugins(MenuUI)
         .add_plugins(LoseScreenPlugin)
@@ -98,7 +97,7 @@ fn setup_camera(mut commands: Commands) {
 
     camera.projection.scaling_mode = ScalingMode::FixedVertical(200.);
 
-    commands.spawn((camera, Name::new("Camera")));
+    commands.spawn((camera, IsDefaultUiCamera, Name::new("Camera")));
 }
 
 #[derive(Resource)]
