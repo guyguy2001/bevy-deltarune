@@ -22,13 +22,10 @@ impl Plugin for MenuUI {
     Component, Clone, Copy, Event, PartialEq, Eq, strum_macros::EnumIter, strum_macros::Display,
 )]
 enum Buttons {
-    Attack,
-    Act,
-    Items,
-    Run,
+    Start,
 }
 
-const MENU_ITEMS: [Buttons; 4] = [Buttons::Attack, Buttons::Act, Buttons::Items, Buttons::Run];
+const MENU_ITEMS: [Buttons; 1] = [Buttons::Start];
 
 fn spawn_menu_ui(world: &mut World) {
     let activate_id = world.register_system(activate);
@@ -70,7 +67,7 @@ fn spawn_menu_ui(world: &mut World) {
                                 justify_content: JustifyContent::Center,
                                 ..default()
                             },
-                            border_color: if *button == Buttons::Attack {
+                            border_color: if *button == Buttons::Start {
                                 Color::GREEN.into()
                             } else {
                                 Color::BLACK.into()
@@ -79,7 +76,7 @@ fn spawn_menu_ui(world: &mut World) {
                         },
                         MultiChoiceButton {
                             on_selected: {
-                                if *button == Buttons::Attack {
+                                if *button == Buttons::Start {
                                     Some(attack_pressed_id)
                                 } else {
                                     None
