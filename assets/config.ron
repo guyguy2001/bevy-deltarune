@@ -9,5 +9,5 @@
     //     starting_state: LevelTransition,
     // )),
     deubg: None,
-    infinite_hp: true,
+    // infinite_hp: true,
 )

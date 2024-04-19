@@ -54,7 +54,7 @@ fn setup_player(
             ..default()
         },
         Player { speed: 100.0 },
-        Health::new(if config.infinite_hp { 100000. } else { 10. }),
+        Health::new(if config.infinite_hp { 100000. } else { 20. }),
         UpgradesReceiver {
             factions: UpgradesReceiverFaction::Player,
         },

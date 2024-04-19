@@ -197,7 +197,6 @@ fn laser_player_collision(
             if let Ok(mut player_health) = q_players.get_mut(*entity1) {
                 if let Ok(laser_component) = q_lasers.get(*entity2) {
                     player_health.health -= laser_component.damage;
-                    println!("{}", player_health.health);
                 }
             }
         }
