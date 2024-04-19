@@ -7,12 +7,16 @@ use bevy_inspector_egui::InspectorOptions;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
+    game_config::GameConfig,
     lose_screen::LoseEvent,
     upgrades::{UpgradesReceiver, UpgradesReceiverFaction},
     AppState,
 };
 
-use super::healthbar::{spawn_healthbar, Health};
+use super::{
+    game_z_index,
+    healthbar::{spawn_healthbar, Health},
+};
 
 // TODO: Rename to GameWorldMovement?
 
@@ -39,16 +43,18 @@ fn setup_player(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    config: Res<GameConfig>,
 ) {
     let sprite_size = 7.5;
     let player_commands = commands.spawn((
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Rectangle::new(sprite_size, sprite_size))),
             material: materials.add(Color::rgb_u8(165, 75, 251)),
+            transform: Transform::from_translation(Vec3::Z * game_z_index::PLAYERS),
             ..default()
         },
         Player { speed: 100.0 },
-        Health::new(10.),
+        Health::new(if config.infinite_hp { 100000. } else { 10. }),
         UpgradesReceiver {
             factions: UpgradesReceiverFaction::Player,
         },

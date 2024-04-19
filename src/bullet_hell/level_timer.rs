@@ -76,7 +76,7 @@ fn spawn_timer(mut commands: Commands) {
                     ),
                     ..Default::default()
                 },
-                LevelTimer::new(Duration::from_secs(5)),
+                LevelTimer::new(Duration::from_secs(20)),
                 Name::new("LevelTimer"),
             ));
         });

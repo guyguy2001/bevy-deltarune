@@ -1,6 +1,7 @@
 {
   "rust-analyzer.linkedProjects": [".\\Cargo.toml"],
-  "rust-analyzer.showUnlinkedFileNotification": false
+  "rust-analyzer.showUnlinkedFileNotification": false,
+  "cSpell.words": ["lerp"]
   // "rust-analyzer.cargo.extraEnv": {
   //   "RUSTFLAGS": "-Clinker=rust-lld.exe"
   // }

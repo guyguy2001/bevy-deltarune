@@ -6,6 +6,7 @@ use bevy_rapier2d::prelude::*;
 use crate::upgrades::{UpgradesReceiver, UpgradesReceiverFaction};
 use crate::AppState;
 
+use super::game_z_index;
 use super::healthbar::Health;
 use super::player::Player;
 
@@ -51,7 +52,7 @@ pub fn spawn_bullet_in_pos(
                 },
                 texture: asset_server.load("pig.png"),
                 transform: Transform {
-                    translation: position,
+                    translation: Vec3::new(position.x, position.y, game_z_index::BULLETS),
                     ..Default::default()
                 },
                 ..Default::default()

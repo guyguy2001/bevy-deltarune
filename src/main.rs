@@ -25,7 +25,7 @@ mod menu;
 mod upgrades;
 mod utils;
 
-#[derive(States, Debug, Clone, Eq, PartialEq, Hash, Default, Deserialize)]
+#[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default, Deserialize)]
 pub enum AppState {
     #[default]
     ActionMenu,
@@ -65,8 +65,10 @@ fn main() {
         .insert_state::<AppState>(
             game_config
                 .debug
+                .as_ref()
                 .map_or(AppState::default(), |conf| conf.starting_state),
         )
+        .insert_resource(game_config)
         .add_plugins(WorldUIPlugin)
         .add_plugins(BulletHellPlugin)
         .add_plugins(LevelTransitionPlugin)

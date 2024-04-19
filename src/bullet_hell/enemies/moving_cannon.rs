@@ -5,6 +5,7 @@ use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
 
 use crate::bullet_hell::bullet::{spawn_bullet_in_pos, BulletProperties};
+use crate::bullet_hell::game_z_index;
 use crate::AppState;
 
 pub struct MovingCannonPlugin;
@@ -131,13 +132,13 @@ fn wander_behaviour(time: Res<Time>, mut wander_query: Query<(&mut Wander, &mut 
 fn spawn_initial_cannons(mut commands: Commands, asset_server: Res<AssetServer>) {
     let cannons = vec![
         CannonSpawnProperties {
-            start: Vec3::new(-100., -40., 0.),
-            end: Vec3::new(-100., 40., 0.),
+            start: Vec3::new(-100., -40., game_z_index::CANNONS),
+            end: Vec3::new(-100., 40., game_z_index::CANNONS),
             shooting_direction: Vec3::X,
         },
         CannonSpawnProperties {
-            start: Vec3::new(-40., 70., 0.),
-            end: Vec3::new(40., 70., 0.),
+            start: Vec3::new(-40., 70., game_z_index::CANNONS),
+            end: Vec3::new(40., 70., game_z_index::CANNONS),
             shooting_direction: Vec3::NEG_Y,
         },
     ];
