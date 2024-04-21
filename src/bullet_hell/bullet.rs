@@ -7,7 +7,7 @@ use crate::upgrades::{UpgradesReceiver, UpgradesReceiverFaction};
 use crate::AppState;
 
 use super::game_z_index;
-use super::healthbar::{Health, OnDamageDealt};
+use super::health::{Health, OnDamageDealt};
 use super::player::Player;
 
 pub struct BulletsPlugin;

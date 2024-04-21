@@ -7,7 +7,7 @@ use crate::{
     utils::resources::SelectionsPool,
 };
 
-use super::healthbar::Health;
+use super::health::Health;
 
 pub fn populate_upgrades_pool(world: &mut World) {
     // mut upgrade_pool: ResMut<SelectionsPool<GlobalUpgrade>>

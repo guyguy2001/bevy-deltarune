@@ -5,7 +5,8 @@ use self::bullet::BulletsPlugin;
 use self::effects::EffectsPlugin;
 use self::enemies::laser::LaserPlugin;
 use self::enemies::moving_cannon::MovingCannonPlugin;
-use self::healthbar::HealthbarPlugin;
+use self::game_ui::GameUIPlugin;
+use self::health::HealthPlugin;
 use self::hit_effect::HitEffectPlugin;
 use self::level::LevelPlugin;
 use self::level_end_animation::LevelEndAnimationPlugin;
@@ -15,11 +16,12 @@ use self::upgrades::populate_upgrades_pool;
 
 mod effects;
 mod enemies;
+mod game_ui;
 
 mod arena;
 mod bullet;
 mod game_z_index;
-mod healthbar;
+mod health;
 mod hit_effect;
 mod level;
 mod level_end_animation;
@@ -36,7 +38,8 @@ impl Plugin for BulletHellPlugin {
             ArenaPlugin,
             BulletsPlugin,
             EffectsPlugin,
-            HealthbarPlugin,
+            GameUIPlugin,
+            HealthPlugin,
             HitEffectPlugin,
             LaserPlugin,
             LevelEndAnimationPlugin,

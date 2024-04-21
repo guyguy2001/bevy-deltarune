@@ -3,7 +3,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 use bevy_tweening::{lens::ColorMaterialColorLens, *};
 
-use super::healthbar::OnDamageDealt;
+use super::health::OnDamageDealt;
 
 pub struct HitEffectPlugin;
 

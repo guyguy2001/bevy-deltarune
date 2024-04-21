@@ -13,10 +13,7 @@ use crate::{
     AppState,
 };
 
-use super::{
-    game_z_index,
-    healthbar::{spawn_healthbar, Health},
-};
+use super::{game_ui::healthbar::spawn_healthbar, game_z_index, health::Health};
 
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
