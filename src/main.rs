@@ -5,6 +5,7 @@ use bevy_editor_pls::prelude::*;
 
 // use bevy_inspector_egui_rapier::InspectableRapierPlugin;
 use bevy_rapier2d::prelude::*;
+use bevy_tweening::TweeningPlugin;
 use serde::Deserialize;
 
 use bullet_hell::BulletHellPlugin;
@@ -54,6 +55,7 @@ fn main() {
                     ..default()
                 }),
         )
+        .add_plugins(TweeningPlugin)
         .add_plugins(RapierDebugRenderPlugin {
             mode: DebugRenderMode::empty(),
             ..Default::default()

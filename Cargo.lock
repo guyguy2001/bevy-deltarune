@@ -326,6 +326,7 @@ dependencies = [
  "bevy_easings",
  "bevy_editor_pls",
  "bevy_rapier2d",
+ "bevy_tweening",
  "bitmask-enum",
  "lerp",
  "rand",
@@ -1178,6 +1179,16 @@ dependencies = [
  "bevy_math",
  "bevy_reflect",
  "thiserror",
+]
+
+[[package]]
+name = "bevy_tweening"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e85ee55885db7a35d9bdd3b27ef9d9e36f7188801dc24ad5d3a013ee62b0579a"
+dependencies = [
+ "bevy",
+ "interpolation",
 ]
 
 [[package]]
