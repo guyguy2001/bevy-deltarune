@@ -13,11 +13,6 @@ pub struct MultiChoiceParent {
     pub selected: Index,
 }
 
-#[derive(Resource)]
-pub struct MultiChoiceStack {
-    pub menu_parents_stack: Vec<Entity>,
-}
-
 #[derive(Component)]
 pub struct MultiChoiceButton {
     pub on_selected: Option<SystemId<Entity, ()>>,
