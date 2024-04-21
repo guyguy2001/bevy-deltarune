@@ -9,10 +9,12 @@ use crate::AppState;
 pub struct HealthbarPlugin;
 impl Plugin for HealthbarPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<Health>().add_systems(
-            Update,
-            healthbar_behaviour.run_if(in_state(AppState::Defending)),
-        );
+        app.add_event::<OnDamageDealt>()
+            .register_type::<Health>()
+            .add_systems(
+                Update,
+                (handle_damage, healthbar_behaviour).run_if(in_state(AppState::Defending)),
+            );
     }
 }
 
@@ -31,6 +33,12 @@ impl Health {
             max_health,
         }
     }
+}
+
+#[derive(Event)]
+pub struct OnDamageDealt {
+    pub target_entity: Entity,
+    pub damage: f32,
 }
 
 #[derive(Component)]
@@ -103,5 +111,12 @@ fn healthbar_behaviour(
     for (mut style, healthbar) in healthbar_query.iter_mut() {
         let health_component = health_query.get(healthbar.tracked_entity).unwrap();
         style.width = Val::Percent(100. * health_component.health / health_component.max_health);
+    }
+}
+
+fn handle_damage(mut reader: EventReader<OnDamageDealt>, mut query: Query<&mut Health>) {
+    for event in reader.read() {
+        let mut health = query.get_mut(event.target_entity).unwrap();
+        health.health -= event.damage;
     }
 }

@@ -5,7 +5,7 @@ use bevy_inspector_egui::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    bullet_hell::{game_z_index, healthbar::Health, player::Player},
+    bullet_hell::{game_z_index, healthbar::OnDamageDealt, player::Player},
     AppState,
 };
 
@@ -189,14 +189,18 @@ fn laser_lifecycle(
 fn laser_player_collision(
     mut contact_events: EventReader<CollisionEvent>,
     q_lasers: Query<&Laser>,
-    mut q_players: Query<&mut Health, With<Player>>,
+    q_players: Query<Entity, With<Player>>,
+    mut damage_writer: EventWriter<OnDamageDealt>,
 ) {
     for event in contact_events.read() {
         if let CollisionEvent::Started(entity1, entity2, _) = event {
             // TODO: get this working with swapped entity orders???
-            if let Ok(mut player_health) = q_players.get_mut(*entity1) {
+            if let Ok(player_entity) = q_players.get(*entity1) {
                 if let Ok(laser_component) = q_lasers.get(*entity2) {
-                    player_health.health -= laser_component.damage;
+                    damage_writer.send(OnDamageDealt {
+                        damage: laser_component.damage,
+                        target_entity: player_entity,
+                    });
                 }
             }
         }

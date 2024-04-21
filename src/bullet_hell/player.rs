@@ -18,8 +18,6 @@ use super::{
     healthbar::{spawn_healthbar, Health},
 };
 
-// TODO: Rename to GameWorldMovement?
-
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
