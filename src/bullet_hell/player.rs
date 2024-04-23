@@ -8,7 +8,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     game_config::GameConfig,
-    lose_screen::LoseEvent,
+    ui::lose_screen::LoseEvent,
     upgrades::{UpgradesReceiver, UpgradesReceiverFaction},
     AppState,
 };

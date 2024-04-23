@@ -10,17 +10,15 @@ use serde::Deserialize;
 
 use bullet_hell::BulletHellPlugin;
 use game_config::GameConfig;
-use level_transition::LevelTransitionPlugin;
-use lose_screen::LoseScreenPlugin;
-use menu::MenuUI;
+use ui::level_transition::LevelTransitionPlugin;
+use ui::lose_screen::LoseScreenPlugin;
+use ui::menu::MenuUI;
 use upgrades::UpgradesPlugin;
 use utils::{menu_system::MenuSystemPlugin, world_ui::WorldUIPlugin};
 
 mod bullet_hell;
 mod game_config;
-mod level_transition;
-mod lose_screen;
-mod menu;
+mod ui;
 mod upgrades;
 mod utils;
 
