@@ -28,7 +28,6 @@ mod hit_effect;
 mod level;
 mod level_end_animation;
 mod level_timer;
-mod physics;
 mod player;
 mod upgrades;
 
