@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use self::arena::ArenaPlugin;
 use self::bullet::BulletsPlugin;
+use self::debug::DebugPlugin;
 use self::effects::EffectsPlugin;
 use self::enemies::laser::LaserPlugin;
 use self::enemies::moving_cannon::MovingCannonPlugin;
@@ -20,6 +21,7 @@ mod game_ui;
 
 mod arena;
 mod bullet;
+mod debug;
 mod game_z_index;
 mod health;
 mod hit_effect;
@@ -37,6 +39,7 @@ impl Plugin for BulletHellPlugin {
         app.add_plugins((
             ArenaPlugin,
             BulletsPlugin,
+            DebugPlugin,
             EffectsPlugin,
             GameUIPlugin,
             HealthPlugin,

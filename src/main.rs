@@ -88,7 +88,7 @@ fn main() {
 fn get_config() -> GameConfig {
     let config_string: String = fs::read_to_string("assets/config.ron").unwrap();
     let game_config: GameConfig = ron::de::from_str(&config_string).unwrap_or_else(|e| {
-        println!("Failed to load config: {}", e);
+        error!("Failed to load config: {}", e);
         std::process::exit(1);
     });
     game_config

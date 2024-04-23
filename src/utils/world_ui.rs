@@ -31,7 +31,7 @@ fn sync_world_ui_to_parent(
 
 fn error_if_world_ui_without_style(query: Query<(Entity, &WorldUI), Without<Style>>) {
     for (entity, _) in query.iter() {
-        println!(
+        error!(
             "ERROR! {:?} has a WorldUI component, but not a style component!",
             entity
         )

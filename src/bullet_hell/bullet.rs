@@ -7,7 +7,7 @@ use crate::upgrades::{UpgradesReceiver, UpgradesReceiverFaction};
 use crate::AppState;
 
 use super::game_z_index;
-use super::health::{Health, OnDamageDealt};
+use super::health::TryDamageEvent;
 use super::player::Player;
 
 pub struct BulletsPlugin;
@@ -83,19 +83,18 @@ fn player_collision(
     mut commands: Commands,
     mut contact_events: EventReader<CollisionEvent>,
     bullets: Query<(Entity, &Bullet)>,
-    mut players: Query<(Entity, &mut Health), With<Player>>,
-    mut damage_events: EventWriter<OnDamageDealt>,
+    mut players: Query<Entity, With<Player>>,
+    mut damage_events: EventWriter<TryDamageEvent>,
 ) {
     for event in contact_events.read() {
         if let CollisionEvent::Started(entity1, entity2, _) = event {
             // TODO: get this working with swapped entity orders???
-            if let Ok((player_entity, mut player_health)) = players.get_mut(*entity1) {
+            if let Ok(player_entity) = players.get_mut(*entity1) {
                 if let Ok((bullet_entity, bullet_component)) = bullets.get(*entity2) {
                     commands.entity(bullet_entity).despawn_recursive();
 
                     // TODO: make this an event? Who is responsible for handling it? what would it achieve?
-                    player_health.health -= bullet_component.damage;
-                    damage_events.send(OnDamageDealt {
+                    damage_events.send(TryDamageEvent {
                         target_entity: player_entity,
                         damage: bullet_component.damage,
                     });
