@@ -22,7 +22,10 @@ impl Plugin for LaserPlugin {
                     laser_player_collision,
                 )
                     .run_if(in_state(AppState::Defending)),
-            );
+            )
+            .register_type::<LaserCannon>()
+            .register_type::<Laser>()
+            .register_type::<LaserState>();
     }
 }
 
@@ -34,6 +37,7 @@ struct LaserCannon {
     // Maybe have a component with just the timer, and a system to check whenever it's done?
     // So for (repeated_attacks, laser) in query { if repeated_attacks.just_finished {laser.shoot()}}
     shooting_timer: Timer,
+    has_active_laser: bool,
 }
 
 #[derive(Component, InspectorOptions, Default, Reflect)]
@@ -48,9 +52,12 @@ fn laser_cannon_behavior(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     for (entity, mut laser_cannon) in query.iter_mut() {
-        laser_cannon.shooting_timer.tick(time.delta());
-        if laser_cannon.shooting_timer.just_finished() {
-            spawn_laser(entity, &mut commands, &mut meshes, &mut materials);
+        if !laser_cannon.has_active_laser {
+            laser_cannon.shooting_timer.tick(time.delta());
+            if laser_cannon.shooting_timer.just_finished() {
+                spawn_laser(entity, &mut commands, &mut meshes, &mut materials);
+                laser_cannon.has_active_laser = true
+            }
         }
     }
 }
@@ -144,12 +151,19 @@ fn spawn_laser(
 }
 
 fn laser_lifecycle(
-    mut query: Query<(Entity, &Laser, &mut LaserState, &mut Handle<ColorMaterial>)>,
+    mut cannon_query: Query<&mut LaserCannon>,
+    mut laser_query: Query<(
+        Entity,
+        &Parent,
+        &Laser,
+        &mut LaserState,
+        &mut Handle<ColorMaterial>,
+    )>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     time: Res<Time>,
     mut commands: Commands,
 ) {
-    for (entity, laser, mut state, material_handle) in query.iter_mut() {
+    for (entity, parent, laser, mut state, material_handle) in laser_query.iter_mut() {
         let mut lerp_color = |start: f32, end: f32, timer_fraction| {
             materials
                 .get_mut(material_handle.id())
@@ -182,6 +196,7 @@ fn laser_lifecycle(
                 if timer.just_finished() {
                     commands.entity(entity).despawn_recursive();
                 }
+                cannon_query.get_mut(parent.get()).unwrap().has_active_laser = false;
             }
         }
     }
@@ -223,7 +238,8 @@ fn spawn_initial_laser_cannons(mut commands: Commands, asset_server: Res<AssetSe
             ..default()
         },
         LaserCannon {
-            shooting_timer: Timer::from_seconds(1., TimerMode::Once),
+            shooting_timer: Timer::from_seconds(1., TimerMode::Repeating),
+            has_active_laser: false,
         },
         Name::new("Laser Cannon"),
     ));
