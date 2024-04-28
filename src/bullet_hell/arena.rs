@@ -2,6 +2,8 @@ use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 use bevy_rapier2d::prelude::*;
 
+use super::physics_layers;
+
 pub struct ArenaPlugin;
 
 impl Plugin for ArenaPlugin {
@@ -30,6 +32,7 @@ fn spawn_arena(
             ..Default::default()
         },
         Collider::cuboid(size / 2., border_width / 2.),
+        CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
     ));
     commands.spawn((
         Name::new("Arena.Left"),
@@ -42,6 +45,7 @@ fn spawn_arena(
             ..Default::default()
         },
         Collider::cuboid(border_width / 2., size / 2.),
+        CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
     ));
     commands.spawn((
         Name::new("Arena.Right"),
@@ -54,6 +58,7 @@ fn spawn_arena(
             ..Default::default()
         },
         Collider::cuboid(border_width / 2., size / 2.),
+        CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
     ));
     commands.spawn((
         Name::new("Arena.Roof"),
@@ -66,5 +71,6 @@ fn spawn_arena(
             ..Default::default()
         },
         Collider::cuboid(size / 2., border_width / 2.),
+        CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
     ));
 }

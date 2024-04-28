@@ -6,9 +6,9 @@ use bevy_rapier2d::prelude::*;
 use crate::upgrades::{UpgradesReceiver, UpgradesReceiverFaction};
 use crate::AppState;
 
-use super::game_z_index;
 use super::health::TryDamageEvent;
 use super::player::Player;
+use super::{game_z_index, physics_layers};
 
 pub struct BulletsPlugin;
 
@@ -67,6 +67,7 @@ pub fn spawn_bullet_in_pos(
             (
                 ActiveEvents::COLLISION_EVENTS,
                 ActiveCollisionTypes::all(),
+                CollisionGroups::new(physics_layers::BULLETS, physics_layers::ALL),
                 RigidBody::KinematicVelocityBased,
                 Velocity {
                     linvel: direction.xy().normalize() * properties.speed,

@@ -5,7 +5,7 @@ use bevy_inspector_egui::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    bullet_hell::{game_z_index, health::TryDamageEvent, player::Player},
+    bullet_hell::{game_z_index, health::TryDamageEvent, physics_layers, player::Player},
     AppState,
 };
 
@@ -134,6 +134,7 @@ fn spawn_laser(
                 ActiveCollisionTypes::all(),
                 ColliderDisabled,
                 Collider::cuboid(WIDTH / 2., HEIGHT / 2.),
+                CollisionGroups::new(physics_layers::BULLETS, physics_layers::ALL),
                 RigidBody::Fixed,
                 Sensor,
             ),

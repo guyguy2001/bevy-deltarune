@@ -10,10 +10,17 @@ use crate::{
     game_config::GameConfig,
     ui::lose_screen::LoseEvent,
     upgrades::{UpgradesReceiver, UpgradesReceiverFaction},
+    utils::input::get_input_direction,
     AppState,
 };
 
-use super::{game_ui::healthbar::spawn_healthbar, game_z_index, health::Health};
+use super::{
+    dash::{ControlledExternally, Dasher},
+    game_ui::healthbar::spawn_healthbar,
+    game_z_index,
+    health::Health,
+    physics_layers,
+};
 
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
@@ -48,6 +55,11 @@ fn setup_player(
             transform: Transform::from_translation(Vec3::Z * game_z_index::PLAYERS),
             ..default()
         },
+        Dasher {
+            dash_amount: 50.,
+            // dash_duration: Duration::from_secs_f32(0.5),
+            dash_speed: 200.,
+        },
         Player { speed: 100.0 },
         Health::new(if config.infinite_hp { 100000. } else { 20. }),
         UpgradesReceiver {
@@ -56,6 +68,7 @@ fn setup_player(
         Name::new("Player"),
         (
             ActiveEvents::COLLISION_EVENTS,
+            CollisionGroups::new(physics_layers::PLAYERS, physics_layers::ALL),
             ActiveCollisionTypes::all(),
             Collider::cuboid(sprite_size / 2.0, sprite_size / 2.0),
             KinematicCharacterController {
@@ -70,26 +83,16 @@ fn setup_player(
 }
 
 fn character_movement(
-    mut characters: Query<(&mut KinematicCharacterController, &Player)>,
+    mut characters: Query<
+        (&mut KinematicCharacterController, &Player),
+        Without<ControlledExternally>,
+    >,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     for (mut controller, player) in &mut characters {
         let movement_amount = player.speed * time.delta_seconds();
-        let mut desired_direction = Vec2::ZERO;
-        if input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp) {
-            desired_direction += Vec2::Y * movement_amount;
-        }
-        if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
-            desired_direction += -Vec2::Y * movement_amount;
-        }
-        if input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight) {
-            desired_direction += Vec2::X * movement_amount;
-        }
-        if input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft) {
-            desired_direction += -Vec2::X * movement_amount;
-        }
-        controller.translation = Some(desired_direction.normalize_or_zero() * movement_amount);
+        controller.translation = Some(get_input_direction(&input).xy() * movement_amount);
     }
 }
 

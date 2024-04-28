@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
@@ -61,9 +63,9 @@ fn handle_damage(
                 damage: event.damage,
             });
             health.health -= event.damage;
-            commands.entity(entity).insert(Invulnerability {
-                timer: Timer::from_seconds(1., TimerMode::Once),
-            });
+            commands
+                .entity(entity)
+                .insert(Invulnerability::new(Duration::from_secs(1)));
         }
     }
 }
@@ -72,6 +74,14 @@ fn handle_damage(
 #[reflect(Component, InspectorOptions)]
 pub struct Invulnerability {
     timer: Timer,
+}
+
+impl Invulnerability {
+    pub fn new(duration: Duration) -> Self {
+        Self {
+            timer: Timer::new(duration, TimerMode::Once),
+        }
+    }
 }
 
 fn handle_invulnerability(
