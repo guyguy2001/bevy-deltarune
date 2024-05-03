@@ -15,6 +15,9 @@ pub enum LevelEndAnimationState {
     PostAnimationsDelay,
 }
 
+#[derive(Event)]
+pub struct AnimationFinishedEvent;
+
 #[derive(Resource)]
 struct PostAnimationsDelayTimer(Timer);
 
@@ -26,7 +29,8 @@ impl PostAnimationsDelayTimer {
 
 impl Plugin for LevelEndAnimationPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_state(LevelEndAnimationState::Animations)
+        app.add_event::<AnimationFinishedEvent>()
+            .insert_state(LevelEndAnimationState::Animations)
             .insert_resource(PostAnimationsDelayTimer::new())
             .add_systems(
                 OnEnter(AppState::LevelEndAnimation),
@@ -66,11 +70,11 @@ fn check_for_animations_end(
 fn post_animations_delay(
     time: Res<Time>,
     mut timer: ResMut<PostAnimationsDelayTimer>,
-    mut app_state: ResMut<NextState<AppState>>,
+    mut events: EventWriter<AnimationFinishedEvent>,
 ) {
     timer.0.tick(time.delta());
     if timer.0.just_finished() {
         timer.0.reset();
-        app_state.0 = Some(AppState::LevelTransition);
+        events.send(AnimationFinishedEvent);
     }
 }

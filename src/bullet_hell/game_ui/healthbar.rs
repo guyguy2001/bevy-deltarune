@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 
-use crate::{bullet_hell::health::Health, utils::{world_ui::WorldUI, z_index}, AppState};
+use crate::{
+    bullet_hell::health::Health,
+    utils::{world_ui::WorldUI, z_index},
+    AppState,
+};
 
 pub struct HealthbarPlugin;
 

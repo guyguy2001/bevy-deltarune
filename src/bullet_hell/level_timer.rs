@@ -7,7 +7,7 @@ use crate::{
     AppState,
 };
 
-use super::level::LevelFinishedEvent;
+use super::level::CombatFinishedEvent;
 
 pub struct LevelTimerPlugin;
 
@@ -76,7 +76,7 @@ fn spawn_timer(mut commands: Commands) {
                     ),
                     ..Default::default()
                 },
-                LevelTimer::new(Duration::from_secs(20)),
+                LevelTimer::new(Duration::from_secs(10)),
                 Name::new("LevelTimer"),
             ));
         });
@@ -84,7 +84,7 @@ fn spawn_timer(mut commands: Commands) {
 
 fn timer_behaviour(
     mut q_timer: Query<(&mut LevelTimer, &mut Text)>,
-    mut win_event: EventWriter<LevelFinishedEvent>,
+    mut win_event: EventWriter<CombatFinishedEvent>,
     time: Res<Time>,
 ) {
     for (mut timer, mut text) in q_timer.iter_mut() {
@@ -93,7 +93,7 @@ fn timer_behaviour(
         text.sections[0].value = format!("{remaining_time:.2}");
 
         if timer.remaining_time.just_finished() {
-            win_event.send(LevelFinishedEvent);
+            win_event.send(CombatFinishedEvent);
         }
     }
 }
