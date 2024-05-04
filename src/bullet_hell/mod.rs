@@ -16,6 +16,8 @@ use self::level_timer::LevelTimerPlugin;
 use self::player::PlayerPlugin;
 use self::upgrades::populate_upgrades_pool;
 
+pub use self::level::{CurrentLevelConfig, LevelConfig, LevelFinishedEvent};
+
 mod effects;
 mod enemies;
 mod game_ui;

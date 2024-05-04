@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    metagame::StartGameEvent,
     utils::{
         data_structures::Index,
         menu_system::{MenuStack, MultiChoiceButton, MultiChoiceParent},
@@ -30,7 +31,7 @@ const MENU_ITEMS: [Buttons; 1] = [Buttons::Start];
 fn spawn_menu_ui(world: &mut World) {
     let activate_id = world.register_system(activate);
     let deactivate_id = world.register_system(deactivate);
-    let attack_pressed_id = world.register_system(transition_to_defense);
+    let attack_pressed_id = world.register_system(start_game);
     world
         .spawn((
             NodeBundle {
@@ -110,8 +111,8 @@ fn activate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
     border_query.get_mut(entity).unwrap().0 = Color::GREEN;
 }
 
-fn transition_to_defense(In(_entity): In<Entity>, mut app_state: ResMut<NextState<AppState>>) {
-    app_state.set(AppState::Defending);
+fn start_game(In(_entity): In<Entity>, mut start_game_event: EventWriter<StartGameEvent>) {
+    start_game_event.send(StartGameEvent);
 }
 
 fn hide_menu(

@@ -15,16 +15,20 @@ pub struct LevelTransitionMenuPlugin;
 
 impl Plugin for LevelTransitionMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            OnEnter(AppState::LevelTransition),
-            (spawn_level_transition_menu, register_menu).chain(),
-        )
-        .add_systems(
-            OnExit(AppState::LevelTransition),
-            (unregister_menu, despawn_level_transition_menu).chain(),
-        );
+        app.add_event::<FinishedLevelTransitionEvent>()
+            .add_systems(
+                OnEnter(AppState::LevelTransition),
+                (spawn_level_transition_menu, register_menu).chain(),
+            )
+            .add_systems(
+                OnExit(AppState::LevelTransition),
+                (unregister_menu, despawn_level_transition_menu).chain(),
+            );
     }
 }
+
+#[derive(Event)]
+pub struct FinishedLevelTransitionEvent;
 
 /// The root of the upgrade select menu - the entire thing that gets spawned/despawned when changing states
 #[derive(Component)]
@@ -293,12 +297,12 @@ pub fn activate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor
 fn process_upgrade_and_go_to_next_level(
     In(menu_item_entity): In<Entity>,
     mut commands: Commands,
-    mut app_state: ResMut<NextState<AppState>>,
+    mut finished_event: EventWriter<FinishedLevelTransitionEvent>,
     upgrade_applier: Res<UpgradeApplier>,
     q_upgrade: Query<&UpgradeOption>,
 ) {
     if let Some(upgrade) = q_upgrade.get(menu_item_entity).unwrap().0.clone() {
         commands.run_system_with_input(upgrade_applier.apply_upgrade_to_all, upgrade);
     }
-    app_state.0 = Some(AppState::Defending);
+    finished_event.send(FinishedLevelTransitionEvent);
 }

@@ -7,7 +7,7 @@ use crate::{
     AppState,
 };
 
-use super::level::CombatFinishedEvent;
+use super::level::{CombatFinishedEvent, CurrentLevelConfig};
 
 pub struct LevelTimerPlugin;
 
@@ -98,8 +98,9 @@ fn timer_behaviour(
     }
 }
 
-fn reset_timer(mut q_timer: Query<&mut LevelTimer>) {
+fn reset_timer(mut q_timer: Query<&mut LevelTimer>, level_config: Res<CurrentLevelConfig>) {
     for mut timer in q_timer.iter_mut() {
         timer.remaining_time.reset();
+        timer.remaining_time.set_duration(level_config.0.duration);
     }
 }

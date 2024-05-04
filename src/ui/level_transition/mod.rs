@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+pub use self::menu::FinishedLevelTransitionEvent;
 use self::menu::LevelTransitionMenuPlugin;
 
 mod menu;

@@ -6,18 +6,20 @@ use bevy_editor_pls::prelude::*;
 // use bevy_inspector_egui_rapier::InspectableRapierPlugin;
 use bevy_rapier2d::prelude::*;
 use bevy_tweening::TweeningPlugin;
+use metagame::MetagamePlugin;
 use serde::Deserialize;
 
 use bullet_hell::BulletHellPlugin;
 use game_config::GameConfig;
-use ui::level_transition::LevelTransitionPlugin;
 use ui::lose_screen::LoseScreenPlugin;
 use ui::menu::MenuUI;
+use ui::{level_transition::LevelTransitionPlugin, victory_screen::VictoryScreenPlugin};
 use upgrades::UpgradesPlugin;
 use utils::{menu_system::MenuSystemPlugin, world_ui::WorldUIPlugin};
 
 mod bullet_hell;
 mod game_config;
+mod metagame;
 mod ui;
 mod upgrades;
 mod utils;
@@ -30,6 +32,7 @@ pub enum AppState {
     LevelEndAnimation,
     LevelTransition,
     Defeat,
+    Victory,
 }
 
 fn main() {
@@ -70,6 +73,7 @@ fn main() {
         .insert_resource(game_config)
         .add_plugins(WorldUIPlugin)
         .add_plugins(BulletHellPlugin)
+        .add_plugins(MetagamePlugin)
         .add_plugins(LevelTransitionPlugin)
         // .add_plugins(
         //     WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
@@ -77,6 +81,7 @@ fn main() {
         .add_plugins(MenuSystemPlugin)
         .add_plugins(MenuUI)
         .add_plugins(LoseScreenPlugin)
+        .add_plugins(VictoryScreenPlugin)
         .add_plugins(UpgradesPlugin) // TODO: Should this be here?
         .insert_resource(Money(100.0))
         .add_systems(Startup, setup_camera)
