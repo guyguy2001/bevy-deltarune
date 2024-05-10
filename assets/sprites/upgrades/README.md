@@ -1,1 +1,1 @@
-Taken from Kenney Game Assets 1
+Most sprites in this folder are taken from Kenney Game Assets 1
