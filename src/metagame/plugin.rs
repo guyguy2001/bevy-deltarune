@@ -6,6 +6,8 @@ use crate::{
     AppState,
 };
 
+use super::ui;
+
 pub struct MetagamePlugin;
 
 impl Plugin for MetagamePlugin {
@@ -55,10 +57,11 @@ const GAME_STEPS: [GameSteps; 6] = [
 // Well, for one, this plugin doesn't actually handle the levels transition... yeah
 
 #[derive(Resource)]
-struct MetagameProgression {
-    current_step_index: usize,
-    current_level: usize,
+pub struct MetagameProgression {
     levels: Vec<GameSteps>,
+    current_step_index: usize,
+
+    pub current_level: usize,
 }
 
 fn start_game(
@@ -102,62 +105,6 @@ fn on_finished_step(
         }
         GameSteps::UpgradeShop => {
             next_state.0 = Some(AppState::LevelTransition);
-        }
-    }
-}
-
-mod ui {
-    // use crate::utils::sickle::ui_builder::{UiBuilderExt, UiContextRoot, UiRoot};
-    // use crate::utils::sickle::ui_commands::SetCursorExt;
-    use bevy::prelude::*;
-    use bevy_inspector_egui::prelude::*;
-
-    use super::MetagameProgression;
-
-    // use crate::utils::sickle::ui_style::{SetBackgroundColorExt, SetNodeHeightExt, SetNodeWidthExt};
-    #[derive(Component, InspectorOptions, Default, Reflect)]
-    #[reflect(Component, InspectorOptions)]
-    pub struct LevelText;
-
-    pub fn spawn_menu(mut commands: Commands) {
-        commands
-            // .ui_builder(UiRoot)
-            .spawn(NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    bottom: Val::Px(50.),
-                    left: Val::Px(25.),
-                    ..Default::default()
-                },
-                ..Default::default()
-            })
-            .with_children(|builder| {
-                builder.spawn((
-                    TextBundle {
-                        text: Text::from_section(
-                            "Level 1",
-                            TextStyle {
-                                font_size: 32.0,
-                                ..default()
-                            },
-                        ),
-                        ..Default::default()
-                    },
-                    LevelText,
-                ));
-            });
-
-        //    commands .ui_builder(UiRoot).
-    }
-
-    pub fn update_text_on_level_transition(
-        mut query: Query<&mut Text, With<LevelText>>,
-        progress: Res<MetagameProgression>,
-    ) {
-        if progress.is_changed() {
-            for mut text in query.iter_mut() {
-                text.sections[0].value = format!("Level {}", progress.current_level);
-            }
         }
     }
 }
