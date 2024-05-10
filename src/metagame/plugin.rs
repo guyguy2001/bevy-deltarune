@@ -49,13 +49,6 @@ const GAME_STEPS: [GameSteps; 6] = [
     GameSteps::Level(LevelConfig::from_seconds_duration(30)),
 ];
 
-// TODO: My idea was to track the between-levels progression here, but in actuality the bullet_hell
-// module handles a lot of state that is retained between levels, and behaviour that is _about_
-// level transition (specifically the end-of-level enemy spawn events).
-// What is this plugin supposed to handle, and what should be handled in the bullet_hell module?
-
-// Well, for one, this plugin doesn't actually handle the levels transition... yeah
-
 #[derive(Resource)]
 pub struct MetagameProgression {
     levels: Vec<GameSteps>,
