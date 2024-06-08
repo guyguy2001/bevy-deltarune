@@ -16,7 +16,7 @@ impl Plugin for BulletsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            player_collision.run_if(in_state(AppState::Defending)),
+            (bullet_movement, player_collision).run_if(in_state(AppState::Defending)),
         );
     }
 }
@@ -26,6 +26,7 @@ impl Plugin for BulletsPlugin {
 struct Bullet {
     pub direction: Vec3,
     pub damage: f32,
+    pub speed: f32,
 }
 
 pub struct BulletProperties {
@@ -60,6 +61,7 @@ pub fn spawn_bullet_in_pos(
             Bullet {
                 direction,
                 damage: properties.damage,
+                speed: properties.speed,
             },
             UpgradesReceiver {
                 factions: UpgradesReceiverFaction::EnemyBullets,
@@ -68,16 +70,26 @@ pub fn spawn_bullet_in_pos(
                 ActiveEvents::COLLISION_EVENTS,
                 ActiveCollisionTypes::all(),
                 CollisionGroups::new(physics_layers::BULLETS, physics_layers::ALL),
-                RigidBody::KinematicVelocityBased,
-                Velocity {
-                    linvel: direction.xy().normalize() * properties.speed,
+                KinematicCharacterController {
+                    filter_flags: QueryFilterFlags::all(), // Ignore all
                     ..Default::default()
                 },
+                RigidBody::KinematicPositionBased,
                 Collider::cuboid(properties.size / 2.0, properties.size / 2.0),
                 Sensor,
             ),
         ));
     });
+}
+
+fn bullet_movement(
+    mut query: Query<(&mut KinematicCharacterController, &Bullet)>,
+    time: Res<Time>,
+) {
+    for (mut controller, bullet) in &mut query {
+        let movement_amount = bullet.speed * time.delta_seconds();
+        controller.translation = Some(bullet.direction.normalize().xy() * movement_amount);
+    }
 }
 
 fn player_collision(
