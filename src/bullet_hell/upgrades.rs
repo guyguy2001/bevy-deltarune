@@ -1,9 +1,6 @@
 use std::path::Path;
 
-use bevy::{
-    ecs::system::{BoxedSystem, FunctionSystem, IsFunctionSystem},
-    prelude::*,
-};
+use bevy::{ecs::system::BoxedSystem, prelude::*};
 
 use crate::{
     upgrades::{GlobalUpgrade, Upgrade, UpgradesReceiverFaction},
