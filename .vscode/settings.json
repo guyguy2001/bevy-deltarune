@@ -1,7 +1,14 @@
 {
   "rust-analyzer.linkedProjects": [".\\Cargo.toml"],
   "rust-analyzer.showUnlinkedFileNotification": false,
-  "cSpell.words": ["despawned", "flexbox", "Inspectable", "lerp", "tweening"]
+  "cSpell.words": [
+    "despawned",
+    "flexbox",
+    "Inspectable",
+    "lerp",
+    "minecart",
+    "tweening"
+  ]
   // "rust-analyzer.cargo.extraEnv": {
   //   "RUSTFLAGS": "-Clinker=rust-lld.exe"
   // }

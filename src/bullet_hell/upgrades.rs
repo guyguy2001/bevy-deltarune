@@ -10,7 +10,7 @@ use crate::{
     utils::resources::SelectionsPool,
 };
 
-use super::health::Health;
+use super::{health::Health, player::Player};
 
 pub fn populate_upgrades_pool(world: &mut World) {
     // mut upgrade_pool: ResMut<SelectionsPool<GlobalUpgrade>>
@@ -44,6 +44,15 @@ pub fn populate_upgrades_pool(world: &mut World) {
                 icon_texture: Path::new("sprites/upgrades/yellow.png"),
             },
             receiver_factions: UpgradesReceiverFaction::EnemyBullets,
+        },
+        GlobalUpgrade {
+            upgrade: Upgrade {
+                apply_upgrade: world.register_system(speed_player_up_by_10_percent),
+                name: "Cool Shoes",
+                description: "Speed player up by x1.1",
+                icon_texture: Path::new("sprites/upgrades/minecart.png"),
+            },
+            receiver_factions: UpgradesReceiverFaction::Player,
         },
     ];
 
@@ -94,5 +103,11 @@ fn _add_10_health(In(entity): In<Entity>, mut q_health: Query<&mut Health>) {
 fn make_bullets_yellow(In(entity): In<Entity>, mut sprite: Query<&mut Sprite>) {
     if let Ok(mut sprite) = sprite.get_mut(entity) {
         sprite.color = Color::YELLOW;
+    }
+}
+
+fn speed_player_up_by_10_percent(In(entity): In<Entity>, mut q_player: Query<&mut Player>) {
+    if let Ok(mut player) = q_player.get_mut(entity) {
+        player.speed *= 1.1;
     }
 }
