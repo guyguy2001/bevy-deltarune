@@ -1,6 +1,9 @@
 use std::path::Path;
 
-use bevy::prelude::*;
+use bevy::{
+    ecs::system::{BoxedSystem, FunctionSystem, IsFunctionSystem},
+    prelude::*,
+};
 
 use crate::{
     upgrades::{GlobalUpgrade, Upgrade, UpgradesReceiverFaction},
@@ -16,7 +19,8 @@ pub fn populate_upgrades_pool(world: &mut World) {
     let upgrades = vec![
         GlobalUpgrade {
             upgrade: Upgrade {
-                apply_upgrade: world.register_system(add_10_health),
+                apply_upgrade: world
+                    .register_boxed_system(AddHealthUpgrade::new(10.).into_boxed_system()),
                 name: "Apple",
                 description: "Gain 10 max HP and heal them",
                 icon_texture: Path::new("sprites/upgrades/apple.png"),
@@ -53,8 +57,34 @@ fn unimplemented_system(In(_entity): In<Entity>) {
     warn!("TODO: Unimplemented system was used");
 }
 
-/// TODO: How do I parametrize this so that I can create instances of this upgrade with arbitrary health amounts?
-fn add_10_health(In(entity): In<Entity>, mut q_health: Query<&mut Health>) {
+// I don't like how complex this came out. Is it worth it? Is there a simpler way?
+struct AddHealthUpgrade {
+    amount: f32,
+}
+
+impl AddHealthUpgrade {
+    pub fn new(amount: f32) -> Self {
+        Self { amount }
+    }
+
+    fn apply(&self, In(entity): In<Entity>, mut q_health: Query<&mut Health>) {
+        if let Ok(mut health) = q_health.get_mut(entity) {
+            health.health += self.amount;
+            health.max_health += self.amount;
+        }
+    }
+
+    fn into_boxed_system(self) -> BoxedSystem<Entity, ()> {
+        let system_function = move |In(entity): In<Entity>, q_health: Query<&mut Health>| {
+            self.apply(In(entity), q_health);
+        };
+
+        Box::new(IntoSystem::into_system(system_function))
+    }
+}
+
+// This is still here in case I want to remove the complicated AddHealthUpgrade version
+fn _add_10_health(In(entity): In<Entity>, mut q_health: Query<&mut Health>) {
     if let Ok(mut health) = q_health.get_mut(entity) {
         health.health += 10.;
         health.max_health += 10.;
