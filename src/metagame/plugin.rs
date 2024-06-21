@@ -35,26 +35,32 @@ impl Plugin for MetagamePlugin {
 pub struct StartGameEvent;
 
 #[derive(Clone)] // TODO - should this be clone?
-enum GameSteps {
+pub enum GameStep {
     Level(LevelConfig),
     UpgradeShop,
 }
 
-const GAME_STEPS: [GameSteps; 6] = [
-    GameSteps::Level(LevelConfig::from_seconds_duration(15)),
-    GameSteps::UpgradeShop,
-    GameSteps::Level(LevelConfig::from_seconds_duration(10)),
-    GameSteps::Level(LevelConfig::from_seconds_duration(10)),
-    GameSteps::UpgradeShop,
-    GameSteps::Level(LevelConfig::from_seconds_duration(30)),
+const GAME_STEPS: [GameStep; 6] = [
+    GameStep::Level(LevelConfig::from_seconds_duration(15)),
+    GameStep::UpgradeShop,
+    GameStep::Level(LevelConfig::from_seconds_duration(10)),
+    GameStep::Level(LevelConfig::from_seconds_duration(10)),
+    GameStep::UpgradeShop,
+    GameStep::Level(LevelConfig::from_seconds_duration(30)),
 ];
 
 #[derive(Resource)]
 pub struct MetagameProgression {
-    levels: Vec<GameSteps>,
-    current_step_index: usize,
+    levels: Vec<GameStep>,
+    pub current_step_index: usize,
 
     pub current_level: usize,
+}
+
+impl MetagameProgression {
+    pub fn iter_levels(&self) -> impl Iterator<Item = &GameStep> {
+        self.levels.iter()
+    }
 }
 
 fn start_game(
@@ -63,13 +69,13 @@ fn start_game(
     mut current_level_config: ResMut<CurrentLevelConfig>,
 ) {
     match &progression.levels[progression.current_step_index] {
-        GameSteps::Level(level_config) => {
+        GameStep::Level(level_config) => {
             current_level_config.0 = level_config.clone();
             next_state.0 = Some(AppState::Defending);
 
             progression.current_level += 1;
         }
-        GameSteps::UpgradeShop => {
+        GameStep::UpgradeShop => {
             next_state.0 = Some(AppState::LevelTransition);
         }
     }
@@ -90,13 +96,13 @@ fn on_finished_step(
     println!("Transitioned to step {}", progression.current_step_index);
 
     match &progression.levels[progression.current_step_index] {
-        GameSteps::Level(level_config) => {
+        GameStep::Level(level_config) => {
             current_level_config.0 = level_config.clone();
             next_state.0 = Some(AppState::Defending);
 
             progression.current_level += 1;
         }
-        GameSteps::UpgradeShop => {
+        GameStep::UpgradeShop => {
             next_state.0 = Some(AppState::LevelTransition);
         }
     }

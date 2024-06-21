@@ -1,53 +1,81 @@
-// use crate::utils::sickle::ui_builder::{UiBuilderExt, UiContextRoot, UiRoot};
-// use crate::utils::sickle::ui_commands::SetCursorExt;
+use std::cmp::Ordering;
+
 use bevy::prelude::*;
 use bevy_inspector_egui::prelude::*;
 
-use super::plugin::MetagameProgression;
+use super::plugin::{GameStep, MetagameProgression};
 
-// use crate::utils::sickle::ui_style::{SetBackgroundColorExt, SetNodeHeightExt, SetNodeWidthExt};
 #[derive(Component, InspectorOptions, Default, Reflect)]
 #[reflect(Component, InspectorOptions)]
-pub struct LevelText;
+pub struct LevelText(usize);
 
-pub fn spawn_menu(mut commands: Commands) {
+fn steps_to_strings<'a, T: Iterator<Item = &'a GameStep>>(game_steps: T) -> Vec<String> {
+    let mut level_index = 0;
+
+    game_steps
+        .map(|step| match step {
+            GameStep::Level(_) => {
+                level_index += 1;
+                format!("Level {level_index}")
+            }
+            GameStep::UpgradeShop => "Shop".into(),
+        })
+        .collect()
+}
+
+pub fn spawn_menu(mut commands: Commands, progress: Res<MetagameProgression>) {
     commands
         // .ui_builder(UiRoot)
         .spawn(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
-                bottom: Val::Px(50.),
+                flex_direction: FlexDirection::Column,
+                top: Val::Percent(50.),
+                bottom: Val::Percent(50.),
                 left: Val::Px(25.),
                 ..Default::default()
             },
             ..Default::default()
         })
         .with_children(|builder| {
-            builder.spawn((
-                TextBundle {
-                    text: Text::from_section(
-                        "Level 1",
-                        TextStyle {
-                            font_size: 32.0,
-                            ..default()
+            for (i, name) in steps_to_strings(progress.iter_levels()).iter().enumerate() {
+                builder
+                    .spawn((NodeBundle {
+                        style: Style {
+                            ..Default::default()
                         },
-                    ),
-                    ..Default::default()
-                },
-                LevelText,
-            ));
+                        ..Default::default()
+                    },))
+                    .with_children(|builder| {
+                        builder.spawn((
+                            TextBundle {
+                                text: Text::from_section(
+                                    name,
+                                    TextStyle {
+                                        font_size: 32.0,
+                                        ..default()
+                                    },
+                                ),
+                                ..Default::default()
+                            },
+                            LevelText(i),
+                        ));
+                    });
+            }
         });
-
-    //    commands .ui_builder(UiRoot).
 }
 
 pub fn update_text_on_level_transition(
-    mut query: Query<&mut Text, With<LevelText>>,
+    mut query: Query<(&mut Text, &LevelText)>,
     progress: Res<MetagameProgression>,
 ) {
     if progress.is_changed() {
-        for mut text in query.iter_mut() {
-            text.sections[0].value = format!("Level {}", progress.current_level);
+        for (mut style, level) in query.iter_mut() {
+            match level.0.cmp(&progress.current_step_index) {
+                Ordering::Less => style.sections[0].style.color = Color::BLACK,
+                Ordering::Equal => style.sections[0].style.color = Color::GREEN,
+                Ordering::Greater => style.sections[0].style.color = Color::WHITE,
+            }
         }
     }
 }
