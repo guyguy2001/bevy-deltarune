@@ -1,9 +1,10 @@
-use std::path::Path;
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy::sprite::MaterialMesh2dBundle;
 use bevy_inspector_egui::prelude::*;
-use bevy_tween::{combinator::*, prelude::*, tween::AnimationTarget};
+use bevy_tween::tween::TargetAsset;
+use bevy_tween::{combinator::*, prelude::*};
 
 pub struct SwordPlugin;
 
@@ -40,13 +41,17 @@ fn secs(secs: f32) -> Duration {
 pub fn spawn_sword(
     parent: Entity,
     // TODO: Role, take from laser's code
-    asset_server: ResMut<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     mut commands: Commands,
 ) {
-    let triangle = AnimationTarget.into_target();
-
     let starting_color = Color::WHITE.with_a(0.);
-    let mut color_animation = triangle.state(starting_color);
+
+    let color_material = materials.add(starting_color);
+
+    let mut color_animation: TargetState<TargetAsset<ColorMaterial>, Color> =
+        color_material.clone().into_target().state(starting_color);
+
     let size = 15.;
 
     commands.entity(parent).with_children(|builder| {
@@ -54,15 +59,12 @@ pub fn spawn_sword(
         builder
             .spawn((
                 SwordAttack::default(),
-                SpriteBundle {
-                    texture: asset_server.load(Path::new("sprites/circle.png")).clone(),
-                    sprite: Sprite {
-                        custom_size: Some(Vec2::new(size, size)),
-                        ..Default::default()
-                    },
+                MaterialMesh2dBundle {
+                    mesh: meshes.add(Circle::new(size)).into(),
+                    material: color_material,
+                    transform: Transform::from_translation(-Vec3::Z),
                     ..Default::default()
                 },
-                AnimationTarget,
                 Name::new("Sword animation"),
             ))
             .animation()
@@ -70,12 +72,14 @@ pub fn spawn_sword(
                 tween(
                     secs(0.1),
                     EaseFunction::CircularOut,
-                    color_animation.with(interpolate::sprite_color_to(starting_color.with_a(1.0))),
+                    color_animation
+                        .with(interpolate::color_material_to(starting_color.with_a(1.0))),
                 ),
                 tween(
                     secs(0.1),
                     EaseFunction::CircularIn,
-                    color_animation.with(interpolate::sprite_color_to(starting_color.with_a(0.0))),
+                    color_animation
+                        .with(interpolate::color_material_to(starting_color.with_a(0.0))),
                 ),
             )));
     });

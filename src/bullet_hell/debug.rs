@@ -43,16 +43,14 @@ fn skip_level(mut win_event: EventWriter<CombatFinishedEvent>, input: Res<Button
 }
 
 fn debug_spawn_sword(
-    asset_server: ResMut<AssetServer>,
     input: Res<ButtonInput<KeyCode>>,
-    // meshes: ResMut<Assets<Mesh>>,
-    // materials: ResMut<Assets<ColorMaterial>>,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: ResMut<Assets<ColorMaterial>>,
     commands: Commands,
     q_player: Query<Entity, With<Player>>,
 ) {
     if input.just_pressed(KeyCode::KeyP) {
-        // spawn_sword(q_player.single(), meshes, materials, commands);
-        spawn_sword(q_player.single(), asset_server, commands);
+        spawn_sword(q_player.single(), meshes, materials, commands);
     }
 }
 
