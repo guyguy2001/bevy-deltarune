@@ -35,3 +35,4 @@ ron = "0.8.1"
 serde = { version = "1", features = ["derive"] }
 strum = "0.26.1"
 strum_macros = "0.26.1"
+bevy_tween = "0.5.0"

@@ -14,6 +14,7 @@ use self::level::LevelPlugin;
 use self::level_end_animation::LevelEndAnimationPlugin;
 use self::level_timer::LevelTimerPlugin;
 use self::player::PlayerPlugin;
+use self::sword::SwordPlugin;
 use self::upgrades::populate_upgrades_pool;
 
 pub use self::level::{CurrentLevelConfig, LevelConfig, LevelFinishedEvent};
@@ -34,6 +35,7 @@ mod level;
 mod level_end_animation;
 mod level_timer;
 mod player;
+mod sword;
 mod upgrades;
 
 pub struct BulletHellPlugin;
@@ -56,6 +58,7 @@ impl Plugin for BulletHellPlugin {
             MovingCannonPlugin,
             // PhysicsPlugin,
             PlayerPlugin,
+            SwordPlugin,
         ))
         .add_systems(Startup, populate_upgrades_pool);
     }

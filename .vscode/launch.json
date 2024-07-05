@@ -19,7 +19,7 @@
       "cwd": "${workspaceFolder}",
       "env": {
         "CARGO_MANIFEST_DIR": "${workspaceFolder}",
-        "PATH": "${env:USERPROFILE}/.rustup/toolchains/stable-x86_64-pc-windows-gnu/bin;${workspaceFolder}/target/debug/deps;${env:PATH}"
+        "PATH": "${env:USERPROFILE}/.rustup/toolchains/nightly-x86_64-pc-windows-msvc/bin;${workspaceFolder}/target/debug/deps;${env:PATH}"
       }
     },
     {
@@ -37,7 +37,7 @@
       "cwd": "${workspaceFolder}",
       "env": {
         "CARGO_MANIFEST_DIR": "${workspaceFolder}",
-        "PATH": "${env:USERPROFILE}/.rustup/toolchains/stable-x86_64-pc-windows-gnu/bin;${workspaceFolder}/target/debug/deps;${env:PATH}"
+        "PATH": "${env:USERPROFILE}/.rustup/toolchains/nightly-x86_64-pc-windows-msvc/bin;${workspaceFolder}/target/debug/deps;${env:PATH}"
       }
     }
   ]
