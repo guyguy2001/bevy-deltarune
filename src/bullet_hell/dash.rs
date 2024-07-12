@@ -8,7 +8,11 @@ use bevy_rapier2d::{
 
 use crate::{utils::input::get_input_direction, AppState};
 
-use super::{health::Invulnerability, physics_layers, player::Player};
+use super::{
+    health::Invulnerability,
+    physics_layers,
+    player::{ControllablePlayerFilter, ControlledExternally},
+};
 
 pub struct DashPlugin;
 
@@ -23,18 +27,6 @@ impl Plugin for DashPlugin {
 
 #[derive(Component, InspectorOptions, Default, Reflect)]
 #[reflect(Component, InspectorOptions)]
-pub struct ControlledExternally {
-    name: &'static str,
-}
-
-impl ControlledExternally {
-    fn new(name: &'static str) -> Self {
-        Self { name }
-    }
-}
-
-#[derive(Component, InspectorOptions, Default, Reflect)]
-#[reflect(Component, InspectorOptions)]
 pub struct Dasher {
     pub dash_amount: f32,
     pub dash_speed: f32,
@@ -44,13 +36,8 @@ pub struct Dasher {
 // TODO: Should I reference the player? Should I even handle input directly here?
 // TODO: cooldown
 
-// I'm currently okay with having this query complex, I might extract the QueryFilter to a "Controllable" filter type.
-#[allow(clippy::type_complexity)]
 fn start_dashing_on_input(
-    query: Query<
-        (Entity, &Dasher, &CollisionGroups),
-        (With<Player>, Without<ControlledExternally>),
-    >,
+    query: Query<(Entity, &Dasher, &CollisionGroups), ControllablePlayerFilter>,
     input: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
 ) {

@@ -15,11 +15,7 @@ use crate::{
 };
 
 use super::{
-    dash::{ControlledExternally, Dasher},
-    game_ui::healthbar::spawn_healthbar,
-    game_z_index,
-    health::Health,
-    physics_layers,
+    dash::Dasher, game_ui::healthbar::spawn_healthbar, game_z_index, health::Health, physics_layers,
 };
 
 pub struct PlayerPlugin;
@@ -83,10 +79,7 @@ fn setup_player(
 }
 
 fn character_movement(
-    mut characters: Query<
-        (&mut KinematicCharacterController, &Player),
-        Without<ControlledExternally>,
-    >,
+    mut characters: Query<(&mut KinematicCharacterController, &Player), ControllablePlayerFilter>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
@@ -106,3 +99,20 @@ fn player_death(
         }
     }
 }
+
+/// For stuff that take away the input and control the player's movement themselves, like dashes.
+#[derive(Component, InspectorOptions, Default, Reflect)]
+#[reflect(Component, InspectorOptions)]
+pub struct ControlledExternally {
+    controller_name: &'static str,
+}
+
+impl ControlledExternally {
+    pub fn new(controller_name: &'static str) -> Self {
+        Self { controller_name }
+    }
+}
+
+// TODO: Idk if this is a good idea, or if it abstracts away what doesn't need to be abstracted;
+// But I'm rolling with this for now.
+pub type ControllablePlayerFilter = (With<Player>, Without<ControlledExternally>);
