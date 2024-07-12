@@ -23,7 +23,8 @@ impl Plugin for BulletsPlugin {
 
 #[derive(Component, InspectorOptions, Default, Reflect)]
 #[reflect(Component, InspectorOptions)]
-struct Bullet {
+// TODO: Remove the `pub` by making whatever this is needed for a more general thing
+pub struct Bullet {
     pub direction: Vec3,
     pub damage: f32,
     pub speed: f32,
