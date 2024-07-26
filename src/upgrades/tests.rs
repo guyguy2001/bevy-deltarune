@@ -33,6 +33,7 @@ fn test_global_upgrades() {
 
     let mut app = App::new();
     app.add_plugins(UpgradesPlugin);
+    let mut world = app.world_mut();
 
     let should_receive_bundles = [
         (
@@ -50,7 +51,7 @@ fn test_global_upgrades() {
     ];
     let should_receive = should_receive_bundles
         .clone()
-        .map(|bundle| app.world.spawn(bundle).id());
+        .map(|bundle| world.spawn(bundle).id());
 
     let should_not_receive_bundles = [
         (
@@ -68,47 +69,46 @@ fn test_global_upgrades() {
     ];
     let should_not_receive = should_not_receive_bundles
         .clone()
-        .map(|bundle| app.world.spawn(bundle).id());
+        .map(|bundle| world.spawn(bundle).id());
 
     // No entity should have the upgrade before it is applied
     for entity in should_receive {
-        assert!(app.world.entity(entity).get::<HasCustomUpgrade>().is_none());
+        assert!(world.entity(entity).get::<HasCustomUpgrade>().is_none());
     }
     for entity in should_not_receive {
-        assert!(app.world.entity(entity).get::<HasCustomUpgrade>().is_none());
+        assert!(world.entity(entity).get::<HasCustomUpgrade>().is_none());
     }
 
-    let upgrade = get_custom_upgrade(&mut app.world);
-    let apply_upgrade = app.world.resource::<UpgradeApplier>().apply_upgrade_to_all;
-    app.world
-        .run_system_with_input(apply_upgrade, upgrade)
-        .unwrap();
+    let upgrade = get_custom_upgrade(&mut world);
+    let apply_upgrade = world.resource::<UpgradeApplier>().apply_upgrade_to_all;
+    world.run_system_with_input(apply_upgrade, upgrade).unwrap();
 
     // Only the entities with the correct factions should receive the upgrade
     for entity in should_receive {
-        assert!(app.world.entity(entity).get::<HasCustomUpgrade>().is_some());
+        assert!(world.entity(entity).get::<HasCustomUpgrade>().is_some());
     }
     for entity in should_not_receive {
-        assert!(app.world.entity(entity).get::<HasCustomUpgrade>().is_none());
+        assert!(world.entity(entity).get::<HasCustomUpgrade>().is_none());
     }
     app.update();
+    let mut world = app.world_mut();
     for entity in should_receive {
-        assert!(app.world.entity(entity).get::<HasCustomUpgrade>().is_some());
+        assert!(world.entity(entity).get::<HasCustomUpgrade>().is_some());
     }
     for entity in should_not_receive {
-        assert!(app.world.entity(entity).get::<HasCustomUpgrade>().is_none());
+        assert!(world.entity(entity).get::<HasCustomUpgrade>().is_none());
     }
 
-    let should_receive_2 = should_receive_bundles.map(|bundle| app.world.spawn(bundle).id());
-    let should_not_receive_2 =
-        should_not_receive_bundles.map(|bundle| app.world.spawn(bundle).id());
+    let should_receive_2 = should_receive_bundles.map(|bundle| world.spawn(bundle).id());
+    let should_not_receive_2 = should_not_receive_bundles.map(|bundle| world.spawn(bundle).id());
 
     app.update();
+    let mut world = app.world_mut();
     // Only the entities with the correct factions should receive the upgrade
     for entity in should_receive_2 {
-        assert!(app.world.entity(entity).get::<HasCustomUpgrade>().is_some());
+        assert!(world.entity(entity).get::<HasCustomUpgrade>().is_some());
     }
     for entity in should_not_receive_2 {
-        assert!(app.world.entity(entity).get::<HasCustomUpgrade>().is_none());
+        assert!(world.entity(entity).get::<HasCustomUpgrade>().is_none());
     }
 }

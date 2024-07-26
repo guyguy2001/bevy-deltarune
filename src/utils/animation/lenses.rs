@@ -7,11 +7,13 @@ trait ColorLerper {
 
 impl ColorLerper for Color {
     fn lerp(&self, target: &Color, ratio: f32) -> Color {
-        let r = self.r().lerp(target.r(), ratio);
-        let g = self.g().lerp(target.g(), ratio);
-        let b = self.b().lerp(target.b(), ratio);
-        let a = self.a().lerp(target.a(), ratio);
-        Color::rgba(r, g, b, a)
+        let self_srgba = self.to_srgba();
+        let target_srgba = target.to_srgba();
+        let r = self_srgba.red.lerp(target_srgba.red, ratio);
+        let g = self_srgba.green.lerp(target_srgba.green, ratio);
+        let b = self_srgba.blue.lerp(target_srgba.blue, ratio);
+        let a = self_srgba.alpha.lerp(target_srgba.alpha, ratio);
+        Color::srgba(r, g, b, a)
     }
 }
 
@@ -26,8 +28,8 @@ pub struct ColorMaterialRGBLens {
 }
 
 impl Lens<ColorMaterial> for ColorMaterialRGBLens {
-    fn lerp(&mut self, target: &mut ColorMaterial, ratio: f32) {
+    fn lerp(&mut self, target: &mut dyn Targetable<ColorMaterial>, ratio: f32) {
         let value = self.start.lerp(&self.end, ratio);
-        target.color = value.with_a(target.color.a());
+        target.color = value.with_alpha(target.color.alpha());
     }
 }

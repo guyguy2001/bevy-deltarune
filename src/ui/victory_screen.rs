@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{utils::z_index, AppState};
+use crate::{ui, utils::z_index, AppState};
 
 pub struct VictoryScreenPlugin;
 
@@ -26,7 +26,7 @@ fn spawn_victory_popup(mut commands: Commands) {
                     display: Display::Flex,
                     ..default()
                 },
-                background_color: Color::DARK_GRAY.into(),
+                background_color: ui::palette::DARK_GRAY.into(),
                 border_color: Color::BLACK.into(),
                 ..default()
             },

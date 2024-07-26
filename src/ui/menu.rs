@@ -9,6 +9,8 @@ use crate::{
     AppState,
 };
 
+use super::palette;
+
 pub struct MenuUI;
 
 impl Plugin for MenuUI {
@@ -19,9 +21,7 @@ impl Plugin for MenuUI {
     }
 }
 
-#[derive(
-    Component, Clone, Copy, Event, PartialEq, Eq, strum_macros::EnumIter, strum_macros::Display,
-)]
+#[derive(Clone, Copy, Event, PartialEq, Eq, strum_macros::EnumIter, strum_macros::Display)]
 enum Buttons {
     Start,
 }
@@ -46,7 +46,7 @@ fn spawn_menu_ui(world: &mut World) {
                     display: Display::Flex,
                     ..default()
                 },
-                background_color: Color::DARK_GRAY.into(),
+                background_color: palette::DARK_GRAY.into(),
                 visibility: Visibility::Hidden,
                 ..default()
             },
@@ -69,9 +69,9 @@ fn spawn_menu_ui(world: &mut World) {
                                 ..default()
                             },
                             border_color: if *button == Buttons::Start {
-                                Color::GREEN.into()
+                                palette::GREEN.into()
                             } else {
-                                Color::BLACK.into()
+                                palette::BLACK.into()
                             },
                             ..default()
                         },
@@ -104,11 +104,11 @@ fn spawn_menu_ui(world: &mut World) {
 }
 
 fn deactivate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
-    border_query.get_mut(entity).unwrap().0 = Color::BLACK;
+    border_query.get_mut(entity).unwrap().0 = palette::BLACK.into();
 }
 
 fn activate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
-    border_query.get_mut(entity).unwrap().0 = Color::GREEN;
+    border_query.get_mut(entity).unwrap().0 = palette::GREEN.into();
 }
 
 fn start_game(In(_entity): In<Entity>, mut start_game_event: EventWriter<StartGameEvent>) {

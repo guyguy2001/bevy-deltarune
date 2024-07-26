@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use bevy::{ecs::system::BoxedSystem, prelude::*};
+use bevy::{color::palettes, ecs::system::BoxedSystem, prelude::*};
 
 use crate::{
     upgrades::{GlobalUpgrade, Upgrade, UpgradesReceiverFaction},
@@ -99,7 +99,7 @@ fn _add_10_health(In(entity): In<Entity>, mut q_health: Query<&mut Health>) {
 
 fn make_bullets_yellow(In(entity): In<Entity>, mut sprite: Query<&mut Sprite>) {
     if let Ok(mut sprite) = sprite.get_mut(entity) {
-        sprite.color = Color::YELLOW;
+        sprite.color = palettes::css::YELLOW.into();
     }
 }
 

@@ -63,7 +63,7 @@ pub fn spawn_sword(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut commands: Commands,
 ) {
-    let starting_color = Color::WHITE.with_a(0.);
+    let starting_color = Color::WHITE.with_alpha(0.);
 
     let color_material = materials.add(starting_color);
 
@@ -98,14 +98,16 @@ pub fn spawn_sword(
                 tween(
                     secs(0.1),
                     EaseFunction::CircularOut,
-                    color_animation
-                        .with(interpolate::color_material_to(starting_color.with_a(1.0))),
+                    color_animation.with(interpolate::color_material_to(
+                        starting_color.with_alpha(1.0),
+                    )),
                 ),
                 tween(
                     secs(0.1),
                     EaseFunction::CircularIn,
-                    color_animation
-                        .with(interpolate::color_material_to(starting_color.with_a(0.0))),
+                    color_animation.with(interpolate::color_material_to(
+                        starting_color.with_alpha(0.0),
+                    )),
                 ),
                 event(SwordAnimationEvent::Finished),
             )));

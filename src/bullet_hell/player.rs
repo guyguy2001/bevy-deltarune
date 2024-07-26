@@ -47,7 +47,7 @@ fn setup_player(
     let player_commands = commands.spawn((
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Rectangle::new(sprite_size, sprite_size))),
-            material: materials.add(Color::rgb_u8(165, 75, 251)),
+            material: materials.add(Color::srgb_u8(165, 75, 251)),
             transform: Transform::from_translation(Vec3::Z * game_z_index::PLAYERS),
             ..default()
         },

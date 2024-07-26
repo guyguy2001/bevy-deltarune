@@ -43,7 +43,7 @@ fn flash_on_damage(
             // I'm using this and not the standard ColorLens to allow
             // messing with the alpha in the invulnerability systems.
             ColorMaterialRGBLens {
-                start: Color::RED,
+                start: bevy::color::palettes::basic::RED.into(),
                 end: current_color,
             },
         );
@@ -58,7 +58,11 @@ fn add_invulnerability_effect(
     mut query: Query<&Handle<ColorMaterial>, Added<Invulnerability>>,
 ) {
     for color_handle in query.iter_mut() {
-        materials.get_mut(color_handle).unwrap().color.set_a(0.25);
+        materials
+            .get_mut(color_handle)
+            .unwrap()
+            .color
+            .set_alpha(0.25);
     }
 }
 
@@ -69,6 +73,6 @@ fn remove_invulnerability_effect(
 ) {
     for entity in removed_components.read() {
         let color_handle = query.get(entity).unwrap();
-        materials.get_mut(color_handle).unwrap().color.set_a(1.);
+        materials.get_mut(color_handle).unwrap().color.set_alpha(1.);
     }
 }

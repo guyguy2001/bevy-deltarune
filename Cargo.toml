@@ -20,14 +20,13 @@ opt-level = 3
 codegen-units = 1
 
 [dependencies]
-bevy = { version = "0.13.2", features = ["dynamic_linking"] }
-# bevy_tween = "0.4"
-bevy_tweening = "0.10"
-bevy_editor_pls = "0.8"
-bevy_easings = "0.13.1"
-bevy-inspector-egui = "0.24.0"
+bevy = { version = "0.14.0", features = ["dynamic_linking"] }
+bevy_tweening = "0.11"
+# bevy_editor_pls = "0.8"
+bevy_easings = "0.14.0"
+bevy-inspector-egui = "0.25.1"
 # bevy-inspector-egui-rapier = {version = "0.9", features = ["rapier2d"]}
-bevy_rapier2d = { version = "0.25.0", features = [ "simd-stable", "debug-render-2d"] }
+bevy_rapier2d = { version = "0.27.0", features = [ "simd-stable", "debug-render-2d"] }
 bitmask-enum = "2.2.3"
 lerp = "0.5.0"
 rand = "0.8.5"
@@ -35,4 +34,4 @@ ron = "0.8.1"
 serde = { version = "1", features = ["derive"] }
 strum = "0.26.1"
 strum_macros = "0.26.1"
-bevy_tween = "0.5.0"
+bevy_tween = "0.6.0"

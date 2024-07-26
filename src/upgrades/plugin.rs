@@ -9,7 +9,7 @@ pub struct UpgradesPlugin;
 
 impl Plugin for UpgradesPlugin {
     fn build(&self, app: &mut App) {
-        let apply_system_id = app.world.register_system(apply_upgrade_to_all);
+        let apply_system_id = app.world_mut().register_system(apply_upgrade_to_all);
         app.init_resource::<SelectionsPool<GlobalUpgrade>>()
             .init_resource::<AppliedGlobalUpgrades>();
         app.insert_resource(UpgradeApplier {

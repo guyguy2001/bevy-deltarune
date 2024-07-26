@@ -71,12 +71,12 @@ fn start_game(
     match &progression.levels[progression.current_step_index] {
         GameStep::Level(level_config) => {
             current_level_config.0 = level_config.clone();
-            next_state.0 = Some(AppState::Defending);
+            next_state.set(AppState::Defending);
 
             progression.current_level += 1;
         }
         GameStep::UpgradeShop => {
-            next_state.0 = Some(AppState::LevelTransition);
+            next_state.set(AppState::LevelTransition);
         }
     }
 }
@@ -88,7 +88,7 @@ fn on_finished_step(
 ) {
     if progression.current_step_index == progression.levels.len() - 1 {
         println!("You win!");
-        next_state.0 = Some(AppState::Victory);
+        next_state.set(AppState::Victory);
         return;
     }
 
@@ -98,12 +98,12 @@ fn on_finished_step(
     match &progression.levels[progression.current_step_index] {
         GameStep::Level(level_config) => {
             current_level_config.0 = level_config.clone();
-            next_state.0 = Some(AppState::Defending);
+            next_state.set(AppState::Defending);
 
             progression.current_level += 1;
         }
         GameStep::UpgradeShop => {
-            next_state.0 = Some(AppState::LevelTransition);
+            next_state.set(AppState::LevelTransition);
         }
     }
 }

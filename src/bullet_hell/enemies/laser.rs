@@ -129,7 +129,7 @@ fn spawn_laser(
         .spawn((
             MaterialMesh2dBundle {
                 mesh: meshes.add(Rectangle::new(WIDTH, HEIGHT)).into(), // TODO: custom width, full height (TODO: rotations),
-                material: materials.add(Color::WHITE.with_a(0.)),
+                material: materials.add(Color::WHITE.with_alpha(0.)),
                 transform: Transform::from_xyz(0., -HEIGHT / 2., game_z_index::LASERS),
                 ..Default::default()
             },
@@ -169,7 +169,7 @@ fn laser_lifecycle(
                 .get_mut(material_handle.id())
                 .unwrap()
                 .color
-                .set_a((start).lerp(end, timer_fraction));
+                .set_alpha((start).lerp(end, timer_fraction));
         };
 
         match state.as_mut() {

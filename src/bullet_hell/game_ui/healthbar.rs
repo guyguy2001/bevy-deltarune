@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     bullet_hell::health::Health,
+    ui,
     utils::{world_ui::WorldUI, z_index},
     AppState,
 };
@@ -55,7 +56,7 @@ pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
                             position_type: PositionType::Absolute,
                             ..default()
                         },
-                        border_color: Color::BLACK.into(),
+                        border_color: ui::palette::BLACK.into(),
                         ..default()
                     },
                     Name::new("Healthbar"),
@@ -68,7 +69,7 @@ pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
                                 height: Val::Percent(100.),
                                 ..default()
                             },
-                            background_color: Color::GREEN.into(),
+                            background_color: ui::palette::GREEN.into(),
                             ..default()
                         },
                         GreenPart,

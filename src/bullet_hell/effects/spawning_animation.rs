@@ -36,7 +36,7 @@ fn spawning_animation_behaviour(
     for (entity, mut sprite, mut animation) in q_spawning_object.iter_mut() {
         sprite
             .color
-            .set_a((0.).lerp(1., animation.animation_timer.fraction()));
+            .set_alpha((0.).lerp(1., animation.animation_timer.fraction()));
 
         animation.animation_timer.tick(time.delta());
         if animation.animation_timer.finished() {

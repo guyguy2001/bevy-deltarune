@@ -3,6 +3,8 @@ use std::cmp::Ordering;
 use bevy::prelude::*;
 use bevy_inspector_egui::prelude::*;
 
+use crate::ui;
+
 use super::plugin::{GameStep, MetagameProgression};
 
 #[derive(Component, InspectorOptions, Default, Reflect)]
@@ -72,9 +74,9 @@ pub fn update_text_on_level_transition(
     if progress.is_changed() {
         for (mut style, level) in query.iter_mut() {
             match level.0.cmp(&progress.current_step_index) {
-                Ordering::Less => style.sections[0].style.color = Color::BLACK,
-                Ordering::Equal => style.sections[0].style.color = Color::GREEN,
-                Ordering::Greater => style.sections[0].style.color = Color::WHITE,
+                Ordering::Less => style.sections[0].style.color = ui::palette::BLACK.into(),
+                Ordering::Equal => style.sections[0].style.color = ui::palette::GREEN.into(),
+                Ordering::Greater => style.sections[0].style.color = ui::palette::WHITE.into(),
             }
         }
     }

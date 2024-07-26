@@ -2,6 +2,8 @@ use bevy::prelude::*;
 
 use crate::{utils::z_index, AppState};
 
+use super::palette;
+
 #[derive(Event)]
 pub struct LoseEvent;
 
@@ -40,7 +42,7 @@ fn spawn_menu_ui(mut commands: Commands) {
                     display: Display::Flex,
                     ..default()
                 },
-                background_color: Color::DARK_GRAY.into(),
+                background_color: palette::DARK_GRAY.into(),
                 border_color: Color::BLACK.into(),
                 ..default()
             },

@@ -51,7 +51,7 @@ impl Plugin for LevelEndAnimationPlugin {
 }
 
 fn reset_animation_state(mut animation_state: ResMut<NextState<LevelEndAnimationState>>) {
-    animation_state.0 = Some(LevelEndAnimationState::Animations);
+    animation_state.set(LevelEndAnimationState::Animations);
 }
 
 fn apply_random_effect(effects: Res<LevelTransitionEffectsPool>, mut commands: Commands) {
@@ -63,7 +63,7 @@ fn check_for_animations_end(
     mut animation_state: ResMut<NextState<LevelEndAnimationState>>,
 ) {
     if q_active_animations.is_empty() {
-        animation_state.0 = Some(LevelEndAnimationState::PostAnimationsDelay);
+        animation_state.set(LevelEndAnimationState::PostAnimationsDelay);
     }
 }
 

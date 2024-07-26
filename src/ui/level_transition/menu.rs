@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    ui::{self, palette},
     upgrades::{GlobalUpgrade, UpgradeApplier},
     utils::{
         data_structures::Index,
@@ -92,7 +93,7 @@ fn spawn_level_transition_menu(world: &mut World) {
 
                     ..Default::default()
                 },
-                background_color: BackgroundColor(Color::BLACK),
+                background_color: BackgroundColor(ui::palette::BLACK.into()),
                 ..Default::default()
             },
             MultiChoiceParent {
@@ -114,8 +115,8 @@ fn spawn_level_transition_menu(world: &mut World) {
                         flex_direction: FlexDirection::Column,
                         ..Default::default()
                     },
-                    background_color: Color::GRAY.into(),
-                    border_color: Color::WHITE.into(),
+                    background_color: ui::palette::GRAY.into(),
+                    border_color: ui::palette::WHITE.into(),
                     ..Default::default()
                 },
                 MultiChoiceButton {
@@ -244,7 +245,7 @@ fn spawn_level_transition_menu(world: &mut World) {
 
         if let Some((_, icon_path)) = upgrade {
             icon.insert(UiImage::new((*icon_path).clone()));
-            icon.get_mut::<BackgroundColor>().unwrap().0 = Color::WHITE;
+            icon.get_mut::<BackgroundColor>().unwrap().0 = ui::palette::WHITE.into();
         }
         let icon = icon.id();
 
@@ -287,11 +288,11 @@ fn unregister_menu(
 }
 
 pub fn deactivate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
-    border_query.get_mut(entity).unwrap().0 = Color::DARK_GRAY;
+    border_query.get_mut(entity).unwrap().0 = palette::DARK_GRAY.into();
 }
 
 pub fn activate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
-    border_query.get_mut(entity).unwrap().0 = Color::WHITE;
+    border_query.get_mut(entity).unwrap().0 = palette::WHITE.into();
 }
 
 fn process_upgrade_and_go_to_next_level(
