@@ -12,6 +12,7 @@ use super::{health::Health, player::Player};
 pub fn populate_upgrades_pool(world: &mut World) {
     // mut upgrade_pool: ResMut<SelectionsPool<GlobalUpgrade>>
     // TODO: Should this be a normal function called as an argument for app.insert_resource?
+    // That would make it safer I guess (won't allow me to forget to call it)
     let unimplemented_id = world.register_system(unimplemented_system);
     let upgrades = vec![
         GlobalUpgrade {

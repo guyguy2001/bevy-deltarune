@@ -108,12 +108,12 @@ struct Wander {
     end: Vec3,
     // Todo: replace speed with Duration / Timer to allow finer control of wandering vs shooting (right now we shoot 1.999 times per wander)
     speed: f32,
-    direction: WanderDirection,
+    current_direction: WanderDirection,
 }
 
 fn wander_behaviour(time: Res<Time>, mut wander_query: Query<(&mut Wander, &mut Transform)>) {
     for (mut wander, mut transform) in wander_query.iter_mut() {
-        let destination = match wander.direction {
+        let destination = match wander.current_direction {
             WanderDirection::ToEnd => wander.end,
             WanderDirection::ToStart => wander.start,
         };
@@ -122,7 +122,7 @@ fn wander_behaviour(time: Res<Time>, mut wander_query: Query<(&mut Wander, &mut 
             translation_left.normalize_or_zero() * wander.speed * time.delta().as_secs_f32();
         if desired_movement.length_squared() > translation_left.length_squared() {
             transform.translation = destination;
-            wander.direction = wander.direction.other();
+            wander.current_direction = wander.current_direction.other();
         } else {
             transform.translation += desired_movement;
         }

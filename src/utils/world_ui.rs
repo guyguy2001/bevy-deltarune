@@ -3,6 +3,8 @@ use bevy::{prelude::*, ui::UiSystem};
 pub struct WorldUIPlugin;
 impl Plugin for WorldUIPlugin {
     fn build(&self, app: &mut App) {
+        // TODO: Layout is the point at which all of the layout-setting already occurred,
+        // so I think running before it doesn't give me any guarantees.
         app.add_systems(PostUpdate, sync_world_ui_to_parent.before(UiSystem::Layout))
             .add_systems(PostStartup, error_if_world_ui_without_style);
     }
