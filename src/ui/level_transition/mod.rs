@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
-pub use self::menu::FinishedLevelTransitionEvent;
 use self::menu::LevelTransitionMenuPlugin;
+pub use self::menu::{ShopType, EnterLevelTransitionEvent, FinishedLevelTransitionEvent};
 
 mod menu;
 

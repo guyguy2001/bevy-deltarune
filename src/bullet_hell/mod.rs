@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 
 pub use self::level::{CurrentLevelConfig, LevelConfig, LevelFinishedEvent};
+pub use abilities3::AbilityUpgradePool;
 
+mod abilities3;
 mod effects;
 mod enemies;
 mod game_ui;
@@ -26,22 +28,27 @@ pub struct BulletHellPlugin;
 impl Plugin for BulletHellPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
-            arena::ArenaPlugin,
-            bullet::BulletsPlugin,
-            dash::DashPlugin,
-            debug::DebugPlugin,
-            effects::EffectsPlugin,
-            enemies::laser::LaserPlugin,
-            enemies::moving_cannon::MovingCannonPlugin,
-            game_ui::GameUIPlugin,
-            health::HealthPlugin,
-            hit_effect::HitEffectPlugin,
-            level::LevelPlugin,
-            level_end_animation::LevelEndAnimationPlugin,
-            level_timer::LevelTimerPlugin,
-            player::PlayerPlugin,
-            sword::SwordPlugin,
+            (
+                arena::ArenaPlugin,
+                abilities3::plugin,
+                bullet::BulletsPlugin,
+                dash::DashPlugin,
+                debug::DebugPlugin,
+                effects::EffectsPlugin,
+                enemies::laser::LaserPlugin,
+                enemies::moving_cannon::MovingCannonPlugin,
+                game_ui::GameUIPlugin,
+            ),
+            (
+                health::HealthPlugin,
+                hit_effect::HitEffectPlugin,
+                level::LevelPlugin,
+                level_end_animation::LevelEndAnimationPlugin,
+                level_timer::LevelTimerPlugin,
+                player::PlayerPlugin,
+                sword::SwordPlugin,
+            ),
         ))
-        .add_systems(Startup, upgrades::populate_upgrades_pool);
+        .add_systems(Startup, upgrades::populate_upgrades_pool); // TODO: The upgrade pool and ability pool are referenced in different ways
     }
 }

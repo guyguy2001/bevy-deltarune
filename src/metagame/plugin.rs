@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     bullet_hell::{CurrentLevelConfig, LevelConfig, LevelFinishedEvent},
-    ui::level_transition::FinishedLevelTransitionEvent,
+    ui::level_transition::{EnterLevelTransitionEvent, FinishedLevelTransitionEvent, ShopType},
     AppState,
 };
 
@@ -37,12 +37,13 @@ pub struct StartGameEvent;
 #[derive(Clone)] // TODO - should this be clone?
 pub enum GameStep {
     Level(LevelConfig),
+    AbilityShop,
     UpgradeShop,
 }
 
 const GAME_STEPS: [GameStep; 6] = [
     GameStep::Level(LevelConfig::from_seconds_duration(15)),
-    GameStep::UpgradeShop,
+    GameStep::AbilityShop,
     GameStep::Level(LevelConfig::from_seconds_duration(10)),
     GameStep::Level(LevelConfig::from_seconds_duration(10)),
     GameStep::UpgradeShop,
@@ -67,16 +68,28 @@ fn start_game(
     mut progression: ResMut<MetagameProgression>,
     mut next_state: ResMut<NextState<AppState>>,
     mut current_level_config: ResMut<CurrentLevelConfig>,
+    mut commands: Commands,
 ) {
     match &progression.levels[progression.current_step_index] {
+        // This match is duplicated with `on_finished_step`!
         GameStep::Level(level_config) => {
             current_level_config.0 = level_config.clone();
             next_state.set(AppState::Defending);
 
             progression.current_level += 1;
         }
+        GameStep::AbilityShop => {
+            // TODO: Here I'm using an event and let the triggered function change the state,
+            // as opposed to GameStep::Level, where I change the state here.
+            // Which is better?
+            commands.trigger(EnterLevelTransitionEvent {
+                shop_type: ShopType::Abilities,
+            });
+        }
         GameStep::UpgradeShop => {
-            next_state.set(AppState::LevelTransition);
+            commands.trigger(EnterLevelTransitionEvent {
+                shop_type: ShopType::Upgrades,
+            });
         }
     }
 }
@@ -85,6 +98,7 @@ fn on_finished_step(
     mut progression: ResMut<MetagameProgression>,
     mut next_state: ResMut<NextState<AppState>>,
     mut current_level_config: ResMut<CurrentLevelConfig>,
+    mut commands: Commands,
 ) {
     if progression.current_step_index == progression.levels.len() - 1 {
         println!("You win!");
@@ -102,8 +116,18 @@ fn on_finished_step(
 
             progression.current_level += 1;
         }
+        GameStep::AbilityShop => {
+            // TODO: Here I'm using an event and let the triggered function change the state,
+            // as opposed to GameStep::Level, where I change the state here.
+            // Which is better?
+            commands.trigger(EnterLevelTransitionEvent {
+                shop_type: ShopType::Abilities,
+            });
+        }
         GameStep::UpgradeShop => {
-            next_state.set(AppState::LevelTransition);
+            commands.trigger(EnterLevelTransitionEvent {
+                shop_type: ShopType::Upgrades,
+            });
         }
     }
 }

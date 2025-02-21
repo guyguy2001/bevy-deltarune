@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    bullet_hell::AbilityUpgradePool,
     ui::{self, palette},
     upgrades::{GlobalUpgrade, UpgradeApplier},
     utils::{
@@ -17,6 +18,8 @@ pub struct LevelTransitionMenuPlugin;
 impl Plugin for LevelTransitionMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<FinishedLevelTransitionEvent>()
+            .init_resource::<ShopParameters>()
+            .observe(enter_store)
             .add_systems(
                 OnEnter(AppState::LevelTransition),
                 (spawn_level_transition_menu, register_menu).chain(),
@@ -26,6 +29,19 @@ impl Plugin for LevelTransitionMenuPlugin {
                 (unregister_menu, despawn_level_transition_menu).chain(),
             );
     }
+}
+
+// TODO: The default makes me sad
+#[derive(Clone, Copy, Default)]
+pub enum ShopType {
+    #[default]
+    Abilities,
+    Upgrades,
+}
+
+#[derive(Event)]
+pub struct EnterLevelTransitionEvent {
+    pub shop_type: ShopType,
 }
 
 #[derive(Event)]
@@ -42,16 +58,39 @@ struct UpgradeSelectMenu;
 #[derive(Component)]
 struct UpgradeOption(Option<GlobalUpgrade>);
 
+// TODO: defaults
+#[derive(Resource, Default)]
+struct ShopParameters {
+    shop_type: ShopType,
+}
+
 const MENU_ITEMS: [i32; 3] = [1, 2, 3];
+
+fn enter_store(
+    trigger: Trigger<EnterLevelTransitionEvent>,
+    mut shop_parameters: ResMut<ShopParameters>,
+    mut state: ResMut<NextState<AppState>>,
+) {
+    shop_parameters.shop_type = trigger.event().shop_type;
+    state.set(AppState::LevelTransition);
+}
 
 fn spawn_level_transition_menu(world: &mut World) {
     let activate_id = world.register_system(activate);
     let deactivate_id = world.register_system(deactivate);
     let pressed_system_id = world.register_system(process_upgrade_and_go_to_next_level);
 
-    let upgrades = world
-        .resource::<SelectionsPool<GlobalUpgrade>>()
-        .get_multiple_random(3);
+    let shop_type = world.resource::<ShopParameters>().shop_type;
+    let upgrades = match shop_type {
+        ShopType::Abilities => world
+            .resource::<AbilityUpgradePool>()
+            .0
+            .get_multiple_random(3),
+        ShopType::Upgrades => world
+            .resource::<SelectionsPool<GlobalUpgrade>>()
+            .get_multiple_random(3),
+    };
+    // TODO: Extract all of the logic ahead of here to a helper which receives the upgrades as parameters
     let asset_server = world.resource::<AssetServer>();
     let upgrades: Vec<Option<(GlobalUpgrade, Handle<Image>)>> = upgrades
         .iter()

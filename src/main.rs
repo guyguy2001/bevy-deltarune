@@ -19,6 +19,7 @@ use ui::{level_transition::LevelTransitionPlugin, victory_screen::VictoryScreenP
 use upgrades::UpgradesPlugin;
 use utils::{menu_system::MenuSystemPlugin, world_ui::WorldUIPlugin};
 
+mod abilities;
 mod bullet_hell;
 mod game_config;
 mod metagame;

@@ -20,6 +20,7 @@ fn steps_to_strings<'a, T: Iterator<Item = &'a GameStep>>(game_steps: T) -> Vec<
                 level_index += 1;
                 format!("Level {level_index}")
             }
+            GameStep::AbilityShop => "Ability Shop".into(),
             GameStep::UpgradeShop => "Shop".into(),
         })
         .collect()
