@@ -15,9 +15,11 @@ pub struct MenuUI;
 
 impl Plugin for MenuUI {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_menu_ui)
-            .add_systems(OnEnter(AppState::ActionMenu), show_menu)
-            .add_systems(OnExit(AppState::ActionMenu), hide_menu);
+        app.add_systems(
+            OnEnter(AppState::ActionMenu),
+            (spawn_menu_ui, show_menu).chain(),
+        )
+        .add_systems(OnExit(AppState::ActionMenu), hide_menu);
     }
 }
 

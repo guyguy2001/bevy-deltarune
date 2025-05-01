@@ -48,6 +48,7 @@ fn main() {
                     primary_window: Some(Window {
                         title: "Gems game".into(),
                         resolution: game_config.window_size.into(),
+                        present_mode: bevy::window::PresentMode::AutoNoVsync,
                         mode: if game_config.fullscreen {
                             WindowMode::BorderlessFullscreen
                         } else {
