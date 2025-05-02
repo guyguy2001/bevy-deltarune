@@ -19,7 +19,7 @@ impl Plugin for LevelTransitionMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<FinishedLevelTransitionEvent>()
             .init_resource::<ShopParameters>()
-            .observe(enter_store)
+            .add_observer(enter_store)
             .add_systems(
                 OnEnter(AppState::LevelTransition),
                 (spawn_level_transition_menu, register_menu).chain(),
@@ -104,16 +104,13 @@ fn spawn_level_transition_menu(world: &mut World) {
 
     let outer_menu = world
         .spawn((
-            NodeBundle {
-                z_index: z_index::POPUP_MENU,
-                style: Style {
-                    // fill the entire window
-                    height: Val::Percent(100.),
-                    width: Val::Percent(100.),
-                    ..Default::default()
-                },
+            Node {
+                // fill the entire window
+                height: Val::Percent(100.),
+                width: Val::Percent(100.),
                 ..Default::default()
             },
+            z_index::POPUP_MENU,
             UpgradeSelectMenuRoot,
             Name::new("UpgradeSelectMenu"),
         ))
@@ -121,20 +118,16 @@ fn spawn_level_transition_menu(world: &mut World) {
     // spawn the key
     let menu_body = world
         .spawn((
-            NodeBundle {
-                style: Style {
-                    margin: UiRect::all(Val::Percent(5.)),
-                    width: Val::Percent(100.),
-                    height: Val::Auto,
-                    flex_direction: FlexDirection::Row,
-                    display: Display::Flex,
-                    align_content: AlignContent::SpaceEvenly,
-
-                    ..Default::default()
-                },
-                background_color: BackgroundColor(ui::palette::BLACK.into()),
+            Node {
+                margin: UiRect::all(Val::Percent(5.)),
+                width: Val::Percent(100.),
+                height: Val::Auto,
+                flex_direction: FlexDirection::Row,
+                display: Display::Flex,
+                align_content: AlignContent::SpaceEvenly,
                 ..Default::default()
             },
+            BackgroundColor(ui::palette::BLACK.into()),
             MultiChoiceParent {
                 selected: Index::new(MENU_ITEMS.len(), 0),
             },
@@ -146,18 +139,15 @@ fn spawn_level_transition_menu(world: &mut World) {
     for (i, upgrade) in upgrades.iter().enumerate() {
         let option = world
             .spawn((
-                NodeBundle {
-                    style: Style {
-                        width: Val::Percent(100.),
-                        margin: UiRect::all(Val::Percent(3.)),
-                        border: UiRect::all(Val::Percent(1.)),
-                        flex_direction: FlexDirection::Column,
-                        ..Default::default()
-                    },
-                    background_color: ui::palette::GRAY.into(),
-                    border_color: ui::palette::WHITE.into(),
+                Node {
+                    width: Val::Percent(100.),
+                    margin: UiRect::all(Val::Percent(3.)),
+                    border: UiRect::all(Val::Percent(1.)),
+                    flex_direction: FlexDirection::Column,
                     ..Default::default()
                 },
+                BackgroundColor(ui::palette::GRAY.into()),
+                BorderColor(ui::palette::WHITE.into()),
                 MultiChoiceButton {
                     on_selected: Some(pressed_system_id),
                     activate: activate_id,
@@ -170,15 +160,12 @@ fn spawn_level_transition_menu(world: &mut World) {
 
         let header = world
             .spawn((
-                NodeBundle {
-                    style: Style {
-                        width: Val::Percent(100.),
-                        height: Val::Percent(20.),
-                        display: Display::Flex,
-                        align_items: AlignItems::Center,
-                        justify_content: JustifyContent::Center,
-                        ..default()
-                    },
+                Node {
+                    width: Val::Percent(100.),
+                    height: Val::Percent(20.),
+                    display: Display::Flex,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
                     ..default()
                 },
                 Name::new("Header"),
@@ -187,15 +174,12 @@ fn spawn_level_transition_menu(world: &mut World) {
 
         let body = world
             .spawn((
-                NodeBundle {
-                    style: Style {
-                        width: Val::Percent(100.),
-                        height: Val::Percent(80.),
-                        display: Display::Flex,
-                        align_items: AlignItems::Center,
-                        justify_content: JustifyContent::Center,
-                        ..default()
-                    },
+                Node {
+                    width: Val::Percent(100.),
+                    height: Val::Percent(80.),
+                    display: Display::Flex,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
                     ..default()
                 },
                 Name::new("Body"),
@@ -204,86 +188,71 @@ fn spawn_level_transition_menu(world: &mut World) {
 
         let title = world
             .spawn((
-                TextBundle {
-                    text: Text::from_section(
-                        match upgrade {
-                            None => "Placeholder",
-                            Some((upgrade, _)) => upgrade.upgrade.name,
-                        },
-                        TextStyle {
-                            font_size: 64.,
-                            ..default()
-                        },
-                    )
-                    .with_justify(JustifyText::Center),
-                    style: Style { ..default() },
-                    ..default()
+                Text(
+                    match upgrade {
+                        None => "Placeholder",
+                        Some((upgrade, _)) => upgrade.upgrade.name,
+                    }
+                    .into(),
+                ),
+                TextLayout::new_with_justify(JustifyText::Center),
+                TextFont {
+                    font_size: 64.,
+                    ..Default::default()
                 },
                 Name::new("Header"),
             ))
             .id();
         let description_div = world
-            .spawn(NodeBundle {
-                style: Style {
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::End,
-                    height: Val::Percent(40.),
-                    padding: UiRect::new(
-                        // Val::Percent(10.),
-                        // Val::Percent(10.),
-                        Val::Percent(0.),
-                        Val::Percent(0.),
-                        Val::Percent(0.),
-                        Val::Percent(10.),
-                    ),
-                    ..Default::default()
-                },
+            .spawn(Node {
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::End,
+                height: Val::Percent(40.),
+                padding: UiRect::new(
+                    // Val::Percent(10.),
+                    // Val::Percent(10.),
+                    Val::Percent(0.),
+                    Val::Percent(0.),
+                    Val::Percent(0.),
+                    Val::Percent(10.),
+                ),
                 ..Default::default()
             })
             .id();
 
+        let text = if let Some((upgrade, _)) = upgrade {
+            upgrade.upgrade.description
+        } else {
+            ""
+        };
         // BUG: I think that if I have a div (flexbox, idk if related), inside of which there is a text node, and the text-node is multiline, it will ignore right-padding
         // Wrapping the text in description_div fixed it (TODO: open an issue)
         let mut description = world.spawn((
-            TextBundle {
-                style: Style {
-                    ..Default::default()
-                },
+            Text(text.into()),
+            TextFont {
+                font_size: 32.0,
                 ..default()
             },
+            TextLayout::new_with_justify(JustifyText::Center),
             Name::new("Description"),
         ));
-        if let Some((upgrade, _)) = upgrade {
-            let mut text = description.get_mut::<Text>().unwrap();
-            *text = Text::from_section(
-                upgrade.upgrade.description,
-                TextStyle {
-                    font_size: 32.,
-                    ..Default::default()
-                },
-            )
-            .with_justify(JustifyText::Center);
-        };
         let description = description.id();
 
         let mut icon = world.spawn((
-            NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    bottom: Val::Percent(5.),
-                    width: Val::Percent(50.),
-                    height: Val::Px(200.),
-                    border: UiRect::all(Val::Px(5.)),
-                    ..default()
-                },
+            Node {
+                position_type: PositionType::Absolute,
+                bottom: Val::Percent(5.),
+                width: Val::Percent(50.),
+                height: Val::Px(200.),
+                border: UiRect::all(Val::Px(5.)),
                 ..default()
             },
             Name::new("Image"),
         ));
 
         if let Some((_, icon_path)) = upgrade {
-            icon.insert(UiImage::new((*icon_path).clone()));
+            icon.insert(ImageNode::new((*icon_path).clone()));
             icon.get_mut::<BackgroundColor>().unwrap().0 = ui::palette::WHITE.into();
         }
         let icon = icon.id();
@@ -342,7 +311,7 @@ fn process_upgrade_and_go_to_next_level(
     q_upgrade: Query<&UpgradeOption>,
 ) {
     if let Some(upgrade) = q_upgrade.get(menu_item_entity).unwrap().0.clone() {
-        commands.run_system_with_input(upgrade_applier.apply_upgrade_to_all, upgrade);
+        commands.run_system_with(upgrade_applier.apply_upgrade_to_all, upgrade);
     }
     finished_event.send(FinishedLevelTransitionEvent);
 }

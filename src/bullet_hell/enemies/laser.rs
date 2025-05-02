@@ -1,8 +1,8 @@
 use std::time::Duration;
 
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use bevy::prelude::*;
 use bevy_inspector_egui::prelude::*;
-use bevy_rapier2d::prelude::*;
+// use bevy_rapier2d::prelude::*;
 
 use crate::{
     bullet_hell::{game_z_index, health::TryDamageEvent, physics_layers, player::Player},
@@ -19,7 +19,7 @@ impl Plugin for LaserPlugin {
                 (
                     laser_cannon_behavior,
                     laser_lifecycle,
-                    laser_player_collision,
+                    // laser_player_collision,
                 )
                     .run_if(in_state(AppState::Defending)),
             )
@@ -127,24 +127,21 @@ fn spawn_laser(
     let laser = Laser::default();
     let child = commands
         .spawn((
-            MaterialMesh2dBundle {
-                mesh: meshes.add(Rectangle::new(WIDTH, HEIGHT)).into(), // TODO: custom width, full height (TODO: rotations),
-                material: materials.add(Color::WHITE.with_alpha(0.)),
-                transform: Transform::from_xyz(0., -HEIGHT / 2., game_z_index::LASERS),
-                ..Default::default()
-            },
+            Mesh2d(meshes.add(Rectangle::new(WIDTH, HEIGHT)).into()), // TODO: custom width, full height (TODO: rotations),
+            MeshMaterial2d(materials.add(Color::WHITE.with_alpha(0.))),
+            Transform::from_xyz(0., -HEIGHT / 2., game_z_index::LASERS),
             LaserState::new(&laser),
             laser,
             Name::new("Laser"),
-            (
-                ActiveEvents::COLLISION_EVENTS,
-                ActiveCollisionTypes::all(),
-                ColliderDisabled,
-                Collider::cuboid(WIDTH / 2., HEIGHT / 2.),
-                CollisionGroups::new(physics_layers::BULLETS, physics_layers::ALL),
-                RigidBody::Fixed,
-                Sensor,
-            ),
+            // (
+            //     ActiveEvents::COLLISION_EVENTS,
+            //     ActiveCollisionTypes::all(),
+            //     ColliderDisabled,
+            //     Collider::cuboid(WIDTH / 2., HEIGHT / 2.),
+            //     CollisionGroups::new(physics_layers::BULLETS, physics_layers::ALL),
+            //     RigidBody::Fixed,
+            //     Sensor,
+            // ),
         ))
         .id();
     commands.entity(parent).add_child(child);
@@ -154,10 +151,10 @@ fn laser_lifecycle(
     mut cannon_query: Query<&mut LaserCannon>,
     mut laser_query: Query<(
         Entity,
-        &Parent,
+        &ChildOf,
         &Laser,
         &mut LaserState,
-        &mut Handle<ColorMaterial>,
+        &mut MeshMaterial2d<ColorMaterial>,
     )>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     time: Res<Time>,
@@ -178,14 +175,14 @@ fn laser_lifecycle(
                 lerp_color(0., 1., timer.fraction());
 
                 if timer.just_finished() {
-                    commands.entity(entity).remove::<ColliderDisabled>();
+                    // commands.entity(entity).remove::<ColliderDisabled>();
                     *state = LaserState::make_active(laser);
                 }
             }
             LaserState::Active(ref mut timer) => {
                 timer.tick(time.delta());
                 if timer.just_finished() {
-                    commands.entity(entity).insert(ColliderDisabled);
+                    // commands.entity(entity).insert(ColliderDisabled);
                     *state = LaserState::make_winding_down(laser);
                 }
             }
@@ -202,40 +199,36 @@ fn laser_lifecycle(
     }
 }
 
-fn laser_player_collision(
-    mut contact_events: EventReader<CollisionEvent>,
-    q_lasers: Query<&Laser>,
-    q_players: Query<Entity, With<Player>>,
-    mut damage_writer: EventWriter<TryDamageEvent>,
-) {
-    for event in contact_events.read() {
-        if let CollisionEvent::Started(entity1, entity2, _) = event {
-            // TODO: get this working with swapped entity orders???
-            if let Ok(player_entity) = q_players.get(*entity1) {
-                if let Ok(laser_component) = q_lasers.get(*entity2) {
-                    damage_writer.send(TryDamageEvent {
-                        damage: laser_component.damage,
-                        target_entity: player_entity,
-                    });
-                }
-            }
-        }
-    }
-}
+// fn laser_player_collision(
+//     mut contact_events: EventReader<CollisionEvent>,
+//     q_lasers: Query<&Laser>,
+//     q_players: Query<Entity, With<Player>>,
+//     mut damage_writer: EventWriter<TryDamageEvent>,
+// ) {
+//     for event in contact_events.read() {
+//         if let CollisionEvent::Started(entity1, entity2, _) = event {
+//             // TODO: get this working with swapped entity orders???
+//             if let Ok(player_entity) = q_players.get(*entity1) {
+//                 if let Ok(laser_component) = q_lasers.get(*entity2) {
+//                     damage_writer.send(TryDamageEvent {
+//                         damage: laser_component.damage,
+//                         target_entity: player_entity,
+//                     });
+//                 }
+//             }
+//         }
+//     }
+// }
 
 fn spawn_initial_laser_cannons(mut commands: Commands, asset_server: Res<AssetServer>) {
     let position = Vec3::new(0., 70., game_z_index::CANNONS);
     let sprite_size = 7.5;
     let texture = asset_server.load("character.png");
     commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(sprite_size, sprite_size)),
-                ..default()
-            },
-            texture: texture.clone(),
-            transform: Transform::from_translation(position),
-            ..default()
+        Transform::from_translation(position),
+        Sprite {
+            custom_size: Some(Vec2::new(sprite_size, sprite_size)),
+            ..Sprite::from_image(texture)
         },
         LaserCannon {
             shooting_timer: Timer::from_seconds(1., TimerMode::Repeating),

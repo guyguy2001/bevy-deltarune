@@ -36,22 +36,19 @@ fn spawn_menu_ui(world: &mut World) {
     let attack_pressed_id = world.register_system(start_game);
     world
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(10.0),
-                    left: Val::Px(0.),
-                    bottom: Val::Px(0.),
-                    border: UiRect::all(Val::Px(20.)),
-                    justify_content: JustifyContent::SpaceAround,
-                    position_type: PositionType::Absolute,
-                    display: Display::Flex,
-                    ..default()
-                },
-                background_color: palette::DARK_GRAY.into(),
-                visibility: Visibility::Hidden,
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(10.0),
+                left: Val::Px(0.),
+                bottom: Val::Px(0.),
+                border: UiRect::all(Val::Px(20.)),
+                justify_content: JustifyContent::SpaceAround,
+                position_type: PositionType::Absolute,
+                display: Display::Flex,
                 ..default()
             },
+            BackgroundColor(palette::DARK_GRAY.into()),
+            Visibility::Hidden,
             MultiChoiceParent {
                 selected: Index::new(MENU_ITEMS.len(), 0),
             },
@@ -61,22 +58,19 @@ fn spawn_menu_ui(world: &mut World) {
             for button in MENU_ITEMS.iter() {
                 commands
                     .spawn((
-                        NodeBundle {
-                            style: Style {
-                                border: UiRect::all(Val::Px(5.)),
-                                width: Val::Percent(20.),
-                                height: Val::Auto,
-                                align_items: AlignItems::Start,
-                                justify_content: JustifyContent::Center,
-                                ..default()
-                            },
-                            border_color: if *button == Buttons::Start {
-                                palette::GREEN.into()
-                            } else {
-                                palette::BLACK.into()
-                            },
+                        Node {
+                            border: UiRect::all(Val::Px(5.)),
+                            width: Val::Percent(20.),
+                            height: Val::Auto,
+                            align_items: AlignItems::Start,
+                            justify_content: JustifyContent::Center,
                             ..default()
                         },
+                        BorderColor(if *button == Buttons::Start {
+                            palette::GREEN.into()
+                        } else {
+                            palette::BLACK.into()
+                        }),
                         MultiChoiceButton {
                             on_selected: {
                                 if *button == Buttons::Start {
@@ -90,16 +84,13 @@ fn spawn_menu_ui(world: &mut World) {
                         },
                     ))
                     .with_children(|commands| {
-                        commands.spawn((TextBundle {
-                            text: Text::from_section(
-                                button.to_string(),
-                                TextStyle {
-                                    font_size: 32.0,
-                                    ..default()
-                                },
-                            ),
-                            ..default()
-                        },));
+                        commands.spawn((
+                            Text(button.to_string()),
+                            TextFont {
+                                font_size: 32.0,
+                                ..default()
+                            },
+                        ));
                     });
             }
         });
@@ -120,17 +111,21 @@ fn start_game(In(_entity): In<Entity>, mut start_game_event: EventWriter<StartGa
 fn hide_menu(
     mut menu_query: Query<(Entity, &mut Visibility), With<MultiChoiceParent>>,
     mut menu_stack: ResMut<MenuStack>,
-) {
-    let (entity, mut menu_visibility) = menu_query.single_mut();
+) -> Result {
+    let (entity, mut menu_visibility) = menu_query.single_mut()?;
     *menu_visibility = Visibility::Hidden;
     menu_stack.pop_menu(entity);
+
+    Ok(())
 }
 
 fn show_menu(
     mut menu_query: Query<(Entity, &mut Visibility), With<MultiChoiceParent>>,
     mut menu_stack: ResMut<MenuStack>,
-) {
-    let (entity, mut menu_visibility) = menu_query.single_mut();
+) -> Result {
+    let (entity, mut menu_visibility) = menu_query.single_mut()?;
     *menu_visibility = Visibility::Visible;
     menu_stack.push_menu(entity);
+
+    Ok(())
 }

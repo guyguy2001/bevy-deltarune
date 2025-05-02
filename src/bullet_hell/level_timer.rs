@@ -40,23 +40,17 @@ fn spawn_timer(mut commands: Commands) {
     let world_position = vec3(-50., 65.5, 0.);
     let axis_entity = commands
         .spawn((
-            TransformBundle {
-                local: Transform::from_translation(world_position),
-                ..Default::default()
-            },
+            Transform::from_translation(world_position),
             Name::new("LevelTimer Axis"),
         ))
         .id();
 
     commands
         .spawn((
-            NodeBundle {
-                z_index: z_index::WORLD_UI,
-                style: Style {
-                    display: Display::Flex,
-                    justify_content: JustifyContent::Center,
-                    ..default()
-                },
+            z_index::WORLD_UI,
+            Node {
+                display: Display::Flex,
+                justify_content: JustifyContent::Center,
                 ..default()
             },
             WorldUI {
@@ -66,15 +60,10 @@ fn spawn_timer(mut commands: Commands) {
         ))
         .with_children(|commands| {
             commands.spawn((
-                TextBundle {
-                    text: Text::from_section(
-                        "5.00",
-                        TextStyle {
-                            font_size: 32.0,
-                            ..default()
-                        },
-                    ),
-                    ..Default::default()
+                Text("5.00".into()),
+                TextFont {
+                    font_size: 32.0,
+                    ..default()
                 },
                 LevelTimer::new(Duration::from_secs(10)),
                 Name::new("LevelTimer"),
@@ -90,7 +79,7 @@ fn timer_behaviour(
     for (mut timer, mut text) in q_timer.iter_mut() {
         timer.remaining_time.tick(time.delta());
         let remaining_time = timer.remaining_time.remaining_secs();
-        text.sections[0].value = format!("{remaining_time:.2}");
+        text.0 = format!("{remaining_time:.2}");
 
         if timer.remaining_time.just_finished() {
             win_event.send(CombatFinishedEvent);

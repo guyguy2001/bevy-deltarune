@@ -25,7 +25,7 @@ impl Plugin for HitEffectPlugin {
 // TODO: This animation happens even when there's the invul component
 fn flash_on_damage(
     mut reader: EventReader<DamageOccurredEvent>,
-    mut color_query: Query<&Handle<ColorMaterial>>,
+    mut color_query: Query<&MeshMaterial2d<ColorMaterial>>,
     materials: ResMut<Assets<ColorMaterial>>,
     mut commands: Commands,
 ) {
@@ -55,7 +55,7 @@ fn flash_on_damage(
 
 fn add_invulnerability_effect(
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut query: Query<&Handle<ColorMaterial>, Added<Invulnerability>>,
+    mut query: Query<&MeshMaterial2d<ColorMaterial>, Added<Invulnerability>>,
 ) {
     for color_handle in query.iter_mut() {
         materials
@@ -69,7 +69,7 @@ fn add_invulnerability_effect(
 fn remove_invulnerability_effect(
     mut removed_components: RemovedComponents<Invulnerability>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    query: Query<&Handle<ColorMaterial>>,
+    query: Query<&MeshMaterial2d<ColorMaterial>>,
 ) {
     for entity in removed_components.read() {
         let color_handle = query.get(entity).unwrap();

@@ -21,7 +21,7 @@ impl Plugin for UpgradesPlugin {
 
 #[derive(Clone, Copy)]
 pub struct Upgrade {
-    pub apply_upgrade: SystemId<Entity, ()>,
+    pub apply_upgrade: SystemId<In<Entity>, ()>,
     pub name: &'static str,
     pub description: &'static str,
     pub icon_texture: &'static Path,
@@ -55,7 +55,7 @@ fn apply_upgrade_on_spawn(
     for (entity, receiver) in q_receivers.iter() {
         for upgrade in applied_global_upgrades.applied_upgrades.iter() {
             if should_apply_upgrade(receiver, upgrade) {
-                commands.run_system_with_input(upgrade.upgrade.apply_upgrade, entity);
+                commands.run_system_with(upgrade.upgrade.apply_upgrade, entity);
             }
         }
     }
@@ -74,7 +74,7 @@ pub struct GlobalUpgrade {
 
 #[derive(Resource)]
 pub struct UpgradeApplier {
-    pub apply_upgrade_to_all: SystemId<GlobalUpgrade>,
+    pub apply_upgrade_to_all: SystemId<In<GlobalUpgrade>>,
 }
 
 // TODO: Name
@@ -86,7 +86,7 @@ fn apply_upgrade_to_all(
 ) {
     for (entity, receiver) in q_relevant_entities.iter() {
         if should_apply_upgrade(receiver, &upgrade) {
-            commands.run_system_with_input(upgrade.upgrade.apply_upgrade, entity)
+            commands.run_system_with(upgrade.upgrade.apply_upgrade, entity)
         }
     }
     applied_global_upgrades.applied_upgrades.push(upgrade);

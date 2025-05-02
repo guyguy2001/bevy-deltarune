@@ -29,35 +29,29 @@ fn transition_to_defeat(
 fn spawn_menu_ui(mut commands: Commands) {
     commands
         .spawn((
-            NodeBundle {
-                z_index: z_index::POPUP_MENU,
-                style: Style {
-                    width: Val::Percent(40.0),
-                    height: Val::Percent(40.0),
-                    left: Val::Percent(30.),
-                    bottom: Val::Percent(30.),
-                    border: UiRect::all(Val::Px(5.)),
-                    justify_content: JustifyContent::SpaceAround,
-                    position_type: PositionType::Absolute,
-                    display: Display::Flex,
-                    ..default()
-                },
-                background_color: palette::DARK_GRAY.into(),
-                border_color: Color::BLACK.into(),
+            Node {
+                width: Val::Percent(40.0),
+                height: Val::Percent(40.0),
+                left: Val::Percent(30.),
+                bottom: Val::Percent(30.),
+                border: UiRect::all(Val::Px(5.)),
+                justify_content: JustifyContent::SpaceAround,
+                position_type: PositionType::Absolute,
+                display: Display::Flex,
                 ..default()
             },
+            BackgroundColor(palette::DARK_GRAY.into()),
+            BorderColor(Color::BLACK.into()),
+            z_index::POPUP_MENU,
             Name::new("Lose Screen"),
         ))
         .with_children(|commands| {
-            commands.spawn((TextBundle {
-                text: Text::from_section(
-                    "You Lose!",
-                    TextStyle {
-                        font_size: 32.0,
-                        ..default()
-                    },
-                ),
-                ..default()
-            },));
+            commands.spawn((
+                Text("You Lose!".into()),
+                TextFont {
+                    font_size: 32.0,
+                    ..default()
+                },
+            ));
         });
 }

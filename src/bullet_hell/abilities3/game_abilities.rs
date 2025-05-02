@@ -83,7 +83,7 @@ impl SetAbility {
             .insert(lib::AbilityHolder::new(self.ability.clone()));
     }
 
-    fn into_boxed_system(self) -> BoxedSystem<Entity, ()> {
+    fn into_boxed_system(self) -> BoxedSystem<In<Entity>, ()> {
         let system_function = move |In(entity): In<Entity>, commands: Commands| {
             self.apply(In(entity), commands);
         };

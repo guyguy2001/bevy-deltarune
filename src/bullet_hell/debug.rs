@@ -27,13 +27,14 @@ fn apply_damage(
     player: Query<Entity, With<Player>>,
     mut damage_writer: EventWriter<TryDamageEvent>,
     input: Res<ButtonInput<KeyCode>>,
-) {
+) -> Result {
     if input.just_pressed(KeyCode::KeyR) {
         damage_writer.send(TryDamageEvent {
-            target_entity: player.single(),
+            target_entity: player.single()?,
             damage: 5.,
         });
     }
+    Ok(())
 }
 
 fn skip_level(mut win_event: EventWriter<CombatFinishedEvent>, input: Res<ButtonInput<KeyCode>>) {
@@ -50,16 +51,18 @@ fn debug_spawn_sword(
     q_player: Query<Entity, With<Player>>,
 ) {
     if input.just_pressed(KeyCode::KeyP) {
-        spawn_sword(q_player.single(), meshes, materials, commands);
+        spawn_sword(q_player.single().unwrap(), meshes, materials, commands);
     }
 }
 
 fn make_player_invincible(
     mut player: Query<&mut Health, With<Player>>,
     input: Res<ButtonInput<KeyCode>>,
-) {
+) -> Result {
     if input.just_pressed(KeyCode::KeyR) {
-        player.single_mut().max_health += 10000.;
-        player.single_mut().health += 10000.;
+        player.single_mut()?.max_health += 10000.;
+        player.single_mut()?.health += 10000.;
     }
+
+    Ok(())
 }

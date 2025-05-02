@@ -1,10 +1,10 @@
 use bevy::{
     prelude::*,
-    sprite::{MaterialMesh2dBundle, Mesh2dHandle},
+    // sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
-use bevy_rapier2d::prelude::*;
+// use bevy_rapier2d::prelude::*;
 
 use crate::{
     game_config::GameConfig,
@@ -25,7 +25,8 @@ impl Plugin for PlayerPlugin {
             .add_systems(Startup, setup_player)
             .add_systems(
                 Update,
-                (character_movement, player_death).run_if(in_state(AppState::Defending)),
+                // (character_movement, player_death).run_if(in_state(AppState::Defending)),
+                (player_death).run_if(in_state(AppState::Defending)),
             );
     }
 }
@@ -45,12 +46,9 @@ fn setup_player(
 ) {
     let sprite_size = 7.5;
     let player_commands = commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: Mesh2dHandle(meshes.add(Rectangle::new(sprite_size, sprite_size))),
-            material: materials.add(Color::srgb_u8(165, 75, 251)),
-            transform: Transform::from_translation(Vec3::Z * game_z_index::PLAYERS),
-            ..default()
-        },
+        Mesh2d(meshes.add(Rectangle::new(sprite_size, sprite_size))),
+        MeshMaterial2d(materials.add(Color::srgb_u8(165, 75, 251))),
+        Transform::from_translation(Vec3::Z * game_z_index::PLAYERS),
         Dasher {
             dash_amount: 50.,
             // dash_duration: Duration::from_secs_f32(0.5),
@@ -62,32 +60,32 @@ fn setup_player(
             factions: UpgradesReceiverFaction::Player,
         },
         Name::new("Player"),
-        (
-            ActiveEvents::COLLISION_EVENTS,
-            CollisionGroups::new(physics_layers::PLAYERS, physics_layers::ALL),
-            ActiveCollisionTypes::all(),
-            Collider::cuboid(sprite_size / 2.0, sprite_size / 2.0),
-            KinematicCharacterController {
-                filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
-                ..Default::default()
-            },
-            RigidBody::KinematicPositionBased,
-        ),
+        // (
+        //     ActiveEvents::COLLISION_EVENTS,
+        //     CollisionGroups::new(physics_layers::PLAYERS, physics_layers::ALL),
+        //     ActiveCollisionTypes::all(),
+        //     Collider::cuboid(sprite_size / 2.0, sprite_size / 2.0),
+        //     KinematicCharacterController {
+        //         filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
+        //         ..Default::default()
+        //     },
+        //     RigidBody::KinematicPositionBased,
+        // ),
     ));
     let player_entity = player_commands.id();
     spawn_healthbar(&mut commands, player_entity);
 }
 
-fn character_movement(
-    mut characters: Query<(&mut KinematicCharacterController, &Player), ControllablePlayerFilter>,
-    input: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-) {
-    for (mut controller, player) in &mut characters {
-        let movement_amount = player.speed * time.delta_seconds();
-        controller.translation = Some(get_input_direction(&input).xy() * movement_amount);
-    }
-}
+// fn character_movement(
+//     mut characters: Query<(&mut KinematicCharacterController, &Player), ControllablePlayerFilter>,
+//     input: Res<ButtonInput<KeyCode>>,
+//     time: Res<Time>,
+// ) {
+//     for (mut controller, player) in &mut characters {
+//         let movement_amount = player.speed * time.delta_seconds();
+//         controller.translation = Some(get_input_direction(&input).xy() * movement_amount);
+//     }
+// }
 
 fn player_death(
     health_query: Query<&Health, With<Player>>,

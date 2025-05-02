@@ -81,7 +81,7 @@ fn test_global_upgrades() {
 
     let upgrade = get_custom_upgrade(&mut world);
     let apply_upgrade = world.resource::<UpgradeApplier>().apply_upgrade_to_all;
-    world.run_system_with_input(apply_upgrade, upgrade).unwrap();
+    world.run_system_with(apply_upgrade, upgrade).unwrap();
 
     // Only the entities with the correct factions should receive the upgrade
     for entity in should_receive {

@@ -81,7 +81,7 @@ impl AddHealthUpgrade {
         }
     }
 
-    fn into_boxed_system(self) -> BoxedSystem<Entity, ()> {
+    fn into_boxed_system(self) -> BoxedSystem<In<Entity>, ()> {
         let system_function = move |In(entity): In<Entity>, q_health: Query<&mut Health>| {
             self.apply(In(entity), q_health);
         };

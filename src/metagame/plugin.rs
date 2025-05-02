@@ -22,9 +22,9 @@ impl Plugin for MetagamePlugin {
             .add_systems(
                 Update,
                 (
-                    start_game.run_if(on_event::<StartGameEvent>()), // TODO: This shouldn't be an event...
-                    on_finished_step.run_if(on_event::<LevelFinishedEvent>()),
-                    on_finished_step.run_if(on_event::<FinishedLevelTransitionEvent>()),
+                    start_game.run_if(on_event::<StartGameEvent>), // TODO: This shouldn't be an event...
+                    on_finished_step.run_if(on_event::<LevelFinishedEvent>),
+                    on_finished_step.run_if(on_event::<FinishedLevelTransitionEvent>),
                     ui::update_text_on_level_transition,
                 ),
             );

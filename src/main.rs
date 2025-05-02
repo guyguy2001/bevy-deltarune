@@ -4,9 +4,10 @@ use bevy::input::common_conditions::input_toggle_active;
 use bevy::{prelude::*, render::camera::ScalingMode, window::WindowMode};
 // use bevy_editor_pls::prelude::*;
 
+use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 // use bevy_inspector_egui_rapier::InspectableRapierPlugin;
-use bevy_rapier2d::prelude::*;
+// use bevy_rapier2d::prelude::*;
 use bevy_tweening::TweeningPlugin;
 use metagame::MetagamePlugin;
 use serde::Deserialize;
@@ -50,7 +51,7 @@ fn main() {
                         resolution: game_config.window_size.into(),
                         present_mode: bevy::window::PresentMode::AutoNoVsync,
                         mode: if game_config.fullscreen {
-                            WindowMode::BorderlessFullscreen
+                            WindowMode::BorderlessFullscreen(MonitorSelection::Primary)
                         } else {
                             WindowMode::Windowed
                         },
@@ -61,16 +62,19 @@ fn main() {
                 }),
         )
         .add_plugins(TweeningPlugin)
-        .add_plugins(RapierDebugRenderPlugin {
-            mode: DebugRenderMode::empty(),
-            ..Default::default()
+        // .add_plugins(RapierDebugRenderPlugin {
+        //     mode: DebugRenderMode::empty(),
+        //     ..Default::default()
+        // })
+        .add_plugins(EguiPlugin {
+            enable_multipass_for_primary_context: true,
         })
         .add_plugins(
             WorldInspectorPlugin::new().run_if(input_toggle_active(false, KeyCode::Escape)),
         )
         // .add_plugins(EditorPlugin::default())
         // .add_plugins(InspectableRapierPlugin)
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
+        // .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .insert_state::<AppState>(
             game_config
                 .debug
@@ -105,11 +109,17 @@ fn get_config() -> GameConfig {
 }
 
 fn setup_camera(mut commands: Commands) {
-    let mut camera = Camera2dBundle::default();
-
-    camera.projection.scaling_mode = ScalingMode::FixedVertical(200.);
-
-    commands.spawn((camera, IsDefaultUiCamera, Name::new("Camera")));
+    commands.spawn((
+        Camera2d::default(),
+        Projection::Orthographic(OrthographicProjection {
+            scaling_mode: ScalingMode::FixedVertical {
+                viewport_height: 200.,
+            },
+            ..OrthographicProjection::default_2d()
+        }),
+        IsDefaultUiCamera,
+        Name::new("Camera"),
+    ));
 }
 
 #[derive(Resource)]

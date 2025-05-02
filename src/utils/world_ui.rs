@@ -16,11 +16,11 @@ pub struct WorldUI {
 }
 
 fn sync_world_ui_to_parent(
-    mut world_ui_query: Query<(&mut Style, &WorldUI)>,
+    mut world_ui_query: Query<(&mut Node, &WorldUI)>,
     transform_query: Query<&GlobalTransform>,
     camera_query: Query<(&Camera, &GlobalTransform), With<IsDefaultUiCamera>>,
-) {
-    let (camera, camera_transform) = camera_query.single();
+) -> Result {
+    let (camera, camera_transform) = camera_query.single()?;
     for (mut style, world_ui) in world_ui_query.iter_mut() {
         let parent_transform = transform_query.get(world_ui.tracked_entity).unwrap();
         let position = camera
@@ -29,12 +29,14 @@ fn sync_world_ui_to_parent(
         style.left = Val::Px(position.x);
         style.top = Val::Px(position.y);
     }
+
+    Ok(())
 }
 
-fn error_if_world_ui_without_style(query: Query<(Entity, &WorldUI), Without<Style>>) {
+fn error_if_world_ui_without_style(query: Query<(Entity, &WorldUI), Without<Node>>) {
     for (entity, _) in query.iter() {
         error!(
-            "ERROR! {:?} has a WorldUI component, but not a style component!",
+            "ERROR! {:?} has a WorldUI component, but not a Node component!",
             entity
         )
     }

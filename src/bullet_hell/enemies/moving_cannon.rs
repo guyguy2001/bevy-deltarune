@@ -156,15 +156,11 @@ pub fn spawn_cannon<T: Bundle>(
     let sprite_size = 7.5;
     let texture = asset_server.load("character.png");
     commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(sprite_size, sprite_size)),
-                ..default()
-            },
-            texture: texture.clone(),
-            transform: Transform::from_translation(spawn_properties.start),
-            ..default()
+        Sprite {
+            custom_size: Some(Vec2::new(sprite_size, sprite_size)),
+            ..Sprite::from_image(texture.clone())
         },
+        Transform::from_translation(spawn_properties.start),
         Cannon::new(
             EnemyTypes::SmallBullet,
             spawn_properties.shooting_direction,
@@ -190,15 +186,11 @@ pub fn spawn_stationary_cannon<T: Bundle>(
     let sprite_size = 7.5;
     let texture = asset_server.load("character.png");
     commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(sprite_size, sprite_size)),
-                ..default()
-            },
-            texture,
-            transform: Transform::from_translation(spawn_properties.start),
-            ..default()
+        Sprite {
+            custom_size: Some(Vec2::new(sprite_size, sprite_size)),
+            ..Sprite::from_image(texture)
         },
+        Transform::from_translation(spawn_properties.start),
         Cannon::new(
             EnemyTypes::BigBullet,
             spawn_properties.shooting_direction,

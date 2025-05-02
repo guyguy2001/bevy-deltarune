@@ -13,7 +13,7 @@ pub struct AbilityUpgradePool(pub SelectionsPool<GlobalUpgrade>);
 pub struct Ability {
     pub cooldown: Duration, // TODO: But don't I want the duration to be configurable per instance of the same ability type?
     #[reflect(ignore)]
-    pub activate: SystemId<Entity, ()>,
+    pub activate: SystemId<In<Entity>, ()>,
     pub name: &'static str,
     pub description: &'static str,
     pub icon_texture: &'static Path,

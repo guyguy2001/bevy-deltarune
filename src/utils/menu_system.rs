@@ -15,9 +15,9 @@ pub struct MultiChoiceParent {
 
 #[derive(Component)]
 pub struct MultiChoiceButton {
-    pub on_selected: Option<SystemId<Entity, ()>>,
-    pub activate: SystemId<Entity, ()>,
-    pub deactivate: SystemId<Entity, ()>,
+    pub on_selected: Option<SystemId<In<Entity>, ()>>,
+    pub activate: SystemId<In<Entity>, ()>,
+    pub deactivate: SystemId<In<Entity>, ()>,
 }
 
 #[derive(SystemParam)]
@@ -62,7 +62,7 @@ impl<'w, 's, Q: ReadOnlyQueryData + 'static> MenuQueries<'w, 's, Q> {
 
         // TODO: FilterMap?
         Iterator::map(child_entities, |entity| {
-            self.q_menu_items.get(*entity).unwrap()
+            self.q_menu_items.get(entity).unwrap()
         })
         .collect()
     }
@@ -130,7 +130,7 @@ fn change_selection(
 ) {
     if let Some(active_menu) = menu_queries.get_active_menu() {
         let (entity, button) = menu_queries.get_selected_child_mut(active_menu);
-        commands.run_system_with_input(button.deactivate, entity);
+        commands.run_system_with(button.deactivate, entity);
 
         menu_queries
             .get_multi_choice_parent_mut(active_menu)
@@ -138,7 +138,7 @@ fn change_selection(
             .add(change_amount);
 
         let (entity, button) = menu_queries.get_selected_child_mut(active_menu);
-        commands.run_system_with_input(button.activate, entity);
+        commands.run_system_with(button.activate, entity);
     }
 }
 
@@ -163,7 +163,7 @@ fn activate_action(
         if let Some(active_menu) = menu_queries.get_active_menu() {
             let (entity, button) = menu_queries.get_selected_child(active_menu);
             if let Some(on_selected) = button.on_selected {
-                commands.run_system_with_input(on_selected, entity);
+                commands.run_system_with(on_selected, entity);
             }
         }
     }
@@ -181,9 +181,9 @@ fn on_menu_spawned(
         let (selected_entity, _) = component_query.get_selected_child(*new_menu);
         for (button_entity, button) in component_query.get_all_children(*new_menu) {
             if button_entity == selected_entity {
-                commands.run_system_with_input(button.activate, button_entity)
+                commands.run_system_with(button.activate, button_entity)
             } else {
-                commands.run_system_with_input(button.deactivate, button_entity)
+                commands.run_system_with(button.deactivate, button_entity)
             }
         }
     }

@@ -1,9 +1,9 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use bevy::sprite::MaterialMesh2dBundle;
+// use bevy::sprite::MaterialMesh2dBundle;
 use bevy_inspector_egui::prelude::*;
-use bevy_rapier2d::prelude::*;
+// use bevy_rapier2d::prelude::*;
 use bevy_tween::tween::TargetAsset;
 use bevy_tween::{combinator::*, prelude::*, tween_event_system};
 
@@ -22,8 +22,8 @@ impl Plugin for SwordPlugin {
                     sword_animation_events,
                     tween_event_system::<SwordAnimationEvent>,
                 ),
-            )
-            .add_systems(FixedUpdate, bullet_collision);
+            );
+        // .add_systems(FixedUpdate, bullet_collision);
     }
 }
 
@@ -74,49 +74,45 @@ pub fn spawn_sword(
 
     commands.entity(parent).with_children(|builder| {
         // TODO: Improve the animation, make the sword only active for part of the animation
-        builder
-            .spawn((
-                SwordAttack::default(),
-                MaterialMesh2dBundle {
-                    mesh: meshes.add(Circle::new(size)).into(),
-                    material: color_material,
-                    transform: Transform::from_translation(-Vec3::Z),
-                    ..Default::default()
-                },
-                Name::new("Sword animation"),
-                (
-                    ActiveEvents::COLLISION_EVENTS,
-                    ActiveCollisionTypes::all(),
-                    Collider::ball(size),
-                    CollisionGroups::new(physics_layers::PLAYER_BULLETS, physics_layers::ALL),
-                    RigidBody::KinematicPositionBased,
-                    Sensor,
-                ),
-            ))
-            .animation()
-            .insert(sequence((
-                tween(
-                    secs(0.1),
-                    EaseFunction::CircularOut,
-                    color_animation.with(interpolate::color_material_to(
-                        starting_color.with_alpha(1.0),
-                    )),
-                ),
-                tween(
-                    secs(0.1),
-                    EaseFunction::CircularIn,
-                    color_animation.with(interpolate::color_material_to(
-                        starting_color.with_alpha(0.0),
-                    )),
-                ),
-                event(SwordAnimationEvent::Finished),
-            )));
+        builder.spawn((
+            SwordAttack::default(),
+            Mesh2d(meshes.add(Circle::new(size)).into()),
+            MeshMaterial2d(color_material),
+            Transform::from_translation(-Vec3::Z),
+            Name::new("Sword animation"),
+            // (
+            //     ActiveEvents::COLLISION_EVENTS,
+            //     ActiveCollisionTypes::all(),
+            //     Collider::ball(size),
+            //     CollisionGroups::new(physics_layers::PLAYER_BULLETS, physics_layers::ALL),
+            //     RigidBody::KinematicPositionBased,
+            //     Sensor,
+            // ),
+        ));
+        // .animation()
+        // .insert(sequence((
+        //     tween(
+        //         secs(0.1),
+        //         EaseFunction::CircularOut,
+        //         color_animation.with(interpolate::color_material_to(
+        //             starting_color.with_alpha(1.0),
+        //         )),
+        //     ),
+        //     tween(
+        //         secs(0.1),
+        //         EaseFunction::CircularIn,
+        //         color_animation.with(interpolate::color_material_to(
+        //             starting_color.with_alpha(0.0),
+        //         )),
+        //     ),
+        //     event(SwordAnimationEvent::Finished),
+        // )));
     });
 }
 
 fn sword_animation_events(
     mut event: EventReader<TweenEvent<SwordAnimationEvent>>,
-    parent_query: Query<&Parent>,
+    parent_query: Query<&ChildOf>,
     mut commands: Commands,
 ) {
     event.read().for_each(|event| match event.data {
@@ -127,26 +123,26 @@ fn sword_animation_events(
     });
 }
 
-fn bullet_collision(
-    mut commands: Commands,
-    mut contact_events: EventReader<CollisionEvent>,
-    bullets: Query<Entity, With<Bullet>>,
-    swords: Query<Entity, With<SwordAttack>>,
-) {
-    // TODO: How do I describe which entities will be destroyed by this? Just anything hittable and hostile?
-    for event in contact_events.read() {
-        if let CollisionEvent::Started(entity1, entity2, _) = event {
-            // TODO: get this working with swapped entity orders???
-            if swords.contains(*entity1) {
-                if let Ok(bullet_entity) = bullets.get(*entity2) {
-                    commands.entity(bullet_entity).despawn_recursive();
-                }
-            }
-            if swords.contains(*entity2) {
-                if let Ok(bullet_entity) = bullets.get(*entity1) {
-                    commands.entity(bullet_entity).despawn_recursive();
-                }
-            }
-        }
-    }
-}
+// fn bullet_collision(
+//     mut commands: Commands,
+//     mut contact_events: EventReader<CollisionEvent>,
+//     bullets: Query<Entity, With<Bullet>>,
+//     swords: Query<Entity, With<SwordAttack>>,
+// ) {
+//     // TODO: How do I describe which entities will be destroyed by this? Just anything hittable and hostile?
+//     for event in contact_events.read() {
+//         if let CollisionEvent::Started(entity1, entity2, _) = event {
+//             // TODO: get this working with swapped entity orders???
+//             if swords.contains(*entity1) {
+//                 if let Ok(bullet_entity) = bullets.get(*entity2) {
+//                     commands.entity(bullet_entity).despawn_recursive();
+//                 }
+//             }
+//             if swords.contains(*entity2) {
+//                 if let Ok(bullet_entity) = bullets.get(*entity1) {
+//                     commands.entity(bullet_entity).despawn_recursive();
+//                 }
+//             }
+//         }
+//     }
+// }

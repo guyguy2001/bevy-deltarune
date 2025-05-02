@@ -29,14 +29,11 @@ struct GreenPart;
 pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
     commands
         .spawn((
-            NodeBundle {
-                z_index: z_index::WORLD_UI,
-                style: Style {
-                    display: Display::Flex,
-                    justify_content: JustifyContent::Center,
-                    ..default()
-                },
-                ..default()
+            z_index::WORLD_UI,
+            Node {
+                display: Display::Flex,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
             },
             WorldUI {
                 tracked_entity: character_entity,
@@ -46,32 +43,26 @@ pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
         .with_children(|commands| {
             commands
                 .spawn((
-                    NodeBundle {
-                        style: Style {
-                            width: Val::Px(100.),
-                            height: Val::Px(30.),
-                            bottom: Val::Px(50.),
-                            border: UiRect::all(Val::Px(5.)),
-                            justify_content: JustifyContent::Start,
-                            position_type: PositionType::Absolute,
-                            ..default()
-                        },
-                        border_color: ui::palette::BLACK.into(),
+                    Node {
+                        width: Val::Px(100.),
+                        height: Val::Px(30.),
+                        bottom: Val::Px(50.),
+                        border: UiRect::all(Val::Px(5.)),
+                        justify_content: JustifyContent::Start,
+                        position_type: PositionType::Absolute,
                         ..default()
                     },
+                    BorderColor(ui::palette::BLACK.into()),
                     Name::new("Healthbar"),
                 ))
                 .with_children(|commands| {
                     commands.spawn((
-                        NodeBundle {
-                            style: Style {
-                                width: Val::Percent(100.),
-                                height: Val::Percent(100.),
-                                ..default()
-                            },
-                            background_color: ui::palette::GREEN.into(),
+                        Node {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(100.),
                             ..default()
                         },
+                        BorderColor(ui::palette::GREEN.into()),
                         GreenPart,
                         Healthbar {
                             tracked_entity: character_entity,
@@ -83,10 +74,11 @@ pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
 
 fn healthbar_behaviour(
     health_query: Query<&Health>,
-    mut healthbar_query: Query<(&mut Style, &Healthbar), With<GreenPart>>,
+    mut healthbar_query: Query<(&mut Node, &Healthbar), With<GreenPart>>,
 ) {
-    for (mut style, healthbar) in healthbar_query.iter_mut() {
+    for (mut node, healthbar) in healthbar_query.iter_mut() {
         let health_component = health_query.get(healthbar.tracked_entity).unwrap();
-        style.width = Val::Percent(100. * health_component.health / health_component.max_health);
+        node.width = Val::Percent(100. * health_component.health / health_component.max_health);
+        println!("{:?}", node.width);
     }
 }

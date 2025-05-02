@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use bevy::sprite::MaterialMesh2dBundle;
-use bevy_rapier2d::prelude::*;
+// use bevy::sprite::MaterialMesh2dBundle;
+// use bevy_rapier2d::prelude::*;
 
 use super::physics_layers;
 
@@ -23,54 +23,50 @@ fn spawn_arena(
     commands.spawn((Name::new("Arena"), Transform::from_xyz(0., 10., 0.)));
     commands.spawn((
         Name::new("Arena.Floor"),
-        MaterialMesh2dBundle {
-            mesh: meshes
+        Mesh2d(
+            meshes
                 .add(bevy::math::primitives::Rectangle::new(size, border_width).mesh())
                 .into(),
-            material: materials.add(ColorMaterial::from(Color::WHITE)),
-            transform: Transform::from_xyz(0., -position_offset, 0.),
-            ..Default::default()
-        },
-        Collider::cuboid(size / 2., border_width / 2.),
-        CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
+        ),
+        MeshMaterial2d(materials.add(ColorMaterial::from(Color::WHITE))),
+        Transform::from_xyz(0., -position_offset, 0.),
+        // Collider::cuboid(size / 2., border_width / 2.),
+        // CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
     ));
     commands.spawn((
         Name::new("Arena.Left"),
-        MaterialMesh2dBundle {
-            mesh: meshes
+        Mesh2d(
+            meshes
                 .add(bevy::math::primitives::Rectangle::new(border_width, size).mesh())
                 .into(),
-            material: materials.add(ColorMaterial::from(Color::WHITE)),
-            transform: Transform::from_xyz(-position_offset, 0., 0.),
-            ..Default::default()
-        },
-        Collider::cuboid(border_width / 2., size / 2.),
-        CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
+        ),
+        MeshMaterial2d(materials.add(ColorMaterial::from(Color::WHITE))),
+        Transform::from_xyz(-position_offset, 0., 0.),
+        // Collider::cuboid(border_width / 2., size / 2.),
+        // CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
     ));
     commands.spawn((
         Name::new("Arena.Right"),
-        MaterialMesh2dBundle {
-            mesh: meshes
+        Mesh2d(
+            meshes
                 .add(bevy::math::primitives::Rectangle::new(border_width, size).mesh())
                 .into(),
-            material: materials.add(ColorMaterial::from(Color::WHITE)),
-            transform: Transform::from_xyz(position_offset, 0., 0.),
-            ..Default::default()
-        },
-        Collider::cuboid(border_width / 2., size / 2.),
-        CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
+        ),
+        MeshMaterial2d(materials.add(ColorMaterial::from(Color::WHITE))),
+        Transform::from_xyz(position_offset, 0., 0.),
+        // Collider::cuboid(border_width / 2., size / 2.),
+        // CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
     ));
     commands.spawn((
         Name::new("Arena.Roof"),
-        MaterialMesh2dBundle {
-            mesh: meshes
+        Mesh2d(
+            meshes
                 .add(bevy::math::primitives::Rectangle::new(size, border_width).mesh())
                 .into(),
-            material: materials.add(ColorMaterial::from(Color::WHITE)),
-            transform: Transform::from_xyz(0., position_offset, 0.),
-            ..Default::default()
-        },
-        Collider::cuboid(size / 2., border_width / 2.),
-        CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
+        ),
+        MeshMaterial2d(materials.add(ColorMaterial::from(Color::WHITE))),
+        Transform::from_xyz(0., position_offset, 0.),
+        // Collider::cuboid(size / 2., border_width / 2.),
+        // CollisionGroups::new(physics_layers::WALLS, physics_layers::ALL),
     ));
 }
