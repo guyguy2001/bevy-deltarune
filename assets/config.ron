@@ -10,4 +10,5 @@
     // )),
     deubg: None,
     // infinite_hp: true,
+    // physics_gizmos: true,
 )

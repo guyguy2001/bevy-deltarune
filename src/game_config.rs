@@ -17,6 +17,8 @@ pub struct GameConfig {
     pub debug: Option<DebugConfig>,
     #[serde(default = "default_as_false")]
     pub infinite_hp: bool,
+    #[serde(default = "default_as_false")]
+    pub physics_gizmos: bool,
 }
 
 #[derive(Clone, Default, Deserialize)]
