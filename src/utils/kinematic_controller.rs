@@ -94,10 +94,6 @@ fn kinematic_controller_collisions(
 
                 // Slide along the surface, rejecting the velocity along the contact normal.
                 let impulse = linear_velocity.reject_from_normalized(normal);
-                println!(
-                    "Rejecting - vel: {}, impulse: {}",
-                    linear_velocity.0, impulse
-                );
                 linear_velocity.0 = impulse;
             } else {
                 // The character is not yet intersecting the other object,
@@ -118,10 +114,6 @@ fn kinematic_controller_collisions(
                     normal_speed - (deepest_penetration / time.delta_secs_f64().adjust_precision());
                 let impulse = impulse_magnitude * normal;
 
-                println!(
-                    "Partially rejecting - vel: {}, impulse: {}",
-                    linear_velocity.0, impulse
-                );
                 linear_velocity.0 -= impulse;
             }
         }

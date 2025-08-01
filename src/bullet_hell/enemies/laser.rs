@@ -1,11 +1,12 @@
 use std::time::Duration;
 
+use avian2d::prelude::*;
 use bevy::prelude::*;
 use bevy_inspector_egui::prelude::*;
 // use bevy_rapier2d::prelude::*;
 
 use crate::{
-    bullet_hell::game_z_index,
+    bullet_hell::{game_z_index, health::TryDamageEvent, physics_layers, player::Player},
     AppState,
 };
 
@@ -19,7 +20,7 @@ impl Plugin for LaserPlugin {
                 (
                     laser_cannon_behavior,
                     laser_lifecycle,
-                    // laser_player_collision,
+                    laser_player_collision,
                 )
                     .run_if(in_state(AppState::Defending)),
             )
@@ -127,21 +128,21 @@ fn spawn_laser(
     let laser = Laser::default();
     let child = commands
         .spawn((
-            Mesh2d(meshes.add(Rectangle::new(WIDTH, HEIGHT)).into()), // TODO: custom width, full height (TODO: rotations),
+            Mesh2d(meshes.add(Rectangle::new(WIDTH, HEIGHT))), // TODO: custom width, full height (TODO: rotations),
             MeshMaterial2d(materials.add(Color::WHITE.with_alpha(0.))),
             Transform::from_xyz(0., -HEIGHT / 2., game_z_index::LASERS),
             LaserState::new(&laser),
             laser,
             Name::new("Laser"),
-            // (
-            //     ActiveEvents::COLLISION_EVENTS,
-            //     ActiveCollisionTypes::all(),
-            //     ColliderDisabled,
-            //     Collider::cuboid(WIDTH / 2., HEIGHT / 2.),
-            //     CollisionGroups::new(physics_layers::BULLETS, physics_layers::ALL),
-            //     RigidBody::Fixed,
-            //     Sensor,
-            // ),
+            (
+                CollisionLayers::new(
+                    physics_layers::GameLayers::Bullet,
+                    physics_layers::GameLayers::all_bits(),
+                ),
+                RigidBody::Static,
+                Collider::rectangle(WIDTH, HEIGHT),
+                Sensor,
+            ),
         ))
         .id();
     commands.entity(parent).add_child(child);
@@ -199,26 +200,32 @@ fn laser_lifecycle(
     }
 }
 
-// fn laser_player_collision(
-//     mut contact_events: EventReader<CollisionEvent>,
-//     q_lasers: Query<&Laser>,
-//     q_players: Query<Entity, With<Player>>,
-//     mut damage_writer: EventWriter<TryDamageEvent>,
-// ) {
-//     for event in contact_events.read() {
-//         if let CollisionEvent::Started(entity1, entity2, _) = event {
-//             // TODO: get this working with swapped entity orders???
-//             if let Ok(player_entity) = q_players.get(*entity1) {
-//                 if let Ok(laser_component) = q_lasers.get(*entity2) {
-//                     damage_writer.send(TryDamageEvent {
-//                         damage: laser_component.damage,
-//                         target_entity: player_entity,
-//                     });
-//                 }
-//             }
-//         }
-//     }
-// }
+fn laser_player_collision(
+    mut contact_events: EventReader<CollisionStarted>,
+    lasers: Query<&Laser>,
+    players: Query<Entity, With<Player>>,
+    mut damage_writer: EventWriter<TryDamageEvent>,
+) {
+    for event in contact_events.read() {
+        let CollisionStarted(entity1, entity2) = event;
+        // TODO: get this working with swapped entity orders???
+        println!("Collision: {entity1} {entity2}");
+        let (player_entity, bullet_component) =
+            if let (Ok(player), Ok(enemy)) = (players.get(*entity1), lasers.get(*entity2)) {
+                (player, enemy)
+            } else if let (Ok(player), Ok(enemy)) = (players.get(*entity2), lasers.get(*entity1)) {
+                (player, enemy)
+            } else {
+                return;
+            };
+
+        // TODO: make this an event? Who is responsible for handling it? what would it achieve?
+        damage_writer.write(TryDamageEvent {
+            target_entity: player_entity,
+            damage: bullet_component.damage,
+        });
+    }
+}
 
 fn spawn_initial_laser_cannons(mut commands: Commands, asset_server: Res<AssetServer>) {
     let position = Vec3::new(0., 70., game_z_index::CANNONS);

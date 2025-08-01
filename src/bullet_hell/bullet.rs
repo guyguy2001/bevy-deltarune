@@ -64,21 +64,14 @@ pub fn spawn_bullet_in_pos(
                 factions: UpgradesReceiverFaction::EnemyBullets,
             },
             (
-                // ActiveEvents::COLLISION_EVENTS,
-                // ActiveCollisionTypes::all(),
                 CollisionLayers::new(
                     physics_layers::GameLayers::Bullet,
                     physics_layers::GameLayers::all_bits(),
                 ),
-                //     KinematicCharacterController {
-                //         filter_flags: QueryFilterFlags::all(), // Ignore all
-                //         ..Default::default()
-                //     },
-                RigidBody::Kinematic, // TODO: Do I need this?
+                RigidBody::Kinematic,
                 Collider::rectangle(properties.size, properties.size),
                 Sensor,
                 LinearVelocity((direction * properties.speed).xy()),
-                //     Sensor,
             ),
         ));
     });
@@ -115,10 +108,10 @@ fn player_collision(
         } else {
             return;
         };
-        commands.entity(bullet_entity).despawn_recursive();
+        commands.entity(bullet_entity).despawn();
 
         // TODO: make this an event? Who is responsible for handling it? what would it achieve?
-        damage_events.send(TryDamageEvent {
+        damage_events.write(TryDamageEvent {
             target_entity: player_entity,
             damage: bullet_component.damage,
         });

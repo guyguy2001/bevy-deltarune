@@ -76,6 +76,7 @@ fn setup_player(
             // },
             RigidBody::Kinematic,
             LinearVelocity::default(),
+            CollisionEventsEnabled,
         ),
         // TnuaController::default(),
         // TnuaGravity(Vec3::Z),

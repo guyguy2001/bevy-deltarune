@@ -67,15 +67,15 @@ fn main() {
         )
         .add_plugins((
             PhysicsPlugins::new(FixedPostUpdate),
-            PhysicsDebugPlugin::default(),
+            // PhysicsDebugPlugin::default(),  // TODO: Enable based on config
         ))
-        .insert_gizmo_config(
-            PhysicsGizmos {
-                aabb_color: Some(Color::WHITE),
-                ..default()
-            },
-            GizmoConfig::default(),
-        )
+        // .insert_gizmo_config(
+        //     PhysicsGizmos {
+        //         aabb_color: Some(Color::WHITE),
+        //         ..default()
+        //     },
+        //     GizmoConfig::default(),
+        // )
         // .add_plugins(TnuaAvian2dPlugin::new(FixedUpdate))
         .add_plugins(TweeningPlugin)
         // .add_plugins(RapierDebugRenderPlugin {
