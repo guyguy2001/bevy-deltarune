@@ -7,7 +7,6 @@ use bevy_inspector_egui::prelude::*;
 use bevy_tween::tween::TargetAsset;
 use bevy_tween::{combinator::*, prelude::*, tween_event_system};
 
-
 pub struct SwordPlugin;
 
 impl Plugin for SwordPlugin {
@@ -74,7 +73,7 @@ pub fn spawn_sword(
         // TODO: Improve the animation, make the sword only active for part of the animation
         builder.spawn((
             SwordAttack::default(),
-            Mesh2d(meshes.add(Circle::new(size)).into()),
+            Mesh2d(meshes.add(Circle::new(size))),
             MeshMaterial2d(color_material),
             Transform::from_translation(-Vec3::Z),
             Name::new("Sword animation"),

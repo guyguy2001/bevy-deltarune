@@ -82,7 +82,7 @@ fn timer_behaviour(
         text.0 = format!("{remaining_time:.2}");
 
         if timer.remaining_time.just_finished() {
-            win_event.send(CombatFinishedEvent);
+            win_event.write(CombatFinishedEvent);
         }
     }
 }

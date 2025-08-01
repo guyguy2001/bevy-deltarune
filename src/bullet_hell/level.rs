@@ -54,6 +54,6 @@ fn on_finished_animation(
     mut level_finished: EventWriter<LevelFinishedEvent>,
 ) {
     for _ in animation_finished.read() {
-        level_finished.send(LevelFinishedEvent);
+        level_finished.write(LevelFinishedEvent);
     }
 }

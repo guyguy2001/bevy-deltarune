@@ -29,7 +29,7 @@ fn apply_damage(
     input: Res<ButtonInput<KeyCode>>,
 ) -> Result {
     if input.just_pressed(KeyCode::KeyR) {
-        damage_writer.send(TryDamageEvent {
+        damage_writer.write(TryDamageEvent {
             target_entity: player.single()?,
             damage: 5.,
         });
@@ -39,7 +39,7 @@ fn apply_damage(
 
 fn skip_level(mut win_event: EventWriter<CombatFinishedEvent>, input: Res<ButtonInput<KeyCode>>) {
     if input.just_pressed(KeyCode::KeyG) {
-        win_event.send(CombatFinishedEvent);
+        win_event.write(CombatFinishedEvent);
     }
 }
 

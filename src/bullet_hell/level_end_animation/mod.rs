@@ -75,6 +75,6 @@ fn post_animations_delay(
     timer.0.tick(time.delta());
     if timer.0.just_finished() {
         timer.0.reset();
-        events.send(AnimationFinishedEvent);
+        events.write(AnimationFinishedEvent);
     }
 }

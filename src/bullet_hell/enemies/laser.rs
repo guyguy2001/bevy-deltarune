@@ -161,7 +161,7 @@ fn laser_lifecycle(
     time: Res<Time>,
     mut commands: Commands,
 ) {
-    for (entity, parent, laser, mut state, material_handle) in laser_query.iter_mut() {
+    for (entity, child_of, laser, mut state, material_handle) in laser_query.iter_mut() {
         let mut lerp_color = |start: f32, end: f32, timer_fraction| {
             materials
                 .get_mut(material_handle.id())
@@ -192,9 +192,12 @@ fn laser_lifecycle(
                 lerp_color(1., 0., timer.fraction());
 
                 if timer.just_finished() {
-                    commands.entity(entity).despawn_recursive();
+                    commands.entity(entity).despawn();
                 }
-                cannon_query.get_mut(parent.get()).unwrap().has_active_laser = false;
+                cannon_query
+                    .get_mut(child_of.parent())
+                    .unwrap()
+                    .has_active_laser = false;
             }
         }
     }

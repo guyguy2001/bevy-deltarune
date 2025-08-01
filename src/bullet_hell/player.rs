@@ -1,12 +1,7 @@
 use avian2d::prelude::*;
-use bevy::{
-    prelude::*,
-    // sprite::{MaterialMesh2dBundle, Mesh2dHandle},
-};
+use bevy::prelude::*;
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
-// use bevy_rapier2d::prelude::*;
-// use bevy_tnua::{prelude::*, TnuaGravity};
 
 use crate::{
     game_config::GameConfig,
@@ -63,23 +58,15 @@ fn setup_player(
         Name::new("Player"),
         KinematicController,
         (
-            // ActiveEvents::COLLISION_EVENTS,
             CollisionLayers::new(
                 physics_layers::GameLayers::Player,
                 physics_layers::GameLayers::all_bits(),
             ),
-            // ActiveCollisionTypes::all(),
             Collider::rectangle(sprite_size, sprite_size),
-            // KinematicCharacterController {
-            //     filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
-            //     ..Default::default()
-            // },
             RigidBody::Kinematic,
             LinearVelocity::default(),
             CollisionEventsEnabled,
         ),
-        // TnuaController::default(),
-        // TnuaGravity(Vec3::Z),
     ));
     let player_entity = player_commands.id();
     spawn_healthbar(&mut commands, player_entity);
@@ -91,16 +78,9 @@ fn character_movement(
         (ControllablePlayerFilter, With<KinematicController>),
     >,
     input: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
 ) {
     for (mut velocity, player) in &mut characters {
-        // let movement_amount = player.speed * time.delta_secs();
         velocity.0 = get_input_direction(&input).xy() * player.speed;
-        // controller.basis(TnuaBuiltinWalk {
-        //     desired_velocity: get_input_direction(&input) * player.speed,
-        //     ..Default::default()
-        // });
-        // println!("{:?}", controller.concrete_basis().);
     }
 }
 
@@ -110,7 +90,7 @@ fn player_death(
 ) {
     for health in health_query.iter() {
         if health.health <= 0. {
-            lose_event.send(LoseEvent);
+            lose_event.write(LoseEvent);
         }
     }
 }

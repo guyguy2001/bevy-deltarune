@@ -58,7 +58,7 @@ fn handle_damage(
     for event in reader.read() {
         let (entity, mut health, has_invulnerability) = query.get_mut(event.target_entity).unwrap();
         if !has_invulnerability {
-            damage_occurred_writer.send(DamageOccurredEvent {
+            damage_occurred_writer.write(DamageOccurredEvent {
                 target_entity: event.target_entity,
                 damage: event.damage,
             });

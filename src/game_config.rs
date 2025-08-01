@@ -1,6 +1,5 @@
 use bevy::math::Vec2;
 use bevy::prelude::*;
-// use ron::de::
 use serde::Deserialize;
 
 use crate::AppState;

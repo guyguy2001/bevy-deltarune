@@ -15,6 +15,7 @@ pub fn plugin(app: &mut App) {
 #[reflect(Component, InspectorOptions)]
 pub struct KinematicController;
 
+#[allow(clippy::type_complexity)]
 fn kinematic_controller_collisions(
     collisions: Collisions,
     bodies: Query<&RigidBody>,

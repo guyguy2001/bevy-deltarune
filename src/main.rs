@@ -2,14 +2,11 @@ use std::fs;
 
 use bevy::input::common_conditions::input_toggle_active;
 use bevy::{prelude::*, render::camera::ScalingMode, window::WindowMode};
-// use bevy_editor_pls::prelude::*;
 
 use avian2d::debug_render::PhysicsDebugPlugin;
 use avian2d::prelude::*;
 use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-// use bevy_tnua::prelude::*;
-// use bevy_tnua_avian2d::TnuaAvian2dPlugin;
 use bevy_tweening::TweeningPlugin;
 use metagame::MetagamePlugin;
 use serde::Deserialize;
@@ -64,19 +61,11 @@ fn main() {
             }),
     )
     .add_plugins(PhysicsPlugins::new(FixedPostUpdate))
-    // .add_plugins(TnuaAvian2dPlugin::new(FixedUpdate))
     .add_plugins(TweeningPlugin)
-    // .add_plugins(RapierDebugRenderPlugin {
-    //     mode: DebugRenderMode::empty(),
-    //     ..Default::default()
-    // })
     .add_plugins(EguiPlugin {
         enable_multipass_for_primary_context: true,
     })
     .add_plugins(WorldInspectorPlugin::new().run_if(input_toggle_active(false, KeyCode::Escape)))
-    // .add_plugins(EditorPlugin::default())
-    // .add_plugins(InspectableRapierPlugin)
-    // .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
     .insert_state::<AppState>(
         game_config
             .debug
@@ -87,9 +76,6 @@ fn main() {
     .add_plugins(BulletHellPlugin)
     .add_plugins(MetagamePlugin)
     .add_plugins(LevelTransitionPlugin)
-    // .add_plugins(
-    //     WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
-    // )
     .add_plugins(MenuSystemPlugin)
     .add_plugins(MenuUI)
     .add_plugins(LoseScreenPlugin)
@@ -116,7 +102,7 @@ fn get_config() -> GameConfig {
 
 fn setup_camera(mut commands: Commands) {
     commands.spawn((
-        Camera2d::default(),
+        Camera2d,
         Projection::Orthographic(OrthographicProjection {
             scaling_mode: ScalingMode::FixedVertical {
                 viewport_height: 200.,
