@@ -8,6 +8,10 @@ use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 // use bevy_inspector_egui_rapier::InspectableRapierPlugin;
 // use bevy_rapier2d::prelude::*;
+use avian2d::debug_render::PhysicsDebugPlugin;
+use avian2d::prelude::*;
+// use bevy_tnua::prelude::*;
+// use bevy_tnua_avian2d::TnuaAvian2dPlugin;
 use bevy_tweening::TweeningPlugin;
 use metagame::MetagamePlugin;
 use serde::Deserialize;
@@ -61,6 +65,18 @@ fn main() {
                     ..default()
                 }),
         )
+        .add_plugins((
+            PhysicsPlugins::new(FixedPostUpdate),
+            PhysicsDebugPlugin::default(),
+        ))
+        .insert_gizmo_config(
+            PhysicsGizmos {
+                aabb_color: Some(Color::WHITE),
+                ..default()
+            },
+            GizmoConfig::default(),
+        )
+        // .add_plugins(TnuaAvian2dPlugin::new(FixedUpdate))
         .add_plugins(TweeningPlugin)
         // .add_plugins(RapierDebugRenderPlugin {
         //     mode: DebugRenderMode::empty(),
@@ -94,6 +110,7 @@ fn main() {
         .add_plugins(LoseScreenPlugin)
         .add_plugins(VictoryScreenPlugin)
         .add_plugins(UpgradesPlugin) // TODO: Should this be here?
+        .add_plugins(utils::kinematic_controller::plugin)
         .insert_resource(Money(100.0))
         .add_systems(Startup, setup_camera)
         .run();

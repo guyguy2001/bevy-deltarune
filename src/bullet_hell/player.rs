@@ -1,3 +1,4 @@
+use avian2d::prelude::*;
 use bevy::{
     prelude::*,
     // sprite::{MaterialMesh2dBundle, Mesh2dHandle},
@@ -5,12 +6,13 @@ use bevy::{
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
 // use bevy_rapier2d::prelude::*;
+// use bevy_tnua::{prelude::*, TnuaGravity};
 
 use crate::{
     game_config::GameConfig,
     ui::lose_screen::LoseEvent,
     upgrades::{UpgradesReceiver, UpgradesReceiverFaction},
-    utils::input::get_input_direction,
+    utils::{input::get_input_direction, kinematic_controller::KinematicController},
     AppState,
 };
 
@@ -25,8 +27,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(Startup, setup_player)
             .add_systems(
                 Update,
-                // (character_movement, player_death).run_if(in_state(AppState::Defending)),
-                (player_death).run_if(in_state(AppState::Defending)),
+                (character_movement, player_death).run_if(in_state(AppState::Defending)),
             );
     }
 }
@@ -60,32 +61,47 @@ fn setup_player(
             factions: UpgradesReceiverFaction::Player,
         },
         Name::new("Player"),
-        // (
-        //     ActiveEvents::COLLISION_EVENTS,
-        //     CollisionGroups::new(physics_layers::PLAYERS, physics_layers::ALL),
-        //     ActiveCollisionTypes::all(),
-        //     Collider::cuboid(sprite_size / 2.0, sprite_size / 2.0),
-        //     KinematicCharacterController {
-        //         filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
-        //         ..Default::default()
-        //     },
-        //     RigidBody::KinematicPositionBased,
-        // ),
+        KinematicController,
+        (
+            // ActiveEvents::COLLISION_EVENTS,
+            CollisionLayers::new(
+                physics_layers::GameLayers::Player,
+                physics_layers::GameLayers::all_bits(),
+            ),
+            // ActiveCollisionTypes::all(),
+            Collider::rectangle(sprite_size, sprite_size),
+            // KinematicCharacterController {
+            //     filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
+            //     ..Default::default()
+            // },
+            RigidBody::Kinematic,
+            LinearVelocity::default(),
+        ),
+        // TnuaController::default(),
+        // TnuaGravity(Vec3::Z),
     ));
     let player_entity = player_commands.id();
     spawn_healthbar(&mut commands, player_entity);
 }
 
-// fn character_movement(
-//     mut characters: Query<(&mut KinematicCharacterController, &Player), ControllablePlayerFilter>,
-//     input: Res<ButtonInput<KeyCode>>,
-//     time: Res<Time>,
-// ) {
-//     for (mut controller, player) in &mut characters {
-//         let movement_amount = player.speed * time.delta_seconds();
-//         controller.translation = Some(get_input_direction(&input).xy() * movement_amount);
-//     }
-// }
+fn character_movement(
+    mut characters: Query<
+        (&mut LinearVelocity, &Player),
+        (ControllablePlayerFilter, With<KinematicController>),
+    >,
+    input: Res<ButtonInput<KeyCode>>,
+    time: Res<Time>,
+) {
+    for (mut velocity, player) in &mut characters {
+        // let movement_amount = player.speed * time.delta_secs();
+        velocity.0 = get_input_direction(&input).xy() * player.speed;
+        // controller.basis(TnuaBuiltinWalk {
+        //     desired_velocity: get_input_direction(&input) * player.speed,
+        //     ..Default::default()
+        // });
+        // println!("{:?}", controller.concrete_basis().);
+    }
+}
 
 fn player_death(
     health_query: Query<&Health, With<Player>>,

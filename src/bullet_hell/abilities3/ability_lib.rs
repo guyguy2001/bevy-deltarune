@@ -1,6 +1,6 @@
 use std::{path::Path, time::Duration};
 
-use bevy::{ecs::system::BoxedSystem, ecs::system::SystemId, prelude::*};
+use bevy::{ecs::system::SystemId, prelude::*};
 use bevy_inspector_egui::prelude::*;
 
 use crate::{upgrades::GlobalUpgrade, utils::resources::SelectionsPool};
@@ -39,7 +39,7 @@ impl AbilityHolder {
 }
 
 fn activate_ability_on_space(
-    mut q_holder: Query<&mut AbilityHolder>,
+    q_holder: Query<&mut AbilityHolder>,
     input: Res<ButtonInput<KeyCode>>,
 ) {
     // if input.just_pressed(KeyCode::Space) {

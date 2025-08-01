@@ -10,10 +10,10 @@ rustflags = ["-Z", "threads=0", "-Z", "share-generics"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [profile.dev]
-opt-level = 2
+opt-level = 1
 incremental = true
-lto = "thin"
-codegen-units = 1
+# lto = "thin"
+# codegen-units = 1
 
 [profile.dev.package."*"]
 opt-level = 3
@@ -22,8 +22,11 @@ opt-level = 3
 codegen-units = 1
 
 [dependencies]
-bevy = { version = "0.16.0" }
+bevy = { version = "0.16", features = ["dynamic_linking", "file_watcher"] }
 bevy_tweening = "0.13"
+avian2d = "0.3"
+# bevy-tnua = { git = "https://github.com/guyguy2001/bevy-tnua.git", rev = "74cc7e46132ce1a9e1e89924223ca9f393d9b10a" }
+# bevy-tnua-avian2d = { git = "https://github.com/guyguy2001/bevy-tnua.git", rev = "74cc7e46132ce1a9e1e89924223ca9f393d9b10a" }
 # bevy_editor_pls = "0.8"
 bevy_easings = "0.16.0"
 bevy-inspector-egui = "0.31.0"

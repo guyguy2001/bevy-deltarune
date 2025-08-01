@@ -1,23 +1,23 @@
+use avian2d::prelude::*;
 use bevy::prelude::*;
 use bevy_inspector_egui::prelude::ReflectInspectorOptions;
 use bevy_inspector_egui::InspectorOptions;
-// use bevy_rapier2d::prelude::*;
 
-use crate::upgrades::{UpgradesReceiver, UpgradesReceiverFaction};
-use crate::AppState;
+use crate::{
+    upgrades::{UpgradesReceiver, UpgradesReceiverFaction},
+    AppState,
+};
 
-use super::health::TryDamageEvent;
-use super::player::Player;
-use super::{game_z_index, physics_layers};
+use super::{game_z_index, health::TryDamageEvent, physics_layers, player::Player};
 
 pub struct BulletsPlugin;
 
 impl Plugin for BulletsPlugin {
     fn build(&self, app: &mut App) {
-        // app.add_systems(
-        //     Update,
-        //     (bullet_movement, player_collision).run_if(in_state(AppState::Defending)),
-        // );
+        app.add_systems(
+            FixedUpdate,
+            player_collision.run_if(in_state(AppState::Defending)),
+        );
     }
 }
 
@@ -63,23 +63,29 @@ pub fn spawn_bullet_in_pos(
             UpgradesReceiver {
                 factions: UpgradesReceiverFaction::EnemyBullets,
             },
-            // (
-            //     ActiveEvents::COLLISION_EVENTS,
-            //     ActiveCollisionTypes::all(),
-            //     CollisionGroups::new(physics_layers::BULLETS, physics_layers::ALL),
-            //     KinematicCharacterController {
-            //         filter_flags: QueryFilterFlags::all(), // Ignore all
-            //         ..Default::default()
-            //     },
-            //     RigidBody::KinematicPositionBased,
-            //     Collider::cuboid(properties.size / 2.0, properties.size / 2.0),
-            //     Sensor,
-            // ),
+            (
+                // ActiveEvents::COLLISION_EVENTS,
+                // ActiveCollisionTypes::all(),
+                CollisionLayers::new(
+                    physics_layers::GameLayers::Bullet,
+                    physics_layers::GameLayers::all_bits(),
+                ),
+                //     KinematicCharacterController {
+                //         filter_flags: QueryFilterFlags::all(), // Ignore all
+                //         ..Default::default()
+                //     },
+                RigidBody::Kinematic, // TODO: Do I need this?
+                Collider::rectangle(properties.size, properties.size),
+                Sensor,
+                LinearVelocity((direction * properties.speed).xy()),
+                //     Sensor,
+            ),
         ));
     });
 }
 
 // fn bullet_movement(
+// TODO: Make sure they don't move during the cutscene (maybe avian supports this built in?)
 //     mut query: Query<(&mut KinematicCharacterController, &Bullet)>,
 //     time: Res<Time>,
 // ) {
@@ -89,27 +95,32 @@ pub fn spawn_bullet_in_pos(
 //     }
 // }
 
-// fn player_collision(
-//     mut commands: Commands,
-//     mut contact_events: EventReader<CollisionEvent>,
-//     bullets: Query<(Entity, &Bullet)>,
-//     mut players: Query<Entity, With<Player>>,
-//     mut damage_events: EventWriter<TryDamageEvent>,
-// ) {
-//     for event in contact_events.read() {
-//         if let CollisionEvent::Started(entity1, entity2, _) = event {
-//             // TODO: get this working with swapped entity orders???
-//             if let Ok(player_entity) = players.get_mut(*entity1) {
-//                 if let Ok((bullet_entity, bullet_component)) = bullets.get(*entity2) {
-//                     commands.entity(bullet_entity).despawn_recursive();
+fn player_collision(
+    mut commands: Commands,
+    mut contact_events: EventReader<CollisionStarted>,
+    bullets: Query<(Entity, &Bullet)>,
+    mut players: Query<Entity, With<Player>>,
+    mut damage_events: EventWriter<TryDamageEvent>,
+) {
+    for event in contact_events.read() {
+        let CollisionStarted(entity1, entity2) = event;
+        // TODO: get this working with swapped entity orders???
+        println!("Collision: {entity1} {entity2}");
+        let (player_entity, (bullet_entity, bullet_component)) = if let (Ok(player), Ok(enemy)) =
+            (players.get_mut(*entity1), bullets.get(*entity2))
+        {
+            (player, enemy)
+        } else if let (Ok(player), Ok(enemy)) = (players.get_mut(*entity2), bullets.get(*entity1)) {
+            (player, enemy)
+        } else {
+            return;
+        };
+        commands.entity(bullet_entity).despawn_recursive();
 
-//                     // TODO: make this an event? Who is responsible for handling it? what would it achieve?
-//                     damage_events.send(TryDamageEvent {
-//                         target_entity: player_entity,
-//                         damage: bullet_component.damage,
-//                     });
-//                 }
-//             }
-//         }
-//     }
-// }
+        // TODO: make this an event? Who is responsible for handling it? what would it achieve?
+        damage_events.send(TryDamageEvent {
+            target_entity: player_entity,
+            damage: bullet_component.damage,
+        });
+    }
+}

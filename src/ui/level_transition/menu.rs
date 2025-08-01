@@ -228,7 +228,7 @@ fn spawn_level_transition_menu(world: &mut World) {
         };
         // BUG: I think that if I have a div (flexbox, idk if related), inside of which there is a text node, and the text-node is multiline, it will ignore right-padding
         // Wrapping the text in description_div fixed it (TODO: open an issue)
-        let mut description = world.spawn((
+        let description = world.spawn((
             Text(text.into()),
             TextFont {
                 font_size: 32.0,

@@ -5,7 +5,7 @@ use bevy_inspector_egui::prelude::*;
 // use bevy_rapier2d::prelude::*;
 
 use crate::{
-    bullet_hell::{game_z_index, health::TryDamageEvent, physics_layers, player::Player},
+    bullet_hell::game_z_index,
     AppState,
 };
 

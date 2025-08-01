@@ -7,8 +7,6 @@ use bevy_inspector_egui::prelude::*;
 use bevy_tween::tween::TargetAsset;
 use bevy_tween::{combinator::*, prelude::*, tween_event_system};
 
-use super::bullet::Bullet;
-use super::physics_layers;
 
 pub struct SwordPlugin;
 
@@ -67,7 +65,7 @@ pub fn spawn_sword(
 
     let color_material = materials.add(starting_color);
 
-    let mut color_animation: TargetState<TargetAsset<ColorMaterial>, Color> =
+    let color_animation: TargetState<TargetAsset<ColorMaterial>, Color> =
         color_material.clone().into_target().state(starting_color);
 
     let size = 15.;
