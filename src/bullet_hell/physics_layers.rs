@@ -5,6 +5,7 @@ pub enum GameLayers {
     #[default]
     Default,
     Player,
+    PlayerBullet,
     Bullet,
     Wall,
 }
