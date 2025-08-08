@@ -48,7 +48,7 @@ pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
                 position_type: PositionType::Absolute,
                 ..default()
             },
-            BorderColor(ui::palette::BLACK.into()),
+            BorderColor(ui::palette::BLACK),
             Name::new("Healthbar"),
             children![(
                 Node {
@@ -56,7 +56,7 @@ pub fn spawn_healthbar(commands: &mut Commands, character_entity: Entity) {
                     height: Val::Percent(100.),
                     ..default()
                 },
-                BackgroundColor(ui::palette::GREEN.into()),
+                BackgroundColor(ui::palette::GREEN),
                 GreenPart,
                 Healthbar {
                     tracked_entity: character_entity,

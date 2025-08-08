@@ -24,8 +24,8 @@ fn spawn_victory_popup(mut commands: Commands) {
                 display: Display::Flex,
                 ..default()
             },
-            BackgroundColor(ui::palette::DARK_GRAY.into()),
-            BorderColor(Color::BLACK.into()),
+            BackgroundColor(ui::palette::DARK_GRAY),
+            BorderColor(Color::BLACK),
             z_index::POPUP_MENU,
             Name::new("Victory Screen"),
         ))

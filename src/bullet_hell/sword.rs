@@ -115,7 +115,7 @@ fn sword_animation_events(
     event.read().for_each(|event| match event.data {
         SwordAnimationEvent::Finished => {
             let sword_entity = parent_query.get(event.entity).unwrap();
-            commands.entity(sword_entity.get()).despawn_recursive();
+            commands.entity(sword_entity.parent()).despawn();
         }
     });
 }

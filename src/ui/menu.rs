@@ -47,7 +47,7 @@ fn spawn_menu_ui(world: &mut World) {
                 display: Display::Flex,
                 ..default()
             },
-            BackgroundColor(palette::DARK_GRAY.into()),
+            BackgroundColor(palette::DARK_GRAY),
             Visibility::Hidden,
             MultiChoiceParent {
                 selected: Index::new(MENU_ITEMS.len(), 0),
@@ -67,9 +67,9 @@ fn spawn_menu_ui(world: &mut World) {
                             ..default()
                         },
                         BorderColor(if *button == Buttons::Start {
-                            palette::GREEN.into()
+                            palette::GREEN
                         } else {
-                            palette::BLACK.into()
+                            palette::BLACK
                         }),
                         MultiChoiceButton {
                             on_selected: {
@@ -97,15 +97,15 @@ fn spawn_menu_ui(world: &mut World) {
 }
 
 fn deactivate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
-    border_query.get_mut(entity).unwrap().0 = palette::BLACK.into();
+    border_query.get_mut(entity).unwrap().0 = palette::BLACK;
 }
 
 fn activate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
-    border_query.get_mut(entity).unwrap().0 = palette::GREEN.into();
+    border_query.get_mut(entity).unwrap().0 = palette::GREEN;
 }
 
 fn start_game(In(_entity): In<Entity>, mut start_game_event: EventWriter<StartGameEvent>) {
-    start_game_event.send(StartGameEvent);
+    start_game_event.write(StartGameEvent);
 }
 
 fn hide_menu(

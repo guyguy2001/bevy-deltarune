@@ -40,8 +40,8 @@ fn spawn_menu_ui(mut commands: Commands) {
                 display: Display::Flex,
                 ..default()
             },
-            BackgroundColor(palette::DARK_GRAY.into()),
-            BorderColor(Color::BLACK.into()),
+            BackgroundColor(palette::DARK_GRAY),
+            BorderColor(Color::BLACK),
             z_index::POPUP_MENU,
             Name::new("Lose Screen"),
         ))

@@ -127,7 +127,7 @@ fn spawn_level_transition_menu(world: &mut World) {
                 align_content: AlignContent::SpaceEvenly,
                 ..Default::default()
             },
-            BackgroundColor(ui::palette::BLACK.into()),
+            BackgroundColor(ui::palette::BLACK),
             MultiChoiceParent {
                 selected: Index::new(MENU_ITEMS.len(), 0),
             },
@@ -146,8 +146,8 @@ fn spawn_level_transition_menu(world: &mut World) {
                     flex_direction: FlexDirection::Column,
                     ..Default::default()
                 },
-                BackgroundColor(ui::palette::GRAY.into()),
-                BorderColor(ui::palette::WHITE.into()),
+                BackgroundColor(ui::palette::GRAY),
+                BorderColor(ui::palette::WHITE),
                 MultiChoiceButton {
                     on_selected: Some(pressed_system_id),
                     activate: activate_id,
@@ -253,7 +253,7 @@ fn spawn_level_transition_menu(world: &mut World) {
 
         if let Some((_, icon_path)) = upgrade {
             icon.insert(ImageNode::new((*icon_path).clone()));
-            icon.get_mut::<BackgroundColor>().unwrap().0 = ui::palette::WHITE.into();
+            icon.get_mut::<BackgroundColor>().unwrap().0 = ui::palette::WHITE;
         }
         let icon = icon.id();
 
@@ -273,8 +273,8 @@ fn despawn_level_transition_menu(
     mut commands: Commands,
     q_menu: Query<Entity, With<UpgradeSelectMenuRoot>>,
 ) {
-    let menu = q_menu.get_single().unwrap();
-    commands.entity(menu).despawn_recursive();
+    let menu = q_menu.single().unwrap();
+    commands.entity(menu).despawn();
 }
 
 fn register_menu(
@@ -282,25 +282,25 @@ fn register_menu(
     mut menu_stack: ResMut<MenuStack>,
     mut writer: EventWriter<SpawnedMenu>,
 ) {
-    let new_menu = menu_query.get_single().unwrap();
+    let new_menu = menu_query.single().unwrap();
     menu_stack.push_menu(new_menu);
-    writer.send(SpawnedMenu(new_menu));
+    writer.write(SpawnedMenu(new_menu));
 }
 
 fn unregister_menu(
     menu_query: Query<Entity, (With<MultiChoiceParent>, With<UpgradeSelectMenu>)>,
     mut menu_stack: ResMut<MenuStack>,
 ) {
-    let menu = menu_query.get_single().unwrap();
+    let menu = menu_query.single().unwrap();
     menu_stack.pop_menu(menu);
 }
 
 pub fn deactivate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
-    border_query.get_mut(entity).unwrap().0 = palette::DARK_GRAY.into();
+    border_query.get_mut(entity).unwrap().0 = palette::DARK_GRAY;
 }
 
 pub fn activate(In(entity): In<Entity>, mut border_query: Query<&mut BorderColor>) {
-    border_query.get_mut(entity).unwrap().0 = palette::WHITE.into();
+    border_query.get_mut(entity).unwrap().0 = palette::WHITE;
 }
 
 fn process_upgrade_and_go_to_next_level(
@@ -313,5 +313,5 @@ fn process_upgrade_and_go_to_next_level(
     if let Some(upgrade) = q_upgrade.get(menu_item_entity).unwrap().0.clone() {
         commands.run_system_with(upgrade_applier.apply_upgrade_to_all, upgrade);
     }
-    finished_event.send(FinishedLevelTransitionEvent);
+    finished_event.write(FinishedLevelTransitionEvent);
 }
