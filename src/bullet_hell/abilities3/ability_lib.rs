@@ -5,6 +5,12 @@ use bevy_inspector_egui::prelude::*;
 
 use crate::{upgrades::GlobalUpgrade, utils::resources::SelectionsPool};
 
+pub fn plugin(app: &mut App) {
+    app.init_resource::<AbilityUpgradePool>()
+        .register_type::<AbilityHolder>()
+        .add_systems(Update, abilities_activation);
+}
+
 #[derive(Resource, Default)]
 pub struct AbilityUpgradePool(pub SelectionsPool<GlobalUpgrade>);
 
@@ -38,19 +44,20 @@ impl AbilityHolder {
     }
 }
 
-fn activate_ability_on_space(
-    q_holder: Query<&mut AbilityHolder>,
+fn abilities_activation(
+    mut commands: Commands,
+    mut q_holder: Query<(Entity, &mut AbilityHolder)>,
     input: Res<ButtonInput<KeyCode>>,
+    time: Res<Time>,
 ) {
-    // if input.just_pressed(KeyCode::Space) {
-    //     for holder_mut in q_holder.iter_mut() {
-    //         holder_mut.field_mut
-    //         let holder_pure: AbilityHolder = todo!();
-    //         holder_pure.
-    //         // if holder.cooldown.finished() {
-    //         //     holder.cooldown.reset();
-    //         //     // holder.ability.
-    //         // }
-    //     }
-    // }
+    for (entity, mut holder) in q_holder.iter_mut() {
+        holder.cooldown.tick(time.delta());
+        if input.just_pressed(KeyCode::Space) {
+            println!("Ability");
+            if holder.cooldown.finished() {
+                holder.cooldown.reset();
+                commands.run_system_with(holder.ability.activate, entity);
+            }
+        }
+    }
 }

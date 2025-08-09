@@ -51,7 +51,7 @@ fn debug_spawn_sword(
     q_player: Query<Entity, With<Player>>,
 ) {
     if input.just_pressed(KeyCode::KeyP) {
-        spawn_sword(q_player.single().unwrap(), meshes, materials, commands);
+        spawn_sword(In(q_player.single().unwrap()), meshes, materials, commands);
     }
 }
 

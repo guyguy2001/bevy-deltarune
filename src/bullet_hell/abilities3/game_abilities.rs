@@ -1,26 +1,45 @@
 use std::{path::Path, time::Duration};
 
+use avian2d::prelude::CollisionLayers;
 use bevy::{ecs::system::BoxedSystem, prelude::*};
 
-use crate::upgrades::{GlobalUpgrade, Upgrade, UpgradesReceiverFaction};
+use crate::{
+    bullet_hell::{
+        dash::{start_dashing, Dasher},
+        player::ControllablePlayerFilter,
+        sword::spawn_sword,
+    },
+    upgrades::{GlobalUpgrade, Upgrade, UpgradesReceiverFaction},
+    utils::input::get_input_direction,
+};
 
 use super::ability_lib::{self as lib, AbilityUpgradePool};
 
 pub fn plugin(app: &mut App) {
-    app.init_resource::<AbilityUpgradePool>() // TODO
-        .add_systems(Startup, initialize_ability_upgrades_pool);
+    app.add_systems(Startup, initialize_ability_upgrades_pool);
 }
 
-fn dash_system(_entity: In<Entity>) {
+fn dash_system(
+    entity: In<Entity>,
+    mut commands: Commands,
+    query: Query<(&Dasher, &CollisionLayers), ControllablePlayerFilter>,
+    input: Res<ButtonInput<KeyCode>>,
+) {
     println!("Dash");
-}
-fn parry_system(_entity: In<Entity>) {
-    println!("parry");
+    // TODO: Is it okay for this to reference the user input?
+    let (dasher, collision_groups) = query.get(*entity).unwrap();
+    start_dashing(
+        *entity,
+        get_input_direction(&input),
+        dasher,
+        collision_groups,
+        &mut commands,
+    );
 }
 
 fn initialize_ability_upgrades_pool(world: &mut World) {
     let dash_id = world.register_system(dash_system);
-    let parry_id = world.register_system(parry_system);
+    let parry_id = world.register_system(spawn_sword);
     let abilities = [
         lib::Ability {
             activate: dash_id,

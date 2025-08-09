@@ -56,7 +56,7 @@ fn secs(secs: f32) -> Duration {
 }
 
 pub fn spawn_sword(
-    parent: Entity,
+    parent: In<Entity>,
     // TODO: Role, take from laser's code
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -71,7 +71,7 @@ pub fn spawn_sword(
 
     let size = 15.;
 
-    commands.entity(parent).with_children(|builder| {
+    commands.entity(*parent).with_children(|builder| {
         // TODO: Improve the animation, make the sword only active for part of the animation
         builder
             .spawn((

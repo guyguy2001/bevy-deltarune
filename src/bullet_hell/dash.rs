@@ -20,7 +20,7 @@ impl Plugin for DashPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (start_dashing_on_input, handle_active_dash).run_if(in_state(AppState::Defending)),
+            (handle_active_dash).run_if(in_state(AppState::Defending)),
         );
     }
 }
@@ -36,25 +36,25 @@ pub struct Dasher {
 // // TODO: Should I reference the player? Should I even handle input directly here?
 // // TODO: cooldown
 
-fn start_dashing_on_input(
-    query: Query<(Entity, &Dasher, &CollisionLayers), ControllablePlayerFilter>,
-    input: Res<ButtonInput<KeyCode>>,
-    mut commands: Commands,
-) {
-    if input.just_pressed(KeyCode::Space) {
-        for (entity, dasher, collision_groups) in query.iter() {
-            start_dashing(
-                entity,
-                get_input_direction(&input),
-                dasher,
-                collision_groups,
-                &mut commands,
-            );
-        }
-    }
-}
+// fn start_dashing_on_input(
+//     query: Query<(Entity, &Dasher, &CollisionLayers), ControllablePlayerFilter>,
+//     input: Res<ButtonInput<KeyCode>>,
+//     mut commands: Commands,
+// ) {
+//     if input.just_pressed(KeyCode::Space) {
+//         for (entity, dasher, collision_groups) in query.iter() {
+//             start_dashing(
+//                 entity,
+//                 get_input_direction(&input),
+//                 dasher,
+//                 collision_groups,
+//                 &mut commands,
+//             );
+//         }
+//     }
+// }
 
-fn start_dashing(
+pub fn start_dashing(
     entity: Entity,
     direction: Vec3,
     dasher: &Dasher,
