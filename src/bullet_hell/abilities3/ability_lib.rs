@@ -42,7 +42,18 @@ impl AbilityHolder {
             ability,
         }
     }
+
+    pub fn ability(&self) -> &Ability {
+        &self.ability
+    }
+
+    pub fn cooldown(&self) -> &Timer {
+        &self.cooldown
+    }
 }
+
+#[derive(Event)]
+pub struct OnAbilityChange;
 
 fn abilities_activation(
     mut commands: Commands,

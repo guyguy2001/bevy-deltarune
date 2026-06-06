@@ -5,6 +5,7 @@ use crate::{
     utils::{
         data_structures::Index,
         menu_system::{MenuStack, MultiChoiceButton, MultiChoiceParent},
+        z_index,
     },
     AppState,
 };
@@ -47,6 +48,7 @@ fn spawn_menu_ui(world: &mut World) {
                 display: Display::Flex,
                 ..default()
             },
+            z_index::START_MENU,
             BackgroundColor(palette::DARK_GRAY),
             Visibility::Hidden,
             MultiChoiceParent {
